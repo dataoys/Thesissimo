@@ -3,8 +3,8 @@ import requests
 from bs4 import BeautifulSoup
 
 BASE_URL= "https://arxiv.org/html/24"
-MONTH_LIST = [i for i in range(1,12)]
-ARTICLE_LIST= [i for i in range(1,1000)]
+MONTH_LIST = [i for i in range(1,5)]
+ARTICLE_LIST= [i for i in range(1,11)]
 
 
 urls= []
@@ -14,13 +14,10 @@ urls= []
 # sito_base/anno/n_documento/section/num_sezione
 def UrlGenerators():
     for m in MONTH_LIST:
-        m = str(m.zfill(2))
         for a in ARTICLE_LIST:
-            a = str(a.zfill(5))
-            url=BASE_URL+m+"."+a+"v1"
+            url=BASE_URL+str(m).zfill(2)+"."+str(a).zfill(5)+"v1"
             if CheckConn(url):
                 urls.append(url)
-                if a=='00500': writer(urls)
     writer(urls)
     return urls
 
