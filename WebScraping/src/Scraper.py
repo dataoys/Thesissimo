@@ -24,43 +24,50 @@ def scraping(url):
 
         #estraiamo il titolo
         titolo = soup.find('h1').text.strip()
+        #debug
         print(titolo)
-        addTitles(titolo)
-
         #estraiamo il corpo
-        #corpo = " ".join([p.text.strip() for p in soup.find_all('p')])
-        
-        return {"titolo": titolo}
-        # else:
-        #     print("Impossibile accedere a {url} stato {reposnse.status_code}")
-        #     return None
+        corpo = " ".join([p.text.strip() for p in soup.find_all('p')])
+        addToJson(titolo,corpo)
+
     except Exception as e:
         print("Errore durante il parsing di {url}: {e} ")
         return None
     
+def init():
+    urls = UrlGenerators()
+    #debug
+    #print(list(urls))
+    for url in urls:   
+        scraping(url)
 
-urls = UrlGenerators()
-#print(list(urls))
-for url in urls:   
-    scraping(url)
 
-def addTitles(titolo):
-    #Controllo sull'esistenza del file.
-    if os.path.exists("/JuriScan/WebScraping/src/Doc.json"):
-        #Apro in lettura ed eseguo controlli
-        with open(NOME_FILE, "r", encoding ="utf-8") as file:
-            try:
-                titoli = json.load(file)
-            except json.JSONDecodeError:
-                #Se il file è vuoto o corrotto imposto titoli a urls
-                titoli = urls
-    else:
-        #Se il file non esiste lo imposto uguale a urls
-        titoli = urls
+def addToJson(title,corpus):
+    try:
+        #Leggiamo il file esistente
+        with open(NOME_FILE, 'r') as file:
+            data = json.load(file)
+    except (json.JSONDecodeError, FileNotFoundError):
+        # Se il file è vuoto o non è valido o non viene trovato, creiamo una nuova struttura di dati
+        data = []
+    
+    # Calcola il nuovo ID
+    new_id = len(data) + 1
 
-    #così da evitare duplicati (e se qualcuno dovesse per caso mancare lo aggiungiamo)
-    if titolo not in titoli:
-        titoli.append(titolo)
+    # Creiamo la struttura del nuovo documento
+    new_document = {
+        "id": new_id,
+        "title": title,
+        "corpus": corpus
+    }
+    
+    # Aggiungiamo il nuovo documento alla struttura di dati
+    data.append(new_document)
+    
+    # Scriviamo la struttura di dati aggiornata nel file JSON
+    with open(NOME_FILE, 'w') as file:
+        json.dump(data, file, indent=4)
 
-    with open(NOME_FILE, "w", encoding="utf-8") as file:
-        json.dump(titoli, file, ensure_ascii=False, indent=4)
+    return new_id
+
+init()
