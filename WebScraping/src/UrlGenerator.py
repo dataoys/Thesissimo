@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 
 BASE_URL= "https://arxiv.org/html/24"
 MONTH_LIST = [i for i in range(1,5)]
-ARTICLE_LIST= [i for i in range(1,11)]
+ARTICLE_LIST= [i for i in range(1,16)]
 
 
 urls= []

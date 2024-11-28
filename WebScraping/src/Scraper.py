@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup
 from UrlGenerator import UrlGenerators
 import requests
 import json
-import os
+import re
 
 
 NOME_FILE = "Doc.json"
@@ -12,12 +12,25 @@ DOCUMENTI_MAX = 100000
 
 documenti = []
 
+def clean_text(text):
+    # Pulizia base
+    text = re.sub(r'\s+', ' ', text)
+    text = ''.join(char for char in text if char.isprintable())
+    
+    # Pulizie aggiuntive
+    text = re.sub(r'\n+', '\n', text)  # Rimuove linee vuote multiple
+    text = re.sub(r'[\t\r\f\v]', '', text)  # Rimuove altri caratteri di spaziatura
+    text = re.sub(r'\s*\n\s*', '\n', text)  # Pulisce gli spazi intorno ai newline
+    text = re.sub(r' +', ' ', text)  # Rimuove spazi multipli
+    
+    return text.strip()
 
 def scraping(url):
 
     try:
         #in response viene salvato il sito
         response = requests.get(url)
+        response.encoding = 'utf-8'
         #controllo che la connessione avvenga correttamente
         # if response.status_code == 200:
         soup = BeautifulSoup(response.text, 'html.parser')
@@ -28,6 +41,7 @@ def scraping(url):
         print(titolo)
         #estraiamo il corpo
         corpo = " ".join([p.text.strip() for p in soup.find_all('p')])
+        corpo = clean_text(corpo)
         addToJson(titolo,corpo)
 
     except Exception as e:
