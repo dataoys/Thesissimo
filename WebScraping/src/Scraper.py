@@ -6,12 +6,21 @@ import re
 import time
 import random
 
-NOME_FILE = "Doc.json"
+NOME_FILE = "WebScraping/JSON/Doc.json"
 
 #Numero massimo di documenti da web scrapeare.
 DOCUMENTI_MAX = 100000
 
 documenti = []
+
+# try:
+#     # Leggi il file esistente
+#     with open("WebScraping/JSON/proxies.json", 'r') as file:
+#         proxyList = json.load(file)
+# except (FileNotFoundError, json.JSONDecodeError):
+#     # Se il file non esiste o è vuoto
+#     print("errore del cazzo")
+
 
 def clean_text(text):
     # Pulizia base
@@ -29,36 +38,44 @@ def clean_text(text):
 def random_sleep():
     time.sleep(random.uniform(1, 3))
 
+
+
 def scraping(url):
-
-
     random_sleep()
-    try:
-        #in response viene salvato il sito
-        response = requests.get(url)
-        response.encoding = 'utf-8'
-        #controllo che la connessione avvenga correttamente
-        soup = BeautifulSoup(response.text, 'html.parser')
+    for proxy in proxyList:
+        try:
+            # Prova a fare la richiesta con il proxy corrente
+            response = requests.get(url, proxies=proxy, timeout=5)
+            if response.status_code == 200:
+                print(f"Successo con proxy {proxy}")
+                break  # Esci dal ciclo una volta ottenuta una risposta valida
+        except Exception as e:
+            print(f"Errore proxy {proxy}: {e}")
+    else:
+        print(f"Nessun proxy funzionante per l'URL: {url}")
+        return None
 
-        #estraiamo il titolo
+    response.encoding = 'utf-8'
+    soup = BeautifulSoup(response.text, 'html.parser')
+
+    # Estrai titolo e corpo
+    try:
         titolo = soup.find('h1').text.strip()
         #debug
         print(titolo)
-        #estraiamo il corpo
         corpo = " ".join([p.text.strip() for p in soup.find_all('p')])
         corpo = clean_text(corpo)
-        addToJson(titolo,corpo)
-
+        addToJson(titolo, corpo)
     except Exception as e:
-        print("Errore durante il parsing di {url}: {e} ")
-        return None
-    
+        print(f"Errore durante il parsing di {url}: {e}")
+        
 def init():
     urls = UrlGenerators()
+    print(urls)
     #debug
     #print(list(urls))
-    for url in urls:   
-        scraping(url)
+    #for url in urls:   
+    #    scraping(url)
 
 
 def addToJson(title,corpus):
