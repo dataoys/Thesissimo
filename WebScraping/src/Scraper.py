@@ -3,7 +3,8 @@ from UrlGenerator import UrlGenerators
 import requests
 import json
 import re
-
+import time
+import random
 
 NOME_FILE = "Doc.json"
 
@@ -25,14 +26,18 @@ def clean_text(text):
     
     return text.strip()
 
+def random_sleep():
+    time.sleep(random.uniform(1, 3))
+
 def scraping(url):
 
+
+    random_sleep()
     try:
         #in response viene salvato il sito
         response = requests.get(url)
         response.encoding = 'utf-8'
         #controllo che la connessione avvenga correttamente
-        # if response.status_code == 200:
         soup = BeautifulSoup(response.text, 'html.parser')
 
         #estraiamo il titolo
