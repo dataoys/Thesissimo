@@ -3,11 +3,12 @@ import requests
 from bs4 import BeautifulSoup
 
 BASE_URL= "https://arxiv.org/html/24"
-MONTH_LIST = [i for i in range(1,5)]
-ARTICLE_LIST= [i for i in range(1,16)]
+MONTH_LIST = [i for i in range(1,2)]
+ARTICLE_LIST= [i for i in range(1,102)]
 
 
 urls= []
+file=open("WebScraping/src/dates.txt", "w")
 
 
 #cerco di accedere alla parte successiva del sito, strutturata in questo modo:  
@@ -18,7 +19,9 @@ def UrlGenerators():
             url=BASE_URL+str(m).zfill(2)+"."+str(a).zfill(5)+"v1"
             if CheckConn(url):
                 urls.append(url)
-    writer(urls)
+                file.write(url + "\n")
+                file.flush()
+    file.close()
     return urls
 
 
@@ -29,13 +32,20 @@ def CheckConn(url):
         #controllo che la connessione avvenga correttamente
     if response.status_code == 200:
         soup = BeautifulSoup(response.text, 'html.parser')
-        titolo = soup.find('h1').text.strip()
+        h1_tag = soup.find('h1')
+        if h1_tag is None:
+            print(f"Nessun tag h1 trovato per {url}")
+            return False 
+        titolo = h1_tag.text.strip()
+        if not titolo:
+            print(f"Titolo vuoto trovato per {url}")
+            return False
         return "No HTML" not in titolo
     else:
         return False
 
 
-def writer(urls):
-    file=open("WebScraping/src/dates.txt", "w")
-    for url in urls : file.write(url); file.write("\n") 
+# def writer(url):
+#     file.write(url)
+#     file.write("\n") 
 
