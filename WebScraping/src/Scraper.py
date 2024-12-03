@@ -6,45 +6,67 @@ import requests
 import time
 from tqdm import tqdm
 
-NOME_FILE = "Doc.json"
+NOME_FILE = "WebScraping/results/Doc.json"
 
 #Numero massimo di documenti da web scrapeare.
 DOCUMENTI_MAX = 100000
 
 documenti = []
-
+MAX_THREADS = 10
 
 
 def scraping(url):
 
-    cleanText()
-
     try:
-        #in response viene salvato il sito
         response = requests.get(url)
         response.encoding = 'utf-8'
-        #controllo che la connessione avvenga correttamente
+        
+        if response.status_code != 200:
+            print(f"Errore {response.status_code} per {url}")
+            return None
+            
         soup = BeautifulSoup(response.text, 'html.parser')
-
-        #estraiamo il titolo
-        titolo = soup.find('h1').text.strip()
-        #debug
-        print(titolo)
-        #estraiamo il corpo
+        h1_tag = soup.find('h1')
+        
+        if not h1_tag:
+            return None
+            
+        titolo = h1_tag.text.strip()
         corpo = " ".join([p.text.strip() for p in soup.find_all('p')])
         corpo = cleanText(corpo)
-        addToJson(titolo,corpo, NOME_FILE)
-
+        addToJson(titolo,corpo,NOME_FILE)
+        
+        return {'title': titolo, 'corpus': corpo}
     except Exception as e:
-        print("Errore durante il parsing di {url}: {e} ")
+        print(f"Errore per {url}: {e}")
         return None
+
+def process_urls_parallel(urls):
+    results = []
     
+    with ThreadPoolExecutor(max_workers=MAX_THREADS) as executor:
+        # Usa tqdm per mostrare la progress bar
+        futures = list(tqdm(executor.map(scraping, urls), total=len(urls)))
+        
+        for result in futures:
+            if result:
+                results.append(result)
+                
+    return results
+
 def init():
-    urls = UrlGenerators()
-    #debug
-    #print(list(urls))
-    for url in urls:   
-        scraping(url)
+
+    urls = list(UrlGenerators())
+    
+    print(f"Inizio scraping di {len(urls)} URL...")
+    start_time = time.time()
+    
+    results = process_urls_parallel(urls)
+    addToJson(results, NOME_FILE)
+    
+    end_time = time.time()
+    print(f"Scraping completato in {end_time - start_time:.2f} secondi")
+
 
 
 init()

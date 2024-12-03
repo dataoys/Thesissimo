@@ -15,30 +15,22 @@ def cleanText(text):
     return text.strip()
 
 
-def addToJson(title,corpus,filename):
+def addToJson(results, NOME_FILE):
     try:
-        #Leggiamo il file esistente
-        with open(filename, 'r') as file:
+        with open(NOME_FILE, 'r') as file:
             data = json.load(file)
     except (json.JSONDecodeError, FileNotFoundError):
-        # Se il file è vuoto o non è valido o non viene trovato, creiamo una nuova struttura di dati
         data = []
     
-    # Calcola il nuovo ID
-    new_id = len(data) + 1
-
-    # Creiamo la struttura del nuovo documento
-    new_document = {
-        "id": new_id,
-        "title": title,
-        "corpus": corpus
-    }
+    # Aggiungi tutti i nuovi documenti con ID incrementale
+    start_id = len(data) + 1
+    for i, result in enumerate(results):
+        new_document = {
+            "id": start_id + i,
+            "title": result['title'],
+            "corpus": result['corpus']
+        }
+        data.append(new_document)
     
-    # Aggiungiamo il nuovo documento alla struttura di dati
-    data.append(new_document)
-    
-    # Scriviamo la struttura di dati aggiornata nel file JSON
-    with open(filename, 'w') as file:
+    with open(NOME_FILE, 'w') as file:
         json.dump(data, file, indent=4)
-
-    return new_id
