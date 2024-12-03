@@ -5,14 +5,10 @@ from concurrent.futures import ThreadPoolExecutor
 from tqdm import tqdm 
 
 BASE_URL= "https://arxiv.org/html/24"
-MONTH_LIST = [i for i in range(1,2)]
-ARTICLE_LIST= [i for i in range(1,102)]
-
-
 urls= []
 file=open("WebScraping/results/dates.txt", "w")
 MONTH_LIST = [i for i in range(1, 2)]
-ARTICLE_LIST = [i for i in range(1, 200)]
+ARTICLE_LIST = [i for i in range(1, 1000)]
 MAX_THREADS = 10
 #cerco di accedere alla parte successiva del sito, strutturata in questo modo:  
 # sito_base/anno/n_documento/section/num_sezione
@@ -20,9 +16,7 @@ MAX_THREADS = 10
 
 def generate_url(m, a):
     url = BASE_URL + str(m).zfill(2) + "." + str(a).zfill(5) + "v1"
-    if CheckConn(url):
-        return url
-    return None
+    return url
 
 
 #Appunto per @marco: La generazione degli url è molto lenta, quindi è necessario aggiungere thread anche
@@ -38,18 +32,12 @@ def UrlGenerators():
             if result:
                 urls.append(result)
     
-    # Salva gli URL in un file
-    with open("WebScraping/src/dates.txt", "w") as file:
-        for url in urls:
-            file.write(url + "\n")
-    
     return urls
 
 
 
-def CheckConn(url):
+def CheckConn(response):
     time.sleep(1)
-    response = requests.get(url)
         #controllo che la connessione avvenga correttamente
     if response.status_code == 200:
         soup = BeautifulSoup(response.text, 'html.parser')

@@ -1,5 +1,5 @@
 from bs4 import BeautifulSoup
-from UrlGenerator import UrlGenerators
+from UrlGenerator import UrlGenerators, CheckConn
 from DocManipualtion import addToJson, cleanText
 from concurrent.futures import ThreadPoolExecutor
 import requests
@@ -20,23 +20,17 @@ def scraping(url):
     try:
         response = requests.get(url)
         response.encoding = 'utf-8'
+        if CheckConn(response):
+            soup = BeautifulSoup(response.text, 'html.parser')
+            h1_tag = soup.find('h1')
+            if not h1_tag:
+                return None
+                
+            titolo = h1_tag.text.strip()
+            corpo = " ".join([p.text.strip() for p in soup.find_all('p')])
+            corpo = cleanText(corpo)
+            return {'title': titolo, 'corpus': corpo}
         
-        if response.status_code != 200:
-            print(f"Errore {response.status_code} per {url}")
-            return None
-            
-        soup = BeautifulSoup(response.text, 'html.parser')
-        h1_tag = soup.find('h1')
-        
-        if not h1_tag:
-            return None
-            
-        titolo = h1_tag.text.strip()
-        corpo = " ".join([p.text.strip() for p in soup.find_all('p')])
-        corpo = cleanText(corpo)
-        addToJson(titolo,corpo,NOME_FILE)
-        
-        return {'title': titolo, 'corpus': corpo}
     except Exception as e:
         print(f"Errore per {url}: {e}")
         return None
