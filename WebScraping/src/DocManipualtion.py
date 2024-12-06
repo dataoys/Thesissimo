@@ -28,7 +28,9 @@ def addToJson(results, NOME_FILE):
         new_document = {
             "id": start_id + i,
             "title": result['title'],
-            "corpus": result['corpus']
+            "abstract": result['abstract'],
+            "corpus": result['corpus'],
+            "keywords": result['keywords']
         }
         data.append(new_document)
     

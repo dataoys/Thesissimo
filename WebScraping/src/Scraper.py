@@ -7,7 +7,7 @@ import time
 from tqdm import tqdm
 import random
 
-NOME_FILE = "WebScraping/results/Doc.json"
+NOME_FILE = "WebScraping/results/Docs.json"
 
 #Numero massimo di documenti da web scrapeare.
 DOCUMENTI_MAX = 100000
@@ -29,9 +29,12 @@ def scraping(url):
                 return None
                 
             titolo = h1_tag.text.strip()
-            corpo = " ".join([p.text.strip() for p in soup.find_all('p')])
+            abstract = soup.find('p', class_='ltx_p').get_text()
+            keywords = soup.find('p', class_='ltx_keywords').get_text()
+            corpo = " ".join([p.text.strip() for p in soup.find_all('p') 
+                  if 'ltx_p' not in p.get('class', []) and 'ltx_keywords' not in p.get('class', [])])
             corpo = cleanText(corpo)
-            return {'title': titolo, 'corpus': corpo}
+            return {'title': titolo, 'abstract' : abstract , 'corpus': corpo, 'keywords' : keywords } 
         
     except Exception as e:
         print(f"Errore per {url}: {e}")
@@ -58,6 +61,8 @@ def init():
     start_time = time.time()
     
     results = process_urls_parallel(urls)
+    #debug
+    print(list(results))
     addToJson(results, NOME_FILE)
     
     end_time = time.time()
