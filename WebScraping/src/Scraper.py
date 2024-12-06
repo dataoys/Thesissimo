@@ -13,13 +13,13 @@ NOME_FILE = "WebScraping/results/Doc.json"
 DOCUMENTI_MAX = 100000
 
 documenti = []
-MAX_THREADS = 20
+MAX_THREADS = 30
 
 
 def scraping(url):
 
     try:
-        time.sleep(2)
+        time.sleep(3)
         response = requests.get(url)
         response.encoding = 'utf-8'
         if CheckConn(response):

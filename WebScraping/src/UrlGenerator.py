@@ -7,8 +7,8 @@ from tqdm import tqdm
 BASE_URL= "https://arxiv.org/html/24"
 urls= []
 file=open("WebScraping/results/dates.txt", "w")
-MONTH_LIST = [i for i in range(1, 6)]
-ARTICLE_LIST = [i for i in range(1, 1000)]
+MONTH_LIST = [i for i in range(1, 13)]
+ARTICLE_LIST = [i for i in range(1, 10001)]
 MAX_THREADS = 10
 #cerco di accedere alla parte successiva del sito, strutturata in questo modo:  
 # sito_base/anno/n_documento/section/num_sezione
