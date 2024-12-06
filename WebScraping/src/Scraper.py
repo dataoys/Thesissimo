@@ -5,6 +5,7 @@ from concurrent.futures import ThreadPoolExecutor
 import requests
 import time
 from tqdm import tqdm
+import random
 
 NOME_FILE = "WebScraping/results/Doc.json"
 
@@ -12,12 +13,13 @@ NOME_FILE = "WebScraping/results/Doc.json"
 DOCUMENTI_MAX = 100000
 
 documenti = []
-MAX_THREADS = 10
+MAX_THREADS = 20
 
 
 def scraping(url):
 
     try:
+        time.sleep(2)
         response = requests.get(url)
         response.encoding = 'utf-8'
         if CheckConn(response):
