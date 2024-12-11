@@ -36,12 +36,16 @@ def scraping(url):
                 abstract=''
 
             ltx_keywords = soup.find('div', class_='ltx_keywords')
+            if ltx_keywords == None:
+                ltx_keywords = soup.find('div', class_='ltx_classification')
+
             if ltx_keywords:
-                keywords= ltx_keywords.text.strip()
+                keywords = ltx_keywords.text.strip()
             else:       
                 keywords=''
+
             corpo = " ".join([p.text.strip() for p in soup.find_all('p') 
-                  if 'ltx_p' not in p.get('class', []) and 'ltx_keywords' not in p.get('class', [])])
+                  if 'ltx_keywords' not in p.get('class', [])])
             corpo = cleanText(corpo)
             return {'title': titolo,'abstract': abstract, 'corpus': corpo, 'keywords': keywords} 
         
