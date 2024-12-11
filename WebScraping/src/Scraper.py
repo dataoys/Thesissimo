@@ -5,7 +5,6 @@ from concurrent.futures import ThreadPoolExecutor
 import requests
 import time
 from tqdm import tqdm
-import random
 
 NOME_FILE = "WebScraping/results/Docs.json"
 
@@ -29,12 +28,22 @@ def scraping(url):
                 return None
                 
             titolo = h1_tag.text.strip()
-            abstract = soup.find('p', class_='ltx_p').get_text()
-            keywords = soup.find('p', class_='ltx_keywords').get_text()
+            page_div = soup.find('div', class_='ltx_abstract')
+            if page_div:
+                ltx_abstract = soup.find('p', class_ = 'ltx_p')
+                abstract = ltx_abstract.text.strip()
+            else:
+                abstract=''
+
+            ltx_keywords = soup.find('div', class_='ltx_keywords')
+            if ltx_keywords:
+                keywords= ltx_keywords.text.strip()
+            else:       
+                keywords=''
             corpo = " ".join([p.text.strip() for p in soup.find_all('p') 
                   if 'ltx_p' not in p.get('class', []) and 'ltx_keywords' not in p.get('class', [])])
             corpo = cleanText(corpo)
-            return {'title': titolo, 'abstract' : abstract , 'corpus': corpo, 'keywords' : keywords } 
+            return {'title': titolo,'abstract': abstract, 'corpus': corpo, 'keywords': keywords} 
         
     except Exception as e:
         print(f"Errore per {url}: {e}")

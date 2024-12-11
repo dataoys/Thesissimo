@@ -18,8 +18,6 @@ def generate_url(m, a):
     return url
 
 
-#Appunto per @marco: La generazione degli url è molto lenta, quindi è necessario aggiungere thread anche
-#a questo file per incrementarne la performance.
 def UrlGenerators():
     urls = []
     with ThreadPoolExecutor(max_workers=MAX_THREADS) as executor:

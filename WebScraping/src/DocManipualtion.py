@@ -16,14 +16,14 @@ def cleanText(text):
 
 
 def addToJson(results, NOME_FILE):
-    try:
-        with open(NOME_FILE, 'r') as file:
-            data = json.load(file)
-    except (json.JSONDecodeError, FileNotFoundError):
-        data = []
+    # try:
+    #     with open(NOME_FILE, 'r') as file:
+    #         data = json.load(file)
+    # except (json.JSONDecodeError, FileNotFoundError):
+    data = []
     
     # Aggiungi tutti i nuovi documenti con ID incrementale
-    start_id = len(data) + 1
+    start_id = 1
     for i, result in enumerate(results):
         new_document = {
             "id": start_id + i,
