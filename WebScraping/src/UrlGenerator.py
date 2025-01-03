@@ -6,9 +6,9 @@ from tqdm import tqdm
 
 BASE_URL= "https://arxiv.org/html/24"
 urls= []
-MONTH_LIST = [i for i in range(1, 2)]
-ARTICLE_LIST = [i for i in range(1, 100)]
-MAX_THREADS = 10
+MONTH_LIST = [i for i in range(1, 13)]
+ARTICLE_LIST = [i for i in range(1, 5)]
+MAX_THREADS = 30
 #cerco di accedere alla parte successiva del sito, strutturata in questo modo:  
 # sito_base/anno/n_documento/section/num_sezione
 

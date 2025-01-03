@@ -1,86 +1,119 @@
+import requests
 from bs4 import BeautifulSoup
 from UrlGenerator import UrlGenerators, CheckConn
 from DocManipualtion import addToJson, cleanText
-from concurrent.futures import ThreadPoolExecutor
-import requests
 import time
 from tqdm import tqdm
+import random
 
 NOME_FILE = "WebScraping/results/Docs.json"
-
-#Numero massimo di documenti da web scrapeare.
 DOCUMENTI_MAX = 100000
 
-documenti = []
-MAX_THREADS = 30
-
+def get_random_user_agent():
+    user_agents = [
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+        'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:90.0) Gecko/20100101 Firefox/90.0',
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.2 Safari/605.1.15',
+    ]
+    return random.choice(user_agents)
 
 def scraping(url):
-
-    try:
-        time.sleep(3)
-        response = requests.get(url)
-        response.encoding = 'utf-8'
-        if CheckConn(response):
+    max_retries = 3
+    current_retry = 0
+    
+    while current_retry < max_retries:
+        try:
+            # Pausa più lunga tra le richieste (5-15 secondi)
+            time.sleep(random.uniform(5, 15))
+            
+            headers = {
+                'User-Agent': get_random_user_agent(),
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+                'Accept-Language': 'en-US,en;q=0.5',
+                'Accept-Encoding': 'gzip, deflate, br',
+                'Connection': 'keep-alive',
+                'Upgrade-Insecure-Requests': '1',
+                'Cache-Control': 'no-cache',
+                'Pragma': 'no-cache',
+                'DNT': '1',
+                'Sec-GPC': '1'
+            }
+            
+            # Prova senza proxy
+            response = requests.get(
+                url,
+                headers=headers,
+                timeout=30,
+                allow_redirects=True
+            )
+            
+            if response.status_code == 403:
+                raise Exception("Access forbidden - waiting longer before retry")
+            
+            response.raise_for_status()
+            response.encoding = response.apparent_encoding
+            
             soup = BeautifulSoup(response.text, 'html.parser')
+            
+            # Estrai il titolo
             h1_tag = soup.find('h1')
             if not h1_tag:
                 return None
                 
             titolo = h1_tag.text.strip()
+            
+            # Estrazione dell'abstract
             page_div = soup.find('div', class_='ltx_abstract')
+            abstract = ""
             if page_div:
-                ltx_abstract = soup.find('p', class_ = 'ltx_p')
-                abstract = ltx_abstract.text.strip()
-            else:
-                abstract=''
-
+                abstract = page_div.get_text(strip=True)
+            
+            # Corpo del contenuto
+            corpo = " ".join([p.text.strip() for p in soup.find_all('p')])
+            corpo = cleanText(corpo)
+            
+            # Estrazione delle parole chiave
             ltx_keywords = soup.find('div', class_='ltx_keywords')
-            if ltx_keywords == None:
+            if ltx_keywords is None:
                 ltx_keywords = soup.find('div', class_='ltx_classification')
 
-            if ltx_keywords:
-                keywords = ltx_keywords.text.strip()
-            else:       
-                keywords=''
+            keywords = ltx_keywords.text.strip() if ltx_keywords else ''
 
-            corpo = " ".join([p.text.strip() for p in soup.find_all('p') 
-                  if 'ltx_keywords' not in p.get('class', [])])
-            corpo = cleanText(corpo)
-            return {'title': titolo,'abstract': abstract, 'corpus': corpo, 'keywords': keywords} 
+            return {'title': titolo, 'abstract': abstract, 'corpus': corpo, 'keywords': keywords}
         
-    except Exception as e:
-        print(f"Errore per {url}: {e}")
-        return None
+        except Exception as e:
+            current_retry += 1
+            print(f"Errore tentativo {current_retry} per {url}: {e}")
+            # Attesa più lunga tra i tentativi (20-40 secondi)
+            time.sleep(random.uniform(20, 40))
+    
+    return None
 
-def process_urls_parallel(urls):
+def process_urls_sequential(urls):
     results = []
     
-    with ThreadPoolExecutor(max_workers=MAX_THREADS) as executor:
-        # Usa tqdm per mostrare la progress bar
-        futures = list(tqdm(executor.map(scraping, urls), total=len(urls)))
-        
-        for result in futures:
-            if result:
-                results.append(result)
-                
+    for url in tqdm(urls):
+        result = scraping(url)
+        if result:
+            results.append(result)
+            # Pausa aggiuntiva tra documenti diversi
+            time.sleep(random.uniform(3, 8))
+    
     return results
 
 def init():
-
     urls = list(UrlGenerators())
-    
     print(f"Inizio scraping di {len(urls)} URL...")
     start_time = time.time()
     
-    results = process_urls_parallel(urls)
-    #debug
-    print(list(results))
+    # Usa scraping sequenziale invece che parallelo
+    results = process_urls_sequential(urls)
+    
     addToJson(results, NOME_FILE)
     
     end_time = time.time()
     print(f"Scraping completato in {end_time - start_time:.2f} secondi")
 
-
-
-init()
+if __name__ == '__main__':
+    init()
