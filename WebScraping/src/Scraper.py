@@ -5,6 +5,7 @@ from DocManipualtion import addToJson, cleanText
 import time
 from tqdm import tqdm
 import random
+from Proxies import PROXY_LIST
 
 NOME_FILE = "WebScraping/results/Docs.json"
 DOCUMENTI_MAX = 100000
@@ -19,75 +20,73 @@ def get_random_user_agent():
     return random.choice(user_agents)
 
 def scraping(url):
-    max_retries = 3
-    current_retry = 0
+    #max_retries = 3
+    #current_retry = 0
     
-    while current_retry < max_retries:
-        try:
-            # Pausa più lunga tra le richieste (5-15 secondi)
-            time.sleep(random.uniform(5, 15))
-            
-            headers = {
-                'User-Agent': get_random_user_agent(),
-                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-                'Accept-Language': 'en-US,en;q=0.5',
-                'Accept-Encoding': 'gzip, deflate, br',
-                'Connection': 'keep-alive',
-                'Upgrade-Insecure-Requests': '1',
-                'Cache-Control': 'no-cache',
-                'Pragma': 'no-cache',
-                'DNT': '1',
-                'Sec-GPC': '1'
-            }
-            
-            # Prova senza proxy
-            response = requests.get(
-                url,
-                headers=headers,
-                timeout=30,
-                allow_redirects=True
-            )
-            
-            if response.status_code == 403:
-                raise Exception("Access forbidden - waiting longer before retry")
-            
-            response.raise_for_status()
-            response.encoding = response.apparent_encoding
-            
-            soup = BeautifulSoup(response.text, 'html.parser')
-            
-            # Estrai il titolo
-            h1_tag = soup.find('h1')
-            if not h1_tag:
-                return None
-                
-            titolo = h1_tag.text.strip()
-            
-            # Estrazione dell'abstract
-            page_div = soup.find('div', class_='ltx_abstract')
-            abstract = ""
-            if page_div:
-                abstract = page_div.get_text(strip=True)
-            
-            # Corpo del contenuto
-            corpo = " ".join([p.text.strip() for p in soup.find_all('p')])
-            corpo = cleanText(corpo)
-            
-            # Estrazione delle parole chiave
-            ltx_keywords = soup.find('div', class_='ltx_keywords')
-            if ltx_keywords is None:
-                ltx_keywords = soup.find('div', class_='ltx_classification')
 
-            keywords = ltx_keywords.text.strip() if ltx_keywords else ''
-
-            return {'title': titolo, 'abstract': abstract, 'corpus': corpo, 'keywords': keywords}
+    try:
+        # Pausa tra le richieste
+        time.sleep(2)
         
-        except Exception as e:
-            current_retry += 1
-            print(f"Errore tentativo {current_retry} per {url}: {e}")
-            # Attesa più lunga tra i tentativi (20-40 secondi)
-            time.sleep(random.uniform(20, 40))
+        headers = {
+            'User-Agent': get_random_user_agent(),
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.5',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'Connection': 'keep-alive',
+            'Upgrade-Insecure-Requests': '1',
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache',
+            'DNT': '1',
+            'Sec-GPC': '1'
+        }
+        
+        # Prova senza proxy
+        response = requests.get(
+            url,
+            headers=headers,
+            timeout=30,
+            allow_redirects=True
+        )
+        
+        if response.status_code == 403:
+            raise Exception("Access forbidden - waiting longer before retry")
+        
+        response.raise_for_status()
+        response.encoding = response.apparent_encoding
+        
+        soup = BeautifulSoup(response.text, 'html.parser')
+        
+        # Estrai il titolo
+        h1_tag = soup.find('h1')
+        if not h1_tag:
+            return None
+            
+        titolo = h1_tag.text.strip()
+        
+        # Estrazione dell'abstract
+        page_div = soup.find('div', class_='ltx_abstract')
+        abstract = ""
+        if page_div:
+            abstract = page_div.get_text(strip=True)
+        
+        # Corpo del contenuto
+        corpo = " ".join([p.text.strip() for p in soup.find_all('p')])
+        corpo = cleanText(corpo)
+        
+        # Estrazione delle parole chiave
+        ltx_keywords = soup.find('div', class_='ltx_keywords')
+        if ltx_keywords is None:
+            ltx_keywords = soup.find('div', class_='ltx_classification')
+
+        keywords = ltx_keywords.text.strip() if ltx_keywords else ''
+
+        return {'title': titolo, 'abstract': abstract, 'corpus': corpo, 'keywords': keywords}
     
+    except Exception as e:
+
+        print("Link non trovato, passiamo al prossimo")
+
     return None
 
 def process_urls_sequential(urls):
@@ -97,9 +96,7 @@ def process_urls_sequential(urls):
         result = scraping(url)
         if result:
             results.append(result)
-            # Pausa aggiuntiva tra documenti diversi
-            time.sleep(random.uniform(3, 8))
-    
+
     return results
 
 def init():
