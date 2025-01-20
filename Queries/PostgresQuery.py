@@ -2,7 +2,7 @@ import json
 import psycopg2 as ps
 from psycopg2 import sql
 
-FILE_PATH = "WebScraping/results/Docs.json"
+FILE_PATH = "WebScraping/results/Docs_cleaned.json"
 
 def dbConn():
     return ps.connect(

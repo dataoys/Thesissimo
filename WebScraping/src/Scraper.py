@@ -2,12 +2,28 @@ import requests
 from bs4 import BeautifulSoup
 from UrlGenerator import UrlGenerators, CheckConn
 from DocManipualtion import addToJson, cleanText
+import sys
+from pathlib import Path
 import time
 from tqdm import tqdm
 import random
 from Proxies import PROXY_LIST
+import json
+
+
+# Ottieni il percorso assoluto della directory root del progetto
+project_root = Path(__file__).parent.parent.parent
+sys.path.append(str(project_root))
+
+# Per debug, verifica il path
+print("Project root:", project_root)
+print("Python path:", sys.path)
+
+from Queries import jsonToPG
+from WebScraping.results.CleanDocuments import clean_documents
 
 NOME_FILE = "WebScraping/results/Docs.json"
+FILE_PULITO = "WebScraping/results/Docs_cleaned.json"
 DOCUMENTI_MAX = 100000
 
 def get_random_user_agent():
@@ -112,5 +128,21 @@ def init():
     end_time = time.time()
     print(f"Scraping completato in {end_time - start_time:.2f} secondi")
 
+    # Prima leggi il file JSON
+    with open(NOME_FILE, 'r', encoding='utf-8') as f:
+        documents = json.load(f)
+    
+    # Poi passa i documenti alla funzione clean_documents
+    cleaned_docs = clean_documents(documents)
+    
+    # Infine salva i documenti puliti
+    with open(FILE_PULITO, 'w', encoding='utf-8') as f:
+        json.dump(cleaned_docs, f, indent=4, ensure_ascii=False)
+    
+    # Passa il file pulito a jsonToPG
+    jsonToPG(FILE_PULITO)
+
+
 if __name__ == '__main__':
     init()
+
