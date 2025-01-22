@@ -11,7 +11,7 @@ from Proxies import PROXY_LIST
 import json
 
 
-# Ottieni il percorso assoluto della directory root del progetto
+# Ottieniamo il percorso assoluto della directory root del progetto
 project_root = Path(__file__).parent.parent.parent
 sys.path.append(str(project_root))
 

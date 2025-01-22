@@ -1,4 +1,4 @@
-from .PostgresQuery import jsonToPG
+from .PostgresQuery import jsonToPG, dbConn
 
-# Definisci quali nomi saranno disponibili quando qualcuno importa il modulo
-__all__ = ['jsonToPG']
+
+__all__ = ['jsonToPG', 'dbConn' ]
