@@ -22,8 +22,8 @@ print("Python path:", sys.path)
 from Queries import jsonToPG
 from WebScraping.results.CleanDocuments import clean_documents
 
-NOME_FILE = "WebScraping/results/Docs.json"
-FILE_PULITO = "WebScraping/results/Docs_cleaned.json"
+NOME_FILE = str(project_root / "WebScraping/results/Docs.json")
+FILE_PULITO = str(project_root / "WebScraping/results/Docs_cleaned.json")
 DOCUMENTI_MAX = 100000
 
 def get_random_user_agent():
@@ -116,6 +116,15 @@ def process_urls_sequential(urls):
     return results
 
 def init():
+    # Crea le directory se non esistono
+    results_dir = project_root / "WebScraping/results"
+    results_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Crea il file Docs.json se non esiste
+    if not Path(NOME_FILE).exists():
+        with open(NOME_FILE, 'w', encoding='utf-8') as f:
+            json.dump([], f)
+    
     urls = list(UrlGenerators())
     print(f"Inizio scraping di {len(urls)} URL...")
     start_time = time.time()
@@ -140,6 +149,7 @@ def init():
         json.dump(cleaned_docs, f, indent=4, ensure_ascii=False)
     
     # Passa il file pulito a jsonToPG
+
     jsonToPG(FILE_PULITO)
 
 

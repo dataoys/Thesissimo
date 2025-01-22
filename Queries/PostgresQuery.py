@@ -1,8 +1,11 @@
 import json 
 import psycopg2 as ps
 from psycopg2 import sql
+from pathlib import Path
 
-FILE_PATH = "WebScraping/results/Docs_cleaned.json"
+# Ottieni il percorso assoluto del progetto
+project_root = Path(__file__).parent.parent
+FILE_PATH = str(project_root / "WebScraping/results/Docs.json")  # Usa Docs.json invece di Docs_cleaned.json
 
 def dbConn():
     return ps.connect(
@@ -77,8 +80,13 @@ def resetTable():
     createTable()
 
 def main():
-        resetTable()
-        jsonToPG(FILE_PATH)
+    # Assicurati che il file esista prima di procedere
+    if not Path(FILE_PATH).exists():
+        print(f"Errore: Il file {FILE_PATH} non esiste!")
+        return
+        
+    resetTable()
+    jsonToPG(FILE_PATH)
 
 if __name__ == '__main__':
     main()
