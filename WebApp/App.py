@@ -22,7 +22,7 @@ def search(title_true, abstract_true, corpus_true):
         #ricerca su tutti i campi dei documenti
         if title_true & abstract_true & corpus_true:
             q = '''
-            SELECT id, title, abstract, corpus, keywords 
+            SELECT id, title, abstract, corpus, keywords, url 
             FROM docs 
             WHERE to_tsvector(corpus) @@ to_tsquery(%s)
             OR to_tsvector(title) @@ to_tsquery(%s)
@@ -32,7 +32,7 @@ def search(title_true, abstract_true, corpus_true):
         #ricerca solamente sul titolo dei nostri documenti
         if title_true and not abstract_true and not corpus_true:
             q = '''
-            SELECT id, title, abstract, corpus, keywords 
+            SELECT id, title, abstract, corpus, keywords, url 
             FROM docs 
             WHERE to_tsvector(title) @@ to_tsquery(%s)
             '''
@@ -40,7 +40,7 @@ def search(title_true, abstract_true, corpus_true):
         #ricerca sull'abstract dei documenti
         if abstract_true and not title_true and not corpus_true:
             q = '''
-            SELECT id, title, abstract, corpus, keywords 
+            SELECT id, title, abstract, corpus, keywords, url 
             FROM docs 
             WHERE to_tsvector(abstract) @@ to_tsquery(%s)
             '''
@@ -48,7 +48,7 @@ def search(title_true, abstract_true, corpus_true):
         #ricerca solo sul corpo del testo dei nostri documenti
         if corpus_true and not title_true and not abstract_true:
             q = '''
-            SELECT id, title, abstract, corpus, keywords 
+            SELECT id, title, abstract, corpus, keywords, url 
             FROM docs 
             WHERE to_tsvector(corpus) @@ to_tsquery(%s)
             '''
@@ -60,8 +60,8 @@ def search(title_true, abstract_true, corpus_true):
         return results
 
 def main():
-    st.title("📚 Ricerca Documenti", )
-    #st.write('🔧Filtra la tua ricerca!')
+    st.title("📚 Ricerca Documenti")
+    
     with st.expander('🔧Filtra la tua ricerca!'):
         col1, col2, col3 = st.columns(3)
         with col1:
@@ -76,12 +76,15 @@ def main():
         st.success(f"Trovati {len(results)} documenti")
         
         for doc in results:
-            with st.expander(f"📄 {doc[1]}"):  # doc[1] è il titolo
+            # Creiamo un link cliccabile con il titolo
+            title_html = f'📄 {doc[1]}'
+            with st.expander(title_html, expanded=False):
                 st.write("**ID:** ", doc[0])
                 st.write("**Abstract:**", doc[2])
-                st.write("**Corpus**", doc[3])
                 if doc[4] != "No keywords available":
                     st.write("**Keywords:**", doc[4])
+                # Aggiungiamo anche un pulsante per il link diretto
+                st.markdown(f"[🔗 Vai al documento originale]({doc[5]})")
                 st.markdown("---")
     else:
         st.warning("Nessun documento trovato per la ricerca effettuata.")

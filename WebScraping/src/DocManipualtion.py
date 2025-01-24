@@ -37,7 +37,8 @@ def addToJson(results, NOME_FILE):
             "title": result['title'],
             "abstract": result['abstract'],
             "corpus": result['corpus'],
-            "keywords": result['keywords']
+            "keywords": result['keywords'],
+            "url": result['url']
         }
         data.append(new_document)
     

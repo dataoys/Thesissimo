@@ -26,7 +26,8 @@ def createTable():
         title TEXT,
         abstract TEXT,
         corpus TEXT,
-        keywords TEXT DEFAULT 'No keywords available'    
+        keywords TEXT DEFAULT 'No keywords available',
+        url TEXT    
     );
     '''
 
@@ -36,22 +37,22 @@ def createTable():
     conn.close()
 
 #questo perchè alcuni documenti potrebbero non avere delle keywords 
-def docInsert(id, title, abstract, corpus, keywords=None):
+def docInsert(id, title, abstract, corpus, url, keywords=None):
     conn = dbConn()
     cur = conn.cursor()
 
     if keywords is None:
         q = ''' 
-        INSERT INTO DOCS (id, title, abstract, corpus)
-        VALUES (%s, %s, %s, %s)
-        '''
-        cur.execute(q, (id, title, abstract, corpus))
-    else:
-        q = ''' 
-        INSERT INTO DOCS (id, title, abstract, corpus, keywords)
+        INSERT INTO DOCS (id, title, abstract, corpus, url)
         VALUES (%s, %s, %s, %s, %s)
         '''
-        cur.execute(q, (id, title, abstract, corpus, keywords))
+        cur.execute(q, (id, title, abstract, corpus, url))
+    else:
+        q = ''' 
+        INSERT INTO DOCS (id, title, abstract, corpus, keywords, url)
+        VALUES (%s, %s, %s, %s, %s, %s)
+        '''
+        cur.execute(q, (id, title, abstract, corpus, keywords, url))
 
     conn.commit()
     cur.close()
@@ -67,8 +68,9 @@ def jsonToPG(file):
         abstract = documento['abstract']
         corpus = documento['corpus']
         keywords = documento.get('keywords', None)
+        url = documento.get('url', '')  # Aggiungiamo l'URL
 
-        docInsert(id, title, abstract, corpus, keywords)
+        docInsert(id, title, abstract, corpus, url, keywords)
 
 def resetTable():
     conn = dbConn()

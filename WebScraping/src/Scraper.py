@@ -36,11 +36,11 @@ def get_random_user_agent():
     return random.choice(user_agents)
 
 def scraping(url):
-    #max_retries = 3
-    #current_retry = 0
-    
 
     try:
+        # Aggiungi debug print
+        print(f"Scraping URL: {url}")
+        
         # Pausa tra le richieste
         time.sleep(2)
         
@@ -97,7 +97,15 @@ def scraping(url):
 
         keywords = ltx_keywords.text.strip() if ltx_keywords else ''
 
-        return {'title': titolo, 'abstract': abstract, 'corpus': corpo, 'keywords': keywords}
+        result = {
+            'title': titolo, 
+            'abstract': abstract, 
+            'corpus': corpo, 
+            'keywords': keywords,
+            'url': url
+        }
+        
+        return result
     
     except Exception as e:
 
@@ -111,6 +119,8 @@ def process_urls_sequential(urls):
     for url in tqdm(urls):
         result = scraping(url)
         if result:
+            # Debug print
+            print(f"URL nel risultato: {result['url']}")
             results.append(result)
 
     return results
@@ -149,7 +159,6 @@ def init():
         json.dump(cleaned_docs, f, indent=4, ensure_ascii=False)
     
     # Passa il file pulito a jsonToPG
-
     jsonToPG(FILE_PULITO)
 
 
