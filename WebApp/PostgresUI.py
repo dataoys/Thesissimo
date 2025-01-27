@@ -7,9 +7,6 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent
 sys.path.append(str(project_root))
 
-# Per debug, verifica il path
-print("Project root:", project_root)
-print("Python path:", sys.path)
 
 from Queries import dbConn
 
