@@ -11,11 +11,11 @@ scelta = st.selectbox("Scegli un motore di ricerca:", motori_di_ricerca)
 
 def esegui_streamlit(motore):
     if motore == "Postgres":
-        subprocess.Popen(["streamlit", "run", "./PostgresUI.py"])  
+        subprocess.Popen(["streamlit", "run", "WebApp/PostgresUI.py"])  
     elif motore == "Whoosh":
-        subprocess.Popen(["streamlit", "run", "./WhooshUI.py"])  
+        subprocess.Popen(["streamlit", "run", "WebApp/WhooshUI.py"])  
     elif motore == "PyLucene":
-        subprocess.Popen(["streamlit", "run", "WebApp/sqlite_app.py"]) 
+        subprocess.Popen(["streamlit", "run", "WebApp/PyLuceneUI.py"]) 
 
 # Esegui il file corrispondente
 if st.button("Esegui"):

@@ -101,7 +101,7 @@ def main():
     #settiamo le directory per i percorsi dei documenti e del progetto per creare indice
     project_root = Path(__file__).parent.parent
     index_dir = str(project_root / "WhooshIndex")  
-    json_file = str(project_root / "WebScraping/results/Docs.json") 
+    json_file = str(project_root / "WebScraping/results/Docs_cleaned.json") 
 
     # Indicizza i documenti
     index_documents(index_dir, json_file) 
@@ -136,14 +136,6 @@ def main():
                 st.markdown("---")
     else:
         st.warning("Nessun documento trovato per la ricerca effettuata.")
-    # Esempio di ricerca
-
-    if results:
-        print(f"Trovati {len(results)} documenti:")
-        for doc in results:
-            print(f"ID: {doc[0]} \n Titolo: {doc[1]} \n Abstract: {doc[2]} \n URL: {doc[5]} \n")
-    else:
-        print("Nessun documento trovato.")
 
 if __name__ == '__main__':
     main()
