@@ -1,0 +1,161 @@
+from whoosh.index import create_in
+from whoosh.fields import Schema, TEXT, ID
+from whoosh.qparser import OrGroup, MultifieldParser
+from whoosh.analysis import StemmingAnalyzer
+import os
+import json
+from whoosh import index
+from nltk.corpus import wordnet
+from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
+import nltk
+
+# Assicurati di scaricare le risorse necessarie di NLTK
+try:
+    nltk.data.find('tokenizers/punkt')
+    nltk.data.find('corpora/wordnet')
+    nltk.data.find('corpora/stopwords')
+except LookupError:
+    nltk.download('punkt')
+    nltk.download('wordnet')
+    nltk.download('stopwords')
+
+def create_schema():
+    #Eseguiamo stemming di soli campi testuali significanti.
+    return Schema(
+        id=ID(stored=True),
+        title=TEXT(stored=True, analyzer=StemmingAnalyzer()),
+        abstract=TEXT(stored=True, analyzer=StemmingAnalyzer()),
+        corpus=TEXT(stored=True, analyzer=StemmingAnalyzer()),
+        keywords=TEXT(stored=True),
+        url=TEXT(stored=True)
+    )
+
+#Creiamo l'indice
+def create_index(index_dir):
+    if not os.path.exists(index_dir):
+        os.mkdir(index_dir)
+    schema = create_schema()
+    return create_in(index_dir, schema)
+
+# Indicizza i documenti
+def index_documents(index_dir, json_file):
+    index = create_index(index_dir)
+    
+    # Leggiamo prima il file JSON
+    with open(json_file, 'r', encoding='utf-8') as f:
+        documents = json.load(f)
+    
+    # Poi scriviamo nell'indice
+    with index.writer() as writer:
+        for doc in documents:
+            writer.add_document(
+                id=str(doc['id']),
+                title=doc['title'],
+                abstract=doc['abstract'],
+                corpus=doc['corpus'],
+                keywords=doc.get('keywords', ''),
+                url=doc['url']
+            )
+
+def expand_query(query_string):
+    stop_words = set(stopwords.words('english'))
+    tokens = word_tokenize(query_string.lower())
+    expanded_terms = set()
+
+    # Aggiungi i termini originali
+    expanded_terms.update(tokens)
+
+    # Per ogni token, trova sinonimi e termini correlati
+    for token in tokens:
+        if token not in stop_words:
+            # Trova i synset (gruppi di sinonimi)
+            synsets = wordnet.synsets(token)
+            for synset in synsets:
+                # Aggiungi lemmi (sinonimi)
+                expanded_terms.update(lemma.name() for lemma in synset.lemmas())
+                
+                # Aggiungi iperonimi (termini più generali)
+                if synset.hypernyms():
+                    expanded_terms.update(
+                        lemma.name() 
+                        for hypernym in synset.hypernyms() 
+                        for lemma in hypernym.lemmas()
+                    )
+
+    # Rimuovi underscore e stop words dal risultato
+    expanded_terms = {
+        term.replace('_', ' ') 
+        for term in expanded_terms 
+        if term not in stop_words
+    }
+    
+    return ' OR '.join(expanded_terms)
+
+def search_documents(index_dir, query_string, title_true, abstract_true, corpus_true):
+    if not query_string.strip():
+        return []
+        
+    if not any([title_true, abstract_true, corpus_true]):
+        return []
+
+    # Espandi la query con termini correlati
+    expanded_query = expand_query(query_string)
+    
+    ix = index.open_dir(index_dir)
+    with ix.searcher() as searcher:
+        # Determina i campi da cercare
+        fields = []
+        if title_true:
+            fields.append("title")
+        if abstract_true:
+            fields.append("abstract")
+        if corpus_true:
+            fields.append("corpus")
+            
+        # Usa MultifieldParser invece di QueryParser per cercare in più campi
+        parser = MultifieldParser(fields, ix.schema, group=OrGroup)
+        query = parser.parse(expanded_query)
+        
+        # Esegui la ricerca e includi lo score
+        results = searcher.search(query)
+        return [(result['id'], 
+                result['title'], 
+                result['abstract'], 
+                result['corpus'], 
+                result['keywords'], 
+                result.score,
+                result['url']) 
+                for result in results]
+
+def index_exists_and_valid(index_dir):
+    """Controlla se l'indice esiste ed è valido"""
+    if not os.path.exists(index_dir):
+        return False
+    try:
+        # Prova ad aprire l'indice
+        ix = index.open_dir(index_dir)
+        with ix.searcher() as searcher:
+            # Verifica che ci siano documenti
+            return searcher.doc_count() > 0
+    except:
+        return False
+
+def create_or_get_index(index_dir, json_file, force_rebuild=False):
+    """Crea l'indice solo se necessario"""
+    # Rimuovi eventuali lock residui
+    lock_path = os.path.join(index_dir, 'LOCK')
+    if os.path.exists(lock_path):
+        os.remove(lock_path)
+
+    if not force_rebuild and index_exists_and_valid(index_dir):
+        return index.open_dir(index_dir)
+        
+    # Se l'indice non esiste o force_rebuild è True, crealo
+    if not os.path.exists(index_dir):
+        os.makedirs(index_dir)
+            
+    # Indicizza i documenti
+    index_documents(index_dir, json_file)
+    return index.open_dir(index_dir)
+    

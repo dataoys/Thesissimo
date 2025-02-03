@@ -1,60 +1,11 @@
 import streamlit as st
-import psycopg2 as ps
-import sys
 from pathlib import Path
+import sys
 
 # Ottieniamo il percorso assoluto della directory root del progetto
 project_root = Path(__file__).parent.parent
 sys.path.append(str(project_root))
-
-
-from Queries import dbConn
-
-
-def search(title_true, abstract_true, corpus_true):
-    conn = dbConn()
-    cur = conn.cursor()
-    search_query = st.text_input("🔍 Inserisci il testo da cercare", "")
-    if search_query:
-        #ricerca su tutti i campi dei documenti
-        if title_true & abstract_true & corpus_true:
-            q = '''
-            SELECT id, title, abstract, corpus, keywords, url 
-            FROM docs 
-            WHERE to_tsvector(corpus) @@ to_tsquery(%s)
-            OR to_tsvector(title) @@ to_tsquery(%s)
-            OR to_tsvector(abstract) @@ to_tsquery(%s)
-            '''
-            cur.execute(q, (search_query, search_query, search_query))
-        #ricerca solamente sul titolo dei nostri documenti
-        if title_true and not abstract_true and not corpus_true:
-            q = '''
-            SELECT id, title, abstract, corpus, keywords, url 
-            FROM docs 
-            WHERE to_tsvector(title) @@ to_tsquery(%s)
-            '''
-            cur.execute(q, (search_query,))
-        #ricerca sull'abstract dei documenti
-        if abstract_true and not title_true and not corpus_true:
-            q = '''
-            SELECT id, title, abstract, corpus, keywords, url 
-            FROM docs 
-            WHERE to_tsvector(abstract) @@ to_tsquery(%s)
-            '''
-            cur.execute(q, (search_query,))
-        #ricerca solo sul corpo del testo dei nostri documenti
-        if corpus_true and not title_true and not abstract_true:
-            q = '''
-            SELECT id, title, abstract, corpus, keywords, url 
-            FROM docs 
-            WHERE to_tsvector(corpus) @@ to_tsquery(%s)
-            '''
-            cur.execute(q, (search_query,))
-                
-        results = cur.fetchall()
-        cur.close()
-        conn.close()
-        return results
+from SearchEngine import search
 
 def main():
     st.title("📚 Ricerca Documenti")
@@ -67,7 +18,14 @@ def main():
             abstract_true = st.checkbox("Abstract")
         with col3:
             corpus_true = st.checkbox("Corpus")
-        results = search(title_true, abstract_true, corpus_true)
+        
+    st.info("""💡 Lil Tip: Do a query with natural language \n
+    - es: "document about radioactivity" 
+    - The output will include synonyms 
+    - The more term you use, the better the search!""") 
+    search_query = st.text_input("🔍 Inserisci il testo da cercare", "")
+
+    results = search(search_query, title_true, abstract_true, corpus_true)
         
     if results:
         st.success(f"Trovati {len(results)} documenti")
@@ -78,6 +36,7 @@ def main():
             with st.expander(title_html, expanded=False):
                 st.write("**ID:** ", doc[0])
                 st.write("**Abstract:**", doc[2])
+                st.write("**Ranking:**", doc[6])
                 if doc[4] != "No keywords available":
                     st.write("**Keywords:**", doc[4])
                 # Aggiungiamo anche un pulsante per il link diretto
