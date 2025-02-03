@@ -11,9 +11,9 @@ scelta = st.selectbox("Scegli un motore di ricerca:", motori_di_ricerca)
 
 def esegui_streamlit(motore):
     if motore == "Postgres":
-        subprocess.Popen(["streamlit", "run", "WebApp/PostgresUI.py"])  
+        subprocess.Popen(["streamlit", "run", "PostgresUI.py"])  
     elif motore == "Whoosh":
-        subprocess.Popen(["streamlit", "run", "./WhooshUI.py"])  
+        subprocess.Popen(["streamlit", "run", "WhooshUI.py"])  
     elif motore == "PyLucene":
         print("PyLucene")
         subprocess.Popen(["streamlit", "run", "PyLuceneUI.py"]) 
