@@ -13,27 +13,63 @@ from org.apache.lucene.queryparser.classic import QueryParser
 import streamlit as st
 import json
 from pathlib import Path
+import yake
+import nltk
+from nltk.tokenize import word_tokenize
+from nltk.stem import PorterStemmer
+from nltk.corpus import stopwords
+
+#  Scarico le risorse di NLTK necessarie
+try:
+    nltk.data.find('tokenizers/punkt_tab')
+    nltk.data.find('corpora/wordnet')
+    nltk.data.find('corpora/stopwords')
+except LookupError:
+    nltk.download('punkt_tab')
+    nltk.download('wordnet')
+    nltk.download('stopwords')
 
 
 project_root = Path(__file__).parent.parent
 json_file = str(project_root / "WebScraping/results/Docs_cleaned.json") 
 
+#Questa funzione permette l'esapnsione della query, ovveero la ricerca contestualizzata
+def expand_query(query_string):
+
+    # Estrazione parole chiave con YAKE
+    kw_extractor = yake.KeywordExtractor(lan="en", n=3, dedupLim=0.9, top=5)
+    keywords = [kw[0] for kw in kw_extractor.extract_keywords(query_string)]
+
+    # Tokenizzazione e stemming con NLTK
+    stemmer = PorterStemmer()
+    stop_words = set(stopwords.words('english'))
+    
+    tokens = word_tokenize(query_string.lower())  # Tokenizzazione
+    stemmed_tokens = [stemmer.stem(word) for word in tokens if word.isalnum() and word not in stop_words]  # Rimozione stopword e stemming
+    
+    # Unione delle parole chiave YAKE e dei termini stemmatizzati
+    expanded_terms = list(set(keywords + stemmed_tokens))
+    
+    return " OR ".join(expanded_terms)  # Formattazione per Lucene
+
 def search_documents(searcher, title_true, abstract_true, corpus_true, query_string):
     analyzer = StandardAnalyzer()
     boolean_query = BooleanQuery.Builder()
 
+    expanded_query_string = expand_query(query_string)
+
     if title_true:
-        title_query = QueryParser("title", analyzer).parse(query_string)
+        title_query = QueryParser("title", analyzer).parse(expanded_query_string)
         boolean_query.add(title_query, BooleanClause.Occur.SHOULD)
     if abstract_true:
-        abstract_query = QueryParser("abstract", analyzer).parse(query_string)
+        abstract_query = QueryParser("abstract", analyzer).parse(expanded_query_string)
         boolean_query.add(abstract_query, BooleanClause.Occur.SHOULD)
     if corpus_true:
-        corpus_query = QueryParser("corpus", analyzer).parse(query_string)
+        corpus_query = QueryParser("corpus", analyzer).parse(expanded_query_string)
         boolean_query.add(corpus_query, BooleanClause.Occur.SHOULD)
 
     query = boolean_query.build()
-    results = searcher.search(query, 1000)
+    results = searcher.search(query,10)
     return results
 
 
