@@ -5,7 +5,7 @@ import subprocess
 st.title("THESISSIMO")
 
 # Combobox per selezionare il motore di ricerca
-motori_di_ricerca = ["Postgres", "Whoosh", "Pylucene"]
+motori_di_ricerca = ["Postgres", "Whoosh", "PyLucene"]
 scelta = st.selectbox("Scegli un motore di ricerca:", motori_di_ricerca)
 
 

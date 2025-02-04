@@ -5,18 +5,18 @@ except ValueError:
     pass  # JVM è già in esecuzione, ignoriamo l'errore
 
 from org.apache.lucene.analysis.standard import StandardAnalyzer
-from org.apache.lucene.store import ByteBuffersDirectory
+from org.apache.lucene.store import FSDirectory
 from org.apache.lucene.index import IndexWriter, IndexWriterConfig, DirectoryReader
 from org.apache.lucene.document import Document, Field, StringField, TextField 
 from org.apache.lucene.search import IndexSearcher, BooleanQuery, BooleanClause, MatchAllDocsQuery
 from org.apache.lucene.queryparser.classic import QueryParser
-
+from java.nio.file import Paths
 
 from pathlib import Path
 import json
 project_root = Path(__file__).parent.parent
 json_file = str(project_root / "WebScraping/results/Docs_cleaned.json") 
-
+index_file= str(project_root / "SearchEngine/index")
 
 import yake
 import nltk
@@ -61,7 +61,7 @@ def search_documents(searcher, title_true, abstract_true, corpus_true, query_str
     boolean_query = BooleanQuery.Builder()
     #Verifico che la query non sia vuota
     if not query_string or query_string.isspace():
-        return searcher.search(MatchAllDocsQuery(), 10)
+        return 
     
     expanded_query_string = expand_query(query_string)
 
@@ -80,15 +80,16 @@ def search_documents(searcher, title_true, abstract_true, corpus_true, query_str
     return results
 
 def create_index():
-         # Attacca il thread corrente alla JVM. Con Streamlit, che usa thread multipli, 
-     # dobbiamo assicurarci che il thread corrente sia collegato alla JVM prima di usare 
-     # le funzionalità di Lucene.
+    # Attacca il thread corrente alla JVM. Con Streamlit, che usa thread multipli, 
+    # dobbiamo assicurarci che il thread corrente sia collegato alla JVM prima di usare 
+    # le funzionalità di Lucene.
     env = lucene.getVMEnv()
     env.attachCurrentThread()
 
     # Creazione dell'indice in memoria
-    directory = ByteBuffersDirectory()
+    directory = FSDirectory.open(Paths.get(index_file))
     config = IndexWriterConfig(StandardAnalyzer())
+    config.setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND)
     writer = IndexWriter(directory, config)
     
     with open(json_file, 'r', encoding='utf-8') as f:
