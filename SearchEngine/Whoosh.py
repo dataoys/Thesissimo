@@ -10,7 +10,7 @@ from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 import nltk
 
-# Assicurati di scaricare le risorse necessarie di NLTK
+# Scarico le risorse necessarie di NLTK
 try:
     nltk.data.find('tokenizers/punkt')
     nltk.data.find('corpora/wordnet')

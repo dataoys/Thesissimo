@@ -7,10 +7,10 @@ import sys
 project_root = Path(__file__).parent.parent
 sys.path.append(str(project_root))
 
-from SearchEngine import create_or_get_index, search_documents
+from SearchEngine.Whoosh import create_or_get_index, search_documents
 
 # Funzione principale per indicizzare e cercare
-def main():
+def whoosh():
     project_root = Path(__file__).parent.parent
     index_dir = str(project_root / "WhooshIndex")  
     json_file = str(project_root / "WebScraping/results/Docs_cleaned.json") 
@@ -60,6 +60,6 @@ def main():
         st.warning("Nessun documento trovato per la ricerca effettuata.")
 
 if __name__ == '__main__':
-    main()
+    whoosh()
 
 
