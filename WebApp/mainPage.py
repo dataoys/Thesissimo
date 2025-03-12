@@ -5,17 +5,18 @@ import subprocess
 st.title("THESISSIMO")
 
 # Combobox per selezionare il motore di ricerca
-motori_di_ricerca = ["Postgres", "Whoosh", "Pylucene"]
+motori_di_ricerca = ["Postgres", "Whoosh", "PyLucene"]
 scelta = st.selectbox("Scegli un motore di ricerca:", motori_di_ricerca)
 
 
 def esegui_streamlit(motore):
     if motore == "Postgres":
-        subprocess.Popen(["streamlit", "run", "WebApp/PostgresUI.py"])  
+        subprocess.Popen(["streamlit", "run", "PostgresUI.py"])  
     elif motore == "Whoosh":
-        subprocess.Popen(["streamlit", "run", "WebApp/WhooshUI.py"])  
+        subprocess.Popen(["streamlit", "run", "WhooshUI.py"])  
     elif motore == "PyLucene":
-        subprocess.Popen(["streamlit", "run", "WebApp/PyLuceneUI.py"]) 
+        print("PyLucene")
+        subprocess.Popen(["streamlit", "run", "PyLuceneUI.py"]) 
 
 # Esegui il file corrispondente
 if st.button("Esegui"):
