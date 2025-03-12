@@ -1,6 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
-from UrlGenerator import UrlGenerators, CheckConn
+from UrlGenerator import UrlGenerators
 from DocManipualtion import addToJson, cleanText
 import sys
 from pathlib import Path
@@ -9,6 +9,7 @@ from tqdm import tqdm
 import random
 from Proxies import PROXY_LIST
 import json
+import threading
 
 
 # Ottieniamo il percorso assoluto della directory root del progetto
@@ -19,12 +20,15 @@ sys.path.append(str(project_root))
 print("Project root:", project_root)
 print("Python path:", sys.path)
 
-from Queries import jsonToPG
+from Queries import jsonToPG, resetTable
 from WebScraping.results.CleanDocuments import clean_documents
 
 NOME_FILE = str(project_root / "WebScraping/results/Docs.json")
 FILE_PULITO = str(project_root / "WebScraping/results/Docs_cleaned.json")
 DOCUMENTI_MAX = 100000
+
+# Variabile globale per controllare la pausa
+pause_flag = False
 
 def get_random_user_agent():
     user_agents = [
@@ -35,15 +39,27 @@ def get_random_user_agent():
     ]
     return random.choice(user_agents)
 
-def scraping(url):
+#Thread sempre in ascolto in input che in base all'input ricevuto mette in pausa o riprende lo scraping
+def input_listener():
+    global pause_flag
+    while True:
+        user_input = input("Digita 'pause' per mettere in pausa o 'resume' per riprendere: ")
+        if user_input.lower() == 'pause':
+            pause_flag = True
+            print("Scraping in pausa...")
+        elif user_input.lower() == 'resume':
+            pause_flag = False
+            print("Scraping ripreso...")
 
+def scraping(url):
     try:
-        # Aggiungi debug print
         print(f"Scraping URL: {url}")
-        
-        # Pausa tra le richieste
-        time.sleep(2)
-        
+        time.sleep(2)  # Simula il tempo di scraping
+
+        # Controlla se è in pausa
+        while pause_flag:
+            time.sleep(1)  # Aspetta mentre è in pausa
+
         headers = {
             'User-Agent': get_random_user_agent(),
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
@@ -108,7 +124,6 @@ def scraping(url):
         return result
     
     except Exception as e:
-
         print("Link non trovato, passiamo al prossimo")
 
     return None
@@ -119,13 +134,16 @@ def process_urls_sequential(urls):
     for url in tqdm(urls):
         result = scraping(url)
         if result:
-            # Debug print
             print(f"URL nel risultato: {result['url']}")
             results.append(result)
 
     return results
 
 def init():
+    # Crea un thread per ascoltare l'input dell'utente
+    listener_thread = threading.Thread(target=input_listener, daemon=True)
+    listener_thread.start()
+
     # Crea le directory se non esistono
     results_dir = project_root / "WebScraping/results"
     results_dir.mkdir(parents=True, exist_ok=True)
@@ -135,11 +153,10 @@ def init():
         with open(NOME_FILE, 'w', encoding='utf-8') as f:
             json.dump([], f)
     
+    # Inizio del processo di scraping
     urls = list(UrlGenerators())
     print(f"Inizio scraping di {len(urls)} URL...")
     start_time = time.time()
-    
-    # Usa scraping sequenziale invece che parallelo
     results = process_urls_sequential(urls)
     
     addToJson(results, NOME_FILE)
@@ -147,18 +164,20 @@ def init():
     end_time = time.time()
     print(f"Scraping completato in {end_time - start_time:.2f} secondi")
 
-    # Prima leggi il file JSON
+    #Prima leggi il file JSON
     with open(NOME_FILE, 'r', encoding='utf-8') as f:
         documents = json.load(f)
     
-    # Poi passa i documenti alla funzione clean_documents
+    #Pulisco i documenti dai vari caratteri unicode etc...
     cleaned_docs = clean_documents(documents)
     
-    # Infine salva i documenti puliti
+    #Infine salva i documenti puliti
     with open(FILE_PULITO, 'w', encoding='utf-8') as f:
         json.dump(cleaned_docs, f, indent=4, ensure_ascii=False)
     
-    # Passa il file pulito a jsonToPG
+    #Passa il file pulito a jsonToPG dopo aver resettato la tabella del db 
+    #per assicurarci che ogni volta vengano inseriti i risultati.
+    resetTable()
     jsonToPG(FILE_PULITO)
 
 

@@ -1,6 +1,5 @@
 import json 
 import psycopg2 as ps
-from psycopg2 import sql
 from pathlib import Path
 
 # Ottieni il percorso assoluto del progetto
@@ -27,8 +26,16 @@ def createTable():
         abstract TEXT,
         corpus TEXT,
         keywords TEXT DEFAULT 'No keywords available',
-        url TEXT    
+        url TEXT,
+        title_tsv tsvector GENERATED ALWAYS AS (to_tsvector('english', coalesce(title,''))) STORED,
+        abstract_tsv tsvector GENERATED ALWAYS AS (to_tsvector('english', coalesce(abstract,''))) STORED,
+        corpus_tsv tsvector GENERATED ALWAYS AS (to_tsvector('english', coalesce(corpus,''))) STORED
     );
+    
+    -- Creiamo gli indici sulle colonne tsvector
+    CREATE INDEX IF NOT EXISTS idx_docs_title ON DOCS USING GIN (title_tsv);
+    CREATE INDEX IF NOT EXISTS idx_docs_abstract ON DOCS USING GIN (abstract_tsv);
+    CREATE INDEX IF NOT EXISTS idx_docs_corpus ON DOCS USING GIN (corpus_tsv);
     '''
 
     cur.execute(q)
@@ -68,7 +75,7 @@ def jsonToPG(file):
         abstract = documento['abstract']
         corpus = documento['corpus']
         keywords = documento.get('keywords', None)
-        url = documento.get('url', '')  # Aggiungiamo l'URL
+        url = documento.get('url', '')
 
         docInsert(id, title, abstract, corpus, url, keywords)
 
@@ -93,7 +100,3 @@ def main():
 if __name__ == '__main__':
     main()
 
-
-
-#ESEMPIO DI QUERY
-#--SELECT id, corpus FROM docs WHERE to_tsvector(corpus) @@ to_tsquery('parola/frase');
