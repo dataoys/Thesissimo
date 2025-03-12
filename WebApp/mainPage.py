@@ -16,7 +16,7 @@ def esegui_streamlit(motore):
         subprocess.Popen(["streamlit", "run", "WhooshUI.py"])  
     elif motore == "PyLucene":
         print("PyLucene")
-        subprocess.Popen(["streamlit", "run", "PyLuceneUI.py"]) 
+        subprocess.Popen(["streamlit", "run", "./WebApp/PyLuceneUI.py"]) 
 
 # Esegui il file corrispondente
 if st.button("Esegui"):
