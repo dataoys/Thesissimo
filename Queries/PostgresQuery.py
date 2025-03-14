@@ -1,21 +1,31 @@
 import json 
 import psycopg2 as ps
+import os
 from pathlib import Path
-
 # Ottieni il percorso assoluto del progetto
 project_root = Path(__file__).parent.parent
+
 FILE_PATH = str(project_root / "WebScraping/results/Docs.json")  # Usa Docs.json invece di Docs_cleaned.json
 
 def dbConn():
-    return ps.connect(
-        dbname = "Thesissimo",
-        user="postgres",
-        password="postgres",
-        host="localhost",
-        port="5432"
-    )
+    """
+    Funzione che ci permetterà di collegarci al nostro database remoto.
+    """
+    
+    #Recuperiamo in modo sicuro la password dal file .env
+    password = os.getenv('MY_SECRET_PASSWORD')
+    connection_string = f"postgres://avnadmin:{password}@th-eso-thesissimo.i.aivencloud.com:15597/defaultdb?sslmode=require"
+
+    # Connetti al database
+    connection = ps.connect(connection_string)
+
 
 def createTable():
+    """
+    Funzione che viene chiamata ogni volta che viene eseguito uno scraping in modo tale da
+    poter resettare la tabella del database con i valori aggiornati
+    """
+    
     conn = dbConn()
     cur = conn.cursor()
 
@@ -45,6 +55,17 @@ def createTable():
 
 #questo perchè alcuni documenti potrebbero non avere delle keywords 
 def docInsert(id, title, abstract, corpus, url, keywords=None):
+    """
+    Funzione che mi permette, estratti i campi dal file JSON di inserirli all'interno del db
+
+    Args:
+        id (int): Primary key nonchè identificatore del doc.
+        title (str): Titolo del documento.
+        abstract (str): Abstract del documento.
+        corpus (str): Testo del documento.
+        url (str): Url del documento.
+        keywords (str, optional): Keywords del documento. Di default è assegnato a None perchè non è detto che siano presenti in ogni documento.
+    """
     conn = dbConn()
     cur = conn.cursor()
 
@@ -66,6 +87,12 @@ def docInsert(id, title, abstract, corpus, url, keywords=None):
     conn.close()
 
 def jsonToPG(file):
+    """
+    Fuznione che estrae campi da file JSON.
+
+    Args:
+        arg1 (str): Nome del file su cui sono locati i documenti scrapeati.
+    """
     with open(file, 'r') as f:
         data = json.load(f)
 
@@ -80,6 +107,9 @@ def jsonToPG(file):
         docInsert(id, title, abstract, corpus, url, keywords)
 
 def resetTable():
+    """
+    Funzione che resetta il database per non avere duplicati
+    """
     conn = dbConn()
     cur = conn.cursor()
     cur.execute("DROP TABLE IF EXISTS DOCS;")
@@ -89,7 +119,9 @@ def resetTable():
     createTable()
 
 def main():
-    # Assicurati che il file esista prima di procedere
+    """
+    Routine principale effetuata al avvio dello script; Richiama altre funzioni.
+    """
     if not Path(FILE_PATH).exists():
         print(f"Errore: Il file {FILE_PATH} non esiste!")
         return
