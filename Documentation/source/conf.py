@@ -13,12 +13,14 @@ author = 'Manuel Testoni & Marco Magni'
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = []
+extension = ['sphinx.ext.autodoc',
+             
+             ]
 
 templates_path = ['_templates']
 exclude_patterns = []
 
-language = 'it'
+language = 'en'
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
@@ -28,6 +30,5 @@ html_static_path = ['_static']
 
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../../'))
+sys.path.insert(0, os.path.abspath('../../Queries'))
 
-extension = ['sphinx.ext.autodoc']
