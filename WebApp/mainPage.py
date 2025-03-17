@@ -10,6 +10,14 @@ scelta = st.selectbox("Scegli un motore di ricerca:", motori_di_ricerca)
 
 
 def esegui_streamlit(motore):
+    """
+    Multiple choice search engine UI function
+
+    This function takes the user's choice of search engine and runs the corresponding Streamlit application.
+
+    Arguments:
+        motore (str): The user's choice of search engine.
+    """
     if motore == "Postgres":
         subprocess.Popen(["streamlit", "run", "PostgresUI.py"])  
     elif motore == "Whoosh":

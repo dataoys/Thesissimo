@@ -11,6 +11,18 @@ sys.path.append(str(project_root))
 from SearchEngine import create_or_get_index, search_documents
 
 def calculate_precision_recall(results, relevant_docs):
+    """
+    Calculate the precision and recall of the search results.
+
+    This function calculates the precision and recall of the search results based on the relevant documents provided.
+
+    Arguments:
+        results (list): List of search results.
+        relevant_docs (list): List of relevant documents.
+
+    Returns:
+        tuple: A tuple containing the precision and recall values.
+    """
     retrieved_docs = len(results)
     true_positives = sum(1 for doc in results if doc[0] in relevant_docs)
     
@@ -20,6 +32,15 @@ def calculate_precision_recall(results, relevant_docs):
     return precision, recall
 
 def plot_precision_recall(precision, recall):
+    """
+    Plot the precision-recall curve.
+
+    This function plots the precision-recall curve based on the precision and recall values provided.
+
+    Arguments:
+        precision (list): List of precision values.
+        recall (list): List of recall values.
+    """
     plt.figure()
     plt.plot(recall, precision, marker='o')
     plt.title('Precision-Recall Curve')
@@ -32,6 +53,11 @@ def plot_precision_recall(precision, recall):
 
 # Funzione principale per indicizzare e cercare
 def main():
+    """
+    Main function of the Streamlit Whoosh application.
+
+    This function creates the main interface of the Streamlit application for the Whoosh search engine.
+    """
     project_root = Path(__file__).parent.parent
     index_dir = str(project_root / "WhooshIndex")  
     json_file = str(project_root / "WebScraping/results/Docs_cleaned.json") 

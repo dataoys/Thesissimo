@@ -8,6 +8,11 @@ sys.path.append(str(project_root))
 from SearchEngine import search
 
 def main():
+    """
+    Main function of the Streamlit postgres application.
+
+    This function creates the main interface of the Streamlit application for the Postgres search engine.
+    """
     st.title("📚 Ricerca Documenti")
     
     with st.expander('🔧Filtra la tua ricerca!'):
