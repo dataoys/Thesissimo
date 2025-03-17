@@ -27,6 +27,11 @@ FILE_PULITO = str(project_root / "WebScraping/results/Docs_cleaned.json")
 DOCUMENTI_MAX = 100000
 
 def get_random_user_agent():
+    """
+    Function to get a random user agent string.
+
+    This function returns a random user agent string from a list of user agents to improve the scraping method.
+    """
     user_agents = [
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
         'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36',
@@ -36,6 +41,21 @@ def get_random_user_agent():
     return random.choice(user_agents)
 
 def scraping(url):
+    """
+    Function to scrape a list of URL.
+
+    This function scrapes a list of URL and returns the title, abstract, corpus, and keywords of the page.
+
+    Arguments:
+        url (str): The URL to scrape
+
+    Returns:
+        dict: A dictionary containing the title, abstract, corpus, keywords, and URL of the page.
+
+    Raises:
+        StatusCode: If the status code is 403, an exception is raised.
+        LinkNotFound: If the link is not found, the function will pass to the next URL.
+    """
 
     try:
         # Aggiungi debug print
@@ -114,6 +134,17 @@ def scraping(url):
     return None
 
 def process_urls_sequential(urls):
+    """
+    Function to process a list of URLs sequentially.
+
+    This function processes a list of URLs sequentially and returns the results.
+
+    Arguments:
+        urls (list): The list of URLs to process.
+
+    Returns:
+        list: The list of results.
+    """
     results = []
     
     for url in tqdm(urls):
@@ -126,6 +157,12 @@ def process_urls_sequential(urls):
     return results
 
 def init():
+    """
+    Main function of the Web Scraping application.
+
+    This function initializes the Web Scraping application by scraping a list of URLs, 
+    cleaning the documents, and saving the cleaned documents to a JSON file.
+    """
     # Crea le directory se non esistono
     results_dir = project_root / "WebScraping/results"
     results_dir.mkdir(parents=True, exist_ok=True)

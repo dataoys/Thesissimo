@@ -14,11 +14,32 @@ MAX_THREADS = 30
 
 
 def generate_url(m, a):
+    """
+    Url generator function.
+
+    This function generates a URL for a given month and article number.
+
+    Arguments:
+        m (int): The month number.
+        a (int): The article
+
+    Returns:
+        str: The generated URL.
+    """
     url = BASE_URL + str(m).zfill(2) + "." + str(a).zfill(5) + "v1"
     return url
 
 
 def UrlGenerators():
+    """
+    Url collapse function.
+
+    This function generates all the URLs for the articles and months specified in the MONTH_LIST and ARTICLE_LIST lists using
+    the previous function to generate the URLs, then it collapses all the URLs into a single list.
+
+    Returns:
+        list: The list of all generated URLs.
+    """
     urls = []
     with ThreadPoolExecutor(max_workers=MAX_THREADS) as executor:
         # Crea una lista di task per ogni combinazione di mese e articolo
@@ -34,6 +55,17 @@ def UrlGenerators():
 
 
 def CheckConn(response):
+    """
+    Connection check function.
+
+    This function checks if the connection to the URL was successful and if the HTML contains the "No HTML" string.
+
+    Arguments:
+        response (requests.models.Response): The response object from the request.
+        
+    Returns:
+        bool: True if the connection was successful and the HTML does not contain the "No HTML" string, False otherwise.
+    """
     time.sleep(1)
         #controllo che la connessione avvenga correttamente
     if response.status_code == 200:

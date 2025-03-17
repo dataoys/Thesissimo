@@ -7,6 +7,17 @@ input_path = "WebScraping/results/Docs.json"
 output_path = "WebScraping/results/Docs_cleaned.json"
 
 def clean_mathematical_text(text):
+    """
+    Clean a text containing mathematical expressions.
+
+    This function cleans a text containing mathematical expressions by removing Unicode characters and LaTeX notations.
+
+    Arguments:
+        text (str): The text to clean.
+
+    Returns:
+        str: The cleaned text.
+    """
     if not isinstance(text, str):
         return text
         
@@ -67,6 +78,21 @@ def clean_mathematical_text(text):
     return text.strip()
 
 def clean_documents(documents):
+    """
+    Clean a list of documents.
+
+    This function cleans a list of documents by removing mathematical expressions from the abstract and corpus fields.
+
+    Arguments:
+        documents (list): The list of documents to clean.
+
+    Returns:
+        list: The cleaned list of documents.
+
+    Raises:
+        PathError: If the input file is not found, a FileNotFoundError is raised.
+        JSONDecodeError: If the input file is not a valid JSON, a JSONDecodeError is raised.
+    """
     cleaned_docs = []
     
     for doc in documents:

@@ -5,6 +5,19 @@ from Queries import dbConn
 nlp = spacy.load("en_core_web_sm")
 
 def extract_keywords(uin):
+
+    """
+    Keyword extraction function.
+
+    This function takes the user's input string from the search bar and returns a list of keywords extracted from it.
+
+    Arguments:
+        uin (str): Search bar input.
+
+    Returns:
+        list: List of keywords extracted from the input string.
+    """
+
     # Analizza la UIN con spaCy
     doc = nlp(uin)
     # Estrai le parole chiave (sostantivi e verbi)
@@ -14,10 +27,26 @@ def extract_keywords(uin):
 
 
 def search(search_query, title_true, abstract_true, corpus_true):
+    """
+    Search Engine Postgres Funcion.
+
+    This function takes the user's input string from the search bar, and 3 boolean values that represent
+    the user's choice of where to search (title, abstract, corpus) and returns a list of documents that match the search query.
+
+    Arguments:
+        search_query (str): The user's input.
+        title_true (bool): First filter.
+        abstract_true (bool): Second filter.
+        corpus_true (bool): Third filter.
+
+    Returns:
+        list: list of the document matching the user query.
+
+    Raises:
+        ValueError: If the denominator (b) is zero, a ValueError is raised.
+    """
     conn = dbConn()
     cur = conn.cursor()
-    
-    
     
     keywords = extract_keywords(search_query)
     if not keywords:
