@@ -1,6 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
-from UrlGenerator import UrlGenerators, CheckConn
+from UrlGenerator import UrlGenerators
 from DocManipualtion import addToJson, cleanText
 import sys
 from pathlib import Path
@@ -18,7 +18,7 @@ sys.path.append(str(project_root))
 print("Project root:", project_root)
 print("Python path:", sys.path)
 
-from Queries import jsonToPG
+from Queries import jsonToPG, resetTable
 from WebScraping.results.CleanDocuments import clean_documents
 
 NOME_FILE = str(project_root / "WebScraping/results/Docs.json")
@@ -194,7 +194,8 @@ def init():
     with open(FILE_PULITO, 'w', encoding='utf-8') as f:
         json.dump(cleaned_docs, f, indent=4, ensure_ascii=False)
     
-    # Passa il file pulito a jsonToPG
+    # Si connette al db e passa il file pulito a jsonToPG
+    resetTable()
     jsonToPG(FILE_PULITO)
 
 
