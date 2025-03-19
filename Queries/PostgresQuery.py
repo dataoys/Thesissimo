@@ -9,7 +9,7 @@ FILE_PATH = str(project_root / "WebScraping/results/Docs.json")  # Usa Docs.json
 
 def dbConn():
     """
-    Funzione che ci permetterà di collegarci al nostro database remoto.
+    Database connection function.
     """
     
     #Recuperiamo in modo sicuro la password dal file .env
@@ -23,8 +23,7 @@ def dbConn():
 
 def createTable():
     """
-    Funzione che viene chiamata ogni volta che viene eseguito uno scraping in modo tale da
-    poter resettare la tabella del database con i valori aggiornati
+    Database table creation funtction.
     """
     
     conn = dbConn()
@@ -57,15 +56,15 @@ def createTable():
 #questo perchè alcuni documenti potrebbero non avere delle keywords 
 def docInsert(id, title, abstract, corpus, url, keywords=None):
     """
-    Funzione che mi permette, estratti i campi dal file JSON di inserirli all'interno del db
+    Field extraction and insertion function.
 
     Args:
-        id (int): Primary key nonchè identificatore del doc.
-        title (str): Titolo del documento.
-        abstract (str): Abstract del documento.
-        corpus (str): Testo del documento.
-        url (str): Url del documento.
-        keywords (str, optional): Keywords del documento. Di default è assegnato a None perchè non è detto che siano presenti in ogni documento.
+        id (int): Document primary key.
+        title (str): Document title.
+        abstract (str): Document abstract.
+        corpus (str): Document text.
+        url (str): Document url.
+        keywords (str, optional): Document keywords. Defaults to None.
     """
     conn = dbConn()
     cur = conn.cursor()
@@ -89,10 +88,10 @@ def docInsert(id, title, abstract, corpus, url, keywords=None):
 
 def jsonToPG(file):
     """
-    Fuznione che estrae campi da file JSON.
+    JSON field extraction and insertion into postgres remote database function.
 
     Args:
-        arg1 (str): Nome del file su cui sono locati i documenti scrapeati.
+        arg1 (str): File name.
     """
     with open(file, 'r') as f:
         data = json.load(f)
@@ -109,7 +108,7 @@ def jsonToPG(file):
 
 def resetTable():
     """
-    Funzione che resetta il database per non avere duplicati
+    Database reset function to be aware of copies.
     """
     conn = dbConn()
     cur = conn.cursor()
@@ -121,7 +120,7 @@ def resetTable():
 
 def main():
     """
-    Routine principale effetuata al avvio dello script; Richiama altre funzioni.
+    Main routine called when the script is run.
     """
     if not Path(FILE_PATH).exists():
         print(f"Errore: Il file {FILE_PATH} non esiste!")
