@@ -14,11 +14,12 @@ def dbConn():
     
     #Recuperiamo in modo sicuro la password dal file .env
     password = os.getenv('MY_SECRET_PASSWORD')
+
     connection_string = f"postgres://avnadmin:{password}@th-eso-thesissimo.i.aivencloud.com:15597/defaultdb?sslmode=require"
 
     # Connetti al database
     connection = ps.connect(connection_string)
-
+    return connection
 
 def createTable():
     """

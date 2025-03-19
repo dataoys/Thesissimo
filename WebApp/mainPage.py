@@ -19,9 +19,9 @@ def esegui_streamlit(motore):
         motore (str): The user's choice of search engine.
     """
     if motore == "Postgres":
-        subprocess.Popen(["streamlit", "run", "PostgresUI.py"])  
+        subprocess.Popen(["streamlit", "run", "./PostgresUI.py"])  
     elif motore == "Whoosh":
-        subprocess.Popen(["streamlit", "run", "WhooshUI.py"])  
+        subprocess.Popen(["streamlit", "run", "./WhooshUI.py"])  
     elif motore == "PyLucene":
         print("PyLucene")
         subprocess.Popen(["streamlit", "run", "./WebApp/PyLuceneUI.py"]) 
