@@ -8,7 +8,7 @@ import time
 from tqdm import tqdm
 import random
 import json
-
+import threading
 
 # Ottieniamo il percorso assoluto della directory root del progetto
 project_root = Path(__file__).parent.parent.parent
@@ -25,11 +25,13 @@ NOME_FILE = str(project_root / "WebScraping/results/Docs.json")
 FILE_PULITO = str(project_root / "WebScraping/results/Docs_cleaned.json")
 DOCUMENTI_MAX = 100000
 
+# Variabile globale per gestire la pausa
+pause_event = threading.Event()
+pause_event.set()  # Imposta inizialmente l'evento come "non in pausa"
+
 def get_random_user_agent():
     """
     Function to get a random user agent string.
-
-    This function returns a random user agent string from a list of user agents to improve the scraping method.
     """
     user_agents = [
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
@@ -42,26 +44,13 @@ def get_random_user_agent():
 def scraping(url):
     """
     Function to scrape a list of URL.
-
-    This function scrapes a list of URL and returns the title, abstract, corpus, and keywords of the page.
-
-    Arguments:
-        url (str): The URL to scrape
-
-    Returns:
-        dict: A dictionary containing the title, abstract, corpus, keywords, and URL of the page.
-
-    Raises:
-        StatusCode: If the status code is 403, an exception is raised.
-        LinkNotFound: If the link is not found, the function will pass to the next URL.
     """
-
     try:
-        # Aggiungi debug print
         print(f"Scraping URL: {url}")
+        time.sleep(2)  # Pausa tra le richieste
         
-        # Pausa tra le richieste
-        time.sleep(2)
+        # Controllo per la pausa
+        pause_event.wait()  # Questo blocca il thread fino a quando non è stato rilasciato il flag di pausa
         
         headers = {
             'User-Agent': get_random_user_agent(),
@@ -76,7 +65,6 @@ def scraping(url):
             'Sec-GPC': '1'
         }
         
-        # Prova senza proxy
         response = requests.get(
             url,
             headers=headers,
@@ -127,40 +115,40 @@ def scraping(url):
         return result
     
     except Exception as e:
-
         print("Link non trovato, passiamo al prossimo")
-
     return None
 
 def process_urls_sequential(urls):
     """
     Function to process a list of URLs sequentially.
-
-    This function processes a list of URLs sequentially and returns the results.
-
-    Arguments:
-        urls (list): The list of URLs to process.
-
-    Returns:
-        list: The list of results.
     """
     results = []
     
     for url in tqdm(urls):
         result = scraping(url)
         if result:
-            # Debug print
             print(f"URL nel risultato: {result['url']}")
             results.append(result)
 
     return results
 
+def monitor_input():
+    """
+    Function to monitor the user input and control pause/resume functionality.
+    """
+    global pause_event
+    while True:
+        user_input = input("Enter 'pause' to pause scraping, 'resume' to resume scraping: ").strip().lower()
+        if user_input == "pause":
+            print("Pausing scraping...")
+            pause_event.clear()  # Mette in pausa lo scraping
+        elif user_input == "resume":
+            print("Resuming scraping...")
+            pause_event.set()  # Riprende lo scraping
+
 def init():
     """
     Main function of the Web Scraping application.
-
-    This function initializes the Web Scraping application by scraping a list of URLs, 
-    cleaning the documents, and saving the cleaned documents to a JSON file.
     """
     # Crea le directory se non esistono
     results_dir = project_root / "WebScraping/results"
@@ -175,7 +163,11 @@ def init():
     print(f"Inizio scraping di {len(urls)} URL...")
     start_time = time.time()
     
-    # Usa scraping sequenziale invece che parallelo
+    # Inizia il thread di monitoraggio dell'input
+    input_thread = threading.Thread(target=monitor_input, daemon=True)
+    input_thread.start()
+
+    # Usa scraping sequenziale
     results = process_urls_sequential(urls)
     
     addToJson(results, NOME_FILE)
@@ -183,22 +175,17 @@ def init():
     end_time = time.time()
     print(f"Scraping completato in {end_time - start_time:.2f} secondi")
 
-    # Prima leggi il file JSON
+    # Pulizia dei documenti
     with open(NOME_FILE, 'r', encoding='utf-8') as f:
         documents = json.load(f)
     
-    # Poi passa i documenti alla funzione clean_documents
     cleaned_docs = clean_documents(documents)
     
-    # Infine salva i documenti puliti
     with open(FILE_PULITO, 'w', encoding='utf-8') as f:
         json.dump(cleaned_docs, f, indent=4, ensure_ascii=False)
     
-    # Si connette al db e passa il file pulito a jsonToPG
     resetTable()
     jsonToPG(FILE_PULITO)
 
-
 if __name__ == '__main__':
     init()
-
