@@ -7,7 +7,6 @@ from pathlib import Path
 import time
 from tqdm import tqdm
 import random
-from Proxies import PROXY_LIST
 import json
 
 

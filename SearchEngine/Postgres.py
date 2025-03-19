@@ -1,13 +1,17 @@
-import spacy
+import nltk
+from nltk.tokenize import word_tokenize
+from nltk.tag import pos_tag
+from nltk.corpus import stopwords
 from Queries import dbConn
 
-# Carica il modello di lingua inglese di spaCy
-nlp = spacy.load("en_core_web_sm")
+# Scarica le risorse necessarie di NLTK (se non sono già scaricate)
+nltk.download('punkt')
+nltk.download('averaged_perceptron_tagger_eng')
+nltk.download('stopwords')
 
 def extract_keywords(uin):
-
     """
-    Keyword extraction function.
+    Keyword extraction function using NLTK.
 
     This function takes the user's input string from the search bar and returns a list of keywords extracted from it.
 
@@ -18,17 +22,25 @@ def extract_keywords(uin):
         list: List of keywords extracted from the input string.
     """
 
-    # Analizza la UIN con spaCy
-    doc = nlp(uin)
-    # Estrai le parole chiave (sostantivi e verbi)
-    keywords = [token.text for token in doc if token.pos_ in ['NOUN', 'VERB']]
-    return keywords
-
+    # Tokenizza la stringa di input
+    tokens = word_tokenize(uin)
+    
+    # Esegui il POS tagging per identificare il tipo di parola (sostantivo, verbo, ecc.)
+    tagged = pos_tag(tokens)
+    
+    # Estrai solo sostantivi e verbi (per ora ignoriamo le stopwords)
+    keywords = [word for word, tag in tagged if tag in ['NN', 'VB', 'NNS', 'VBD', 'VBG', 'VBN', 'VBZ']]
+    
+    # Filtra le parole chiave rimuovendo le stopwords
+    stop_words = set(stopwords.words('english'))
+    filtered_keywords = [word for word in keywords if word.lower() not in stop_words]
+    
+    return filtered_keywords
 
 
 def search(search_query, title_true, abstract_true, corpus_true):
     """
-    Search Engine Postgres Funcion.
+    Search Engine Postgres Function.
 
     This function takes the user's input string from the search bar, and 3 boolean values that represent
     the user's choice of where to search (title, abstract, corpus) and returns a list of documents that match the search query.
@@ -40,7 +52,7 @@ def search(search_query, title_true, abstract_true, corpus_true):
         corpus_true (bool): Third filter.
 
     Returns:
-        list: list of the document matching the user query.
+        list: list of the documents matching the user query.
 
     Raises:
         ValueError: If the denominator (b) is zero, a ValueError is raised.
@@ -51,10 +63,13 @@ def search(search_query, title_true, abstract_true, corpus_true):
     keywords = extract_keywords(search_query)
     if not keywords:
         return []
+    
+    # Converte la lista di parole chiave in una stringa separata da ' & '
     search_query = ' & '.join(keywords) 
+    
     if search_query:
-        #ricerca su tutti i campi dei documenti
-        if title_true & abstract_true & corpus_true:
+        # ricerca su tutti i campi dei documenti
+        if title_true and abstract_true and corpus_true:
             q = '''
             SELECT id, title, abstract, corpus, keywords, url,
                    ts_rank(to_tsvector(title) || 
@@ -68,7 +83,8 @@ def search(search_query, title_true, abstract_true, corpus_true):
             ORDER BY rank DESC
             '''
             cur.execute(q, (search_query, search_query, search_query, search_query))
-        #ricerca solamente sul titolo dei nostri documenti
+        
+        # ricerca solamente sul titolo dei documenti
         if title_true and not abstract_true and not corpus_true:
             q = '''
             SELECT id, title, abstract, corpus, keywords, url,
@@ -79,7 +95,8 @@ def search(search_query, title_true, abstract_true, corpus_true):
             ORDER BY rank DESC
             '''
             cur.execute(q, (search_query, search_query))
-        #ricerca sull'abstract dei documenti
+        
+        # ricerca sull'abstract dei documenti
         if abstract_true and not title_true and not corpus_true:
             q = '''
             SELECT id, title, abstract, corpus, keywords, url,
@@ -90,7 +107,8 @@ def search(search_query, title_true, abstract_true, corpus_true):
             ORDER BY rank DESC
             '''
             cur.execute(q, (search_query, search_query))
-        #ricerca solo sul corpo del testo dei nostri documenti
+        
+        # ricerca solo sul corpo del testo dei documenti
         if corpus_true and not title_true and not abstract_true:
             q = '''
             SELECT id, title, abstract, corpus, keywords, url,
