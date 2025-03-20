@@ -1,9 +1,14 @@
 import json
 import re
-import os
 
-# Definizione dei percorsi
+
+"""
+Path to the input JSON file.
+"""
 input_path = "WebScraping/results/Docs.json"
+"""
+Path to the output JSON file.
+"""
 output_path = "WebScraping/results/Docs_cleaned.json"
 
 def clean_mathematical_text(text):

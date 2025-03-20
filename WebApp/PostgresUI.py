@@ -2,7 +2,9 @@ import streamlit as st
 from pathlib import Path
 import sys
 
-# Ottieniamo il percorso assoluto della directory root del progetto
+"""
+Path to the project root directory.
+"""
 project_root = Path(__file__).parent.parent
 sys.path.append(str(project_root))
 from SearchEngine import search

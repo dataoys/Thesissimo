@@ -1,13 +1,27 @@
 import time
-import requests
 from bs4 import BeautifulSoup
 from concurrent.futures import ThreadPoolExecutor
 from tqdm import tqdm 
 
+"""
+Base URL structure.
+"""
 BASE_URL= "https://arxiv.org/html/24"
+"""
+List of links to scrape.
+"""
 urls= []
+"""
+List of months to scrape.
+"""
 MONTH_LIST = [i for i in range(1, 13)]
+"""
+List of articles to scrape.
+"""
 ARTICLE_LIST = [i for i in range(1, 4001)]
+"""
+Using threads to generate urls.
+"""
 MAX_THREADS = 30
 #cerco di accedere alla parte successiva del sito, strutturata in questo modo:  
 # sito_base/anno/n_documento/section/num_sezione

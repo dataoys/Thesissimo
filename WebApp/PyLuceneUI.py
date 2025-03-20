@@ -15,7 +15,13 @@ import json
 from pathlib import Path
 
 
+"""
+path to the root directory of the project.
+"""
 project_root = Path(__file__).parent.parent
+"""
+path to the JSON file containing the documents.
+"""
 json_file = str(project_root / "WebScraping/results/Docs_cleaned.json") 
 
 def search_documents(searcher, title_true, abstract_true, corpus_true, query_string):

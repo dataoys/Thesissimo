@@ -2,6 +2,9 @@ import json
 import re
 
 def remove_latex(text):
+    """
+    Clean a text containing LaTeX expressions (light cleaning).
+    """
     # Rimuove qualsiasi stringa che inizia con \ fino al primo spazio o fine stringa
     text = re.sub(r'\\[^\s]*', '', text)
     
@@ -11,6 +14,9 @@ def remove_latex(text):
     return text.strip()
 
 def cleanText(text):
+    """
+    Clean a text document (light cleaning).
+    """
     # Prima rimuovi il LaTeX
     text = remove_latex(text)
     
@@ -27,6 +33,9 @@ def cleanText(text):
     return text.strip()
 
 def addToJson(results, NOME_FILE):
+    """
+    Add new documents to the JSON file.
+    """
     data = []
     
     # Aggiungi tutti i nuovi documenti con ID incrementale

@@ -10,24 +10,30 @@ import random
 import json
 import threading
 
-# Ottieniamo il percorso assoluto della directory root del progetto
+"""
+Path to the project root directory.
+"""
 project_root = Path(__file__).parent.parent.parent
 sys.path.append(str(project_root))
-
-# Per debug, verifica il path
-print("Project root:", project_root)
-print("Python path:", sys.path)
 
 from Queries import jsonToPG, resetTable
 from WebScraping.results.CleanDocuments import clean_documents
 
+"""
+Path to the JSON file containing the documents.
+"""
 NOME_FILE = str(project_root / "WebScraping/results/Docs.json")
+"""
+Path to the cleaned JSON file.
+"""
 FILE_PULITO = str(project_root / "WebScraping/results/Docs_cleaned.json")
-DOCUMENTI_MAX = 100000
 
-# Variabile globale per gestire la pausa
+
+"""
+Evento per mettere in pausa il thread di scraping.
+"""
 pause_event = threading.Event()
-pause_event.set()  # Imposta inizialmente l'evento come "non in pausa"
+pause_event.set()  #Imposta inizialmente l'evento come "non in pausa"
 
 def get_random_user_agent():
     """

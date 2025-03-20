@@ -2,10 +2,15 @@ import json
 import psycopg2 as ps
 import os
 from pathlib import Path
-# Ottieni il percorso assoluto del progetto
+"""
+Path to the project root directory variable.
+"""
 project_root = Path(__file__).parent.parent
 
-FILE_PATH = str(project_root / "WebScraping/results/Docs.json")  # Usa Docs.json invece di Docs_cleaned.json
+"""
+Path to the JSON file containing the documents.
+"""
+FILE_PATH = str(project_root / "WebScraping/results/Docs.json")  
 
 def dbConn():
     """
