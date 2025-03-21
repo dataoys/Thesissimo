@@ -3,30 +3,46 @@ from bs4 import BeautifulSoup
 from concurrent.futures import ThreadPoolExecutor
 from tqdm import tqdm 
 
+BASE_URL = "https://arxiv.org/html/24"
 """
-Base URL structure.
+@var BASE_URL
+Base URL structure for the Arxiv website.
+This URL is used as the base for generating specific article URLs.
 """
-BASE_URL= "https://arxiv.org/html/24"
+
+# List of links to scrape.
+urls = []
 """
+@var urls
 List of links to scrape.
+This list will hold all the URLs that need to be scraped from the website.
 """
-urls= []
-"""
-List of months to scrape.
-"""
+
+# List of months to scrape.
 MONTH_LIST = [i for i in range(1, 13)]
 """
-List of articles to scrape.
+@var MONTH_LIST
+List of months to scrape.
+This list contains the months (1-12) that we want to scrape data for.
 """
+
+# List of articles to scrape.
 ARTICLE_LIST = [i for i in range(1, 4001)]
 """
-Using threads to generate urls.
+@var ARTICLE_LIST
+List of articles to scrape.
+This list contains article numbers that will be used in URL generation.
 """
+
+# Using threads to generate URLs.
 MAX_THREADS = 30
-#cerco di accedere alla parte successiva del sito, strutturata in questo modo:  
-# sito_base/anno/n_documento/section/num_sezione
+"""
+@var MAX_THREADS
+Maximum number of threads to use when generating URLs.
+This is used to speed up the URL generation process.
+"""
 
-
+# Example function
 def generate_url(m, a):
     """
     Url generator function.
@@ -35,14 +51,13 @@ def generate_url(m, a):
 
     Arguments:
         m (int): The month number.
-        a (int): The article
+        a (int): The article number.
 
     Returns:
         str: The generated URL.
     """
     url = BASE_URL + str(m).zfill(2) + "." + str(a).zfill(5) + "v1"
     return url
-
 
 def UrlGenerators():
     """
