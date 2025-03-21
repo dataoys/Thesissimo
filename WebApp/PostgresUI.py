@@ -6,13 +6,15 @@ project_root = Path(__file__).parent.parent
 sys.path.append(str(project_root))
 from SearchEngine.Postgres import search
 
-def search():
+def searchUI():
     """
     Main function of the Streamlit postgres application.
 
     This function creates the main interface of the Streamlit application for the Postgres search engine.
     """
     st.title("📚 Ricerca Documenti")
+    ranking_type = st.radio("🔍 Seleziona il tipo di ranking", ["ts_rank", "ts_rank_cd"])
+
     
     with st.expander('🔧Filtra la tua ricerca!'):
         col1, col2, col3 = st.columns(3)
@@ -29,7 +31,7 @@ def search():
     - The more term you use, the better the search!""") 
     search_query = st.text_input("🔍 Inserisci il testo da cercare", "")
 
-    results = search(search_query, title_true, abstract_true, corpus_true)
+    results = search(search_query, title_true, abstract_true, corpus_true, ranking_type)
         
     if results:
         st.success(f"Trovati {len(results)} documenti")
@@ -51,4 +53,4 @@ def search():
 
 
 if __name__ == "__main__":
-    search()
+    searchUI()

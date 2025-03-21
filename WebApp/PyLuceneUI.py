@@ -16,7 +16,7 @@ from SearchEngine.Pylucene import create_index, search_documents
 
 directory, searcher = create_index()
 
-def search():
+def searchUI():
     
     st.title("📚 Ricerca Documenti")
 
@@ -56,4 +56,4 @@ def search():
     directory.close()
 
 if __name__ == "__main__":
-    search()
+    searchUI()

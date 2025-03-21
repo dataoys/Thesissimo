@@ -51,7 +51,7 @@ def plot_precision_recall(precision, recall):
     st.pyplot(plt)
 
 # Funzione principale per indicizzare e cercare
-def search():
+def searchUI():
     """
     Main function of the Streamlit Whoosh application.
 
@@ -68,6 +68,7 @@ def search():
         return
 
     st.title("📚 Ricerca Documenti")
+    ranking_type = st.radio("🔍 Seleziona il tipo di ranking", ["TF_IDF", "BM25"])
 
     with st.expander('🔧Filtra la tua ricerca!'):
         col1, col2, col3 = st.columns(3)
@@ -84,7 +85,7 @@ def search():
     - The more term you use, the better the search!""") 
     
     query_string = st.text_input("🔍 Inserisci il testo da cercare", "")
-    results = search_documents(index_dir, query_string,title_true, abstract_true, corpus_true)
+    results = search_documents(index_dir, query_string,title_true, abstract_true, corpus_true, ranking_type)
 
     if results:
         st.success(f"Trovati {len(results)} documenti")
@@ -113,6 +114,6 @@ def search():
         st.warning("Nessun documento trovato per la ricerca effettuata.")
 
 if __name__ == '__main__':
-    search()
+    searchUI()
 
 

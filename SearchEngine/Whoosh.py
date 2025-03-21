@@ -1,5 +1,6 @@
 from whoosh.index import create_in
 from whoosh.fields import Schema, TEXT, ID
+from whoosh.scoring import TF_IDF, BM25F
 from whoosh.qparser import OrGroup, MultifieldParser
 from whoosh.analysis import StemmingAnalyzer
 import os
@@ -18,7 +19,7 @@ try:
 except LookupError:
     nltk.download('punkt')
     nltk.download('wordnet')
-    nltk.download('stopwords')
+    nltk.download('stopwords') 
 
 def create_schema():
     """
@@ -132,7 +133,7 @@ def expand_query(query_string):
     
     return ' OR '.join(expanded_terms)
 
-def search_documents(index_dir, query_string, title_true, abstract_true, corpus_true):
+def search_documents(index_dir, query_string, title_true, abstract_true, corpus_true, ranking_type):
     """
     Search Engine Whoosh Function.
 
@@ -158,9 +159,14 @@ def search_documents(index_dir, query_string, title_true, abstract_true, corpus_
 
     # Espandi la query con termini correlati
     expanded_query = expand_query(query_string)
+    if ranking_type == "TF_IDF":
+        rank = TF_IDF()
+    else:
+        # Non alteriamo i valori default della funzine (normalizzazione e sensibilità)
+        rank = BM25F()
     
     ix = index.open_dir(index_dir)
-    with ix.searcher() as searcher:
+    with ix.searcher(weighting=rank) as searcher:
         # Determina i campi da cercare
         fields = []
         if title_true:
@@ -174,7 +180,9 @@ def search_documents(index_dir, query_string, title_true, abstract_true, corpus_
         parser = MultifieldParser(fields, ix.schema, group=OrGroup)
         query = parser.parse(expanded_query)
         
-        # Esegui la ricerca e includi lo score
+
+        # Esegui la ricerca con il ranking selezionato
+
         results = searcher.search(query)
         return [(result['id'], 
                 result['title'], 
@@ -239,4 +247,3 @@ def create_or_get_index(index_dir, json_file, force_rebuild=False):
     # Indicizza i documenti
     index_documents(index_dir, json_file)
     return index.open_dir(index_dir)
-    
