@@ -8,7 +8,7 @@ from org.apache.lucene.analysis.standard import StandardAnalyzer
 from org.apache.lucene.store import FSDirectory
 from org.apache.lucene.index import IndexWriter, IndexWriterConfig, DirectoryReader
 from org.apache.lucene.document import Document, Field, StringField, TextField 
-from org.apache.lucene.search import IndexSearcher, BooleanQuery, BooleanClause, MatchAllDocsQuery
+from org.apache.lucene.search import IndexSearcher, BooleanQuery, BooleanClause
 from org.apache.lucene.queryparser.classic import QueryParser
 from java.nio.file import Paths
 
@@ -76,7 +76,7 @@ def search_documents(searcher, title_true, abstract_true, corpus_true, query_str
         boolean_query.add(corpus_query, BooleanClause.Occur.SHOULD)
 
     query = boolean_query.build()
-    results = searcher.search(query,15)
+    results = searcher.search(query, 10)
     return results
 
 def create_index():
@@ -89,7 +89,7 @@ def create_index():
     # Creazione dell'indice in memoria
     directory = FSDirectory.open(Paths.get(index_file))
     config = IndexWriterConfig(StandardAnalyzer())
-    config.setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND)
+    config.setOpenMode(IndexWriterConfig.OpenMode.CREATE)
     writer = IndexWriter(directory, config)
     
     with open(json_file, 'r', encoding='utf-8') as f:
@@ -111,4 +111,3 @@ def create_index():
     searcher = IndexSearcher(reader)
     return directory, searcher
 
-    

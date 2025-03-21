@@ -4,76 +4,19 @@ try:
 except ValueError:
     pass  # JVM è già in esecuzione, ignoriamo l'errore
 
-from org.apache.lucene.analysis.standard import StandardAnalyzer
-from org.apache.lucene.store import ByteBuffersDirectory
-from org.apache.lucene.index import IndexWriter, IndexWriterConfig, DirectoryReader
-from org.apache.lucene.document import Document, Field, StringField, TextField
-from org.apache.lucene.search import IndexSearcher, BooleanQuery, BooleanClause
-from org.apache.lucene.queryparser.classic import QueryParser
 import streamlit as st
-import json
 from pathlib import Path
+import sys
 
-
-"""
-path to the root directory of the project.
-"""
 project_root = Path(__file__).parent.parent
-"""
-path to the JSON file containing the documents.
-"""
 json_file = str(project_root / "WebScraping/results/Docs_cleaned.json") 
+sys.path.append(str(project_root))
 
-def search_documents(searcher, title_true, abstract_true, corpus_true, query_string):
-    analyzer = StandardAnalyzer()
-    boolean_query = BooleanQuery.Builder()
+from SearchEngine.Pylucene import create_index, search_documents
 
-    if title_true:
-        title_query = QueryParser("title", analyzer).parse(query_string)
-        boolean_query.add(title_query, BooleanClause.Occur.SHOULD)
-    if abstract_true:
-        abstract_query = QueryParser("abstract", analyzer).parse(query_string)
-        boolean_query.add(abstract_query, BooleanClause.Occur.SHOULD)
-    if corpus_true:
-        corpus_query = QueryParser("corpus", analyzer).parse(query_string)
-        boolean_query.add(corpus_query, BooleanClause.Occur.SHOULD)
+directory, searcher = create_index()
 
-    query = boolean_query.build()
-    results = searcher.search(query, 1000)
-    return results
-
-
-def test_pylucene():
-     # Attacca il thread corrente alla JVM. Con Streamlit, che usa thread multipli, 
-     # dobbiamo assicurarci che il thread corrente sia collegato alla JVM prima di usare 
-     # le funzionalità di Lucene.
-    env = lucene.getVMEnv()
-    env.attachCurrentThread()
-
-    # Creazione dell'indice in memoria
-    directory = ByteBuffersDirectory()
-    analyzer = StandardAnalyzer()
-    config = IndexWriterConfig(analyzer)
-    writer = IndexWriter(directory, config)
-    
-    
-    
-    with open(json_file, 'r', encoding='utf-8') as f:
-        documents = json.load(f)
-
-    for d in documents:
-        doc = Document()
-        doc.add(TextField("title", d['title'], Field.Store.YES))
-        doc.add(TextField("abstract", d['abstract'], Field.Store.YES))
-        doc.add(TextField("corpus", d['corpus'], Field.Store.YES))
-        doc.add(TextField("keywords", d['keywords'], Field.Store.YES))
-        doc.add(StringField("url", d['url'], Field.Store.YES))
-        
-        #scriviamo il documenti nell'indice
-        writer.addDocument(doc)    
-    #chiudiamo l'indice    
-    writer.close()
-
+def search():
     
     st.title("📚 Ricerca Documenti")
 
@@ -86,14 +29,11 @@ def test_pylucene():
         with col3:
             corpus_true = st.checkbox("Corpus")
 
-    reader = DirectoryReader.open(directory)
-    searcher = IndexSearcher(reader)
     query_string = st.text_input("🔍 Inserisci il testo da cercare", "")
     results = search_documents(searcher,title_true, abstract_true, corpus_true, query_string)
-    print (results)
+    #print (results)
     if results:
 
-        
         st.success(f"Trovati {len(results.scoreDocs)} documenti")
 
         for scoreDoc in results.scoreDocs:
@@ -116,4 +56,4 @@ def test_pylucene():
     directory.close()
 
 if __name__ == "__main__":
-    test_pylucene()
+    search()

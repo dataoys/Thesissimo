@@ -3,14 +3,8 @@ import subprocess
 
 #Titolo
 st.title("THESISSIMO")
-
-"""
-ComboBox that allows to select the search engine to use.
-"""
 motori_di_ricerca = ["Postgres", "Whoosh", "PyLucene"]
-"""
-User choice of search engine variable.
-"""
+
 scelta = st.selectbox("Scegli un motore di ricerca:", motori_di_ricerca)
 
 

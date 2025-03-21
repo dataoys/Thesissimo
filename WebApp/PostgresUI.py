@@ -2,14 +2,11 @@ import streamlit as st
 from pathlib import Path
 import sys
 
-"""
-Path to the project root directory.
-"""
 project_root = Path(__file__).parent.parent
 sys.path.append(str(project_root))
-from SearchEngine import search
+from SearchEngine.Postgres import search
 
-def main():
+def search():
     """
     Main function of the Streamlit postgres application.
 
@@ -54,4 +51,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    search()

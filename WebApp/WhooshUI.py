@@ -4,13 +4,10 @@ import sys
 import matplotlib.pyplot as plt
 import numpy as np
 
-"""
-Path to the project root directory.
-"""
 project_root = Path(__file__).parent.parent
 sys.path.append(str(project_root))
 
-from SearchEngine import create_or_get_index, search_documents
+from SearchEngine.Whoosh import create_or_get_index, search_documents
 
 def calculate_precision_recall(results, relevant_docs):
     """
@@ -54,7 +51,7 @@ def plot_precision_recall(precision, recall):
     st.pyplot(plt)
 
 # Funzione principale per indicizzare e cercare
-def main():
+def search():
     """
     Main function of the Streamlit Whoosh application.
 
@@ -116,6 +113,6 @@ def main():
         st.warning("Nessun documento trovato per la ricerca effettuata.")
 
 if __name__ == '__main__':
-    main()
+    search()
 
 
