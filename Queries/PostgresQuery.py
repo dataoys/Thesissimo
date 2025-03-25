@@ -10,7 +10,7 @@ project_root = Path(__file__).parent.parent
 """
 Path to the JSON file containing the documents.
 """
-FILE_PATH = str(project_root / "WebScraping/results/Docs.json")  
+FILE_PATH = str(project_root / "WebScraping/results/Docs_cleaned.json")  
 
 def dbConn():
     """
