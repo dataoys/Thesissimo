@@ -1,6 +1,6 @@
 import json
 import re
-
+import ijson
 
 """
 Path to the input JSON file.
@@ -82,46 +82,56 @@ def clean_mathematical_text(text):
     
     return text.strip()
 
-def clean_documents(documents):
+def clean_documents_in_batches(input_path, output_path, batch_size=1000):
     """
-    Clean a list of documents.
+    Clean documents in batches from a JSON file.
 
-    This function cleans a list of documents by removing mathematical expressions from the abstract and corpus fields.
+    This function reads documents from a JSON file incrementally, cleans them in batches, and writes the cleaned documents to a new JSON file.
 
     Arguments:
-        documents (list): The list of documents to clean.
-
-    Returns:
-        list: The cleaned list of documents.
-
-    Raises:
-        PathError: If the input file is not found, a FileNotFoundError is raised.
-        JSONDecodeError: If the input file is not a valid JSON, a JSONDecodeError is raised.
+        input_path (str): Path to the input JSON file.
+        output_path (str): Path to the output JSON file.
+        batch_size (int): Number of documents to process in each batch.
     """
-    cleaned_docs = []
-    
-    for doc in documents:
-        cleaned_doc = doc.copy()
-        if 'abstract' in cleaned_doc:
-            cleaned_doc['abstract'] = clean_mathematical_text(cleaned_doc['abstract'])
-        if 'corpus' in cleaned_doc:
-            cleaned_doc['corpus'] = clean_mathematical_text(cleaned_doc['corpus'])
-        cleaned_docs.append(cleaned_doc)
-    
-    return cleaned_docs
+    with open(input_path, 'r', encoding='utf-8', errors="ignore") as infile, \
+         open(output_path, 'w', encoding='utf-8') as outfile:
+        
+        # Scrivi l'inizio dell'array JSON
+        outfile.write("[\n")
+        
+        batch = []
+        first = True
+        
+        # Itera sui documenti nel file JSON
+        for document in ijson.items(infile, "item"):
+            # Pulisci il documento
+            if 'abstract' in document:
+                document['abstract'] = clean_mathematical_text(document['abstract'])
+            if 'corpus' in document:
+                document['corpus'] = clean_mathematical_text(document['corpus'])
+            
+            batch.append(document)
+            
+            # Se il batch raggiunge la dimensione specificata, scrivilo nel file di output
+            if len(batch) >= batch_size:
+                if not first:
+                    outfile.write(",\n")
+                json.dump(batch, outfile, indent=4, ensure_ascii=False)
+                batch = []
+                first = False
+        
+        # Scrivi eventuali documenti rimanenti
+        if batch:
+            if not first:
+                outfile.write(",\n")
+            json.dump(batch, outfile, indent=4, ensure_ascii=False)
+        
+        # Scrivi la fine dell'array JSON
+        outfile.write("\n]")
 
 try:
-    # Lettura del file JSON
-    with open(input_path, 'r', encoding='utf-8') as f:
-        documents = json.load(f)  # Usa load invece di loads
-    
-    # Pulizia dei documenti
-    cleaned_documents = clean_documents(documents)
-    
-    # Salvataggio del risultato
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(cleaned_documents, f, indent=4, ensure_ascii=False)
-    
+    # Pulizia dei documenti in batch
+    clean_documents_in_batches(input_path, output_path, batch_size=1000)
     print(f"File pulito salvato in: {output_path}")
 
 except FileNotFoundError:

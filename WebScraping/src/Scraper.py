@@ -17,7 +17,7 @@ project_root = Path(__file__).parent.parent.parent
 sys.path.append(str(project_root))
 
 from Queries import jsonToPG, resetTable
-from WebScraping.results.CleanDocuments import clean_documents
+from WebScraping.results.CleanDocuments import clean_documents_incrementally
 
 """
 Path to the JSON file containing the documents.
@@ -185,7 +185,7 @@ def init():
     with open(NOME_FILE, 'r', encoding='utf-8') as f:
         documents = json.load(f)
     
-    cleaned_docs = clean_documents(documents)
+    cleaned_docs = clean_documents_incrementally(documents)
     
     with open(FILE_PULITO, 'w', encoding='utf-8') as f:
         json.dump(cleaned_docs, f, indent=4, ensure_ascii=False)

@@ -27,7 +27,7 @@ This list contains the months (1-12) that we want to scrape data for.
 """
 
 # List of articles to scrape.
-ARTICLE_LIST = [i for i in range(1, 8)]
+ARTICLE_LIST = [i for i in range(1, 4001)]
 """
 @var ARTICLE_LIST
 List of articles to scrape.

@@ -56,15 +56,34 @@ def expand_query(query_string):
     
     return " OR ".join(expanded_terms)  # Formattazione per Lucene
 
-def search_documents(searcher, title_true, abstract_true, corpus_true, query_string):
+from org.apache.lucene.search.similarities import BM25Similarity, ClassicSimilarity
+
+def search_documents(searcher, title_true, abstract_true, corpus_true, query_string, ranking_type):
+    """
+    Search documents in the index with the specified ranking type.
+
+    Arguments:
+        searcher (IndexSearcher): The Lucene IndexSearcher object.
+        title_true (bool): Whether to search in the title field.
+        abstract_true (bool): Whether to search in the abstract field.
+        corpus_true (bool): Whether to search in the corpus field.
+        query_string (str): The user's query string.
+        ranking_type (str): The ranking type to use ("BM25" or "TF_IDF").
+
+    Returns:
+        TopDocs: The search results.
+    """
     analyzer = StandardAnalyzer()
     boolean_query = BooleanQuery.Builder()
-    #Verifico che la query non sia vuota
+
+    # Verifica che la query non sia vuota
     if not query_string or query_string.isspace():
-        return 
-    
+        return None
+
+    # Espansione della query
     expanded_query_string = expand_query(query_string)
 
+    # Aggiungi i campi alla query booleana
     if title_true:
         title_query = QueryParser("title", analyzer).parse(expanded_query_string)
         boolean_query.add(title_query, BooleanClause.Occur.SHOULD)
@@ -75,8 +94,17 @@ def search_documents(searcher, title_true, abstract_true, corpus_true, query_str
         corpus_query = QueryParser("corpus", analyzer).parse(expanded_query_string)
         boolean_query.add(corpus_query, BooleanClause.Occur.SHOULD)
 
+    # Costruisci la query
     query = boolean_query.build()
-    results = searcher.search(query, 10)
+
+    # Configura la funzione di ranking in base alla scelta dell'utente
+    if ranking_type == "BM25":
+        searcher.setSimilarity(BM25Similarity())  # BM25 con parametri predefiniti
+    elif ranking_type == "TF_IDF":
+        searcher.setSimilarity(ClassicSimilarity())  # TF-IDF
+
+    # Esegui la ricerca
+    results = searcher.search(query, 10)  # Limita i risultati a 10 documenti
     return results
 
 def create_index():

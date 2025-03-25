@@ -93,13 +93,19 @@ def docInsert(id, title, abstract, corpus, url, keywords=None):
 
 def jsonToPG(file):
     """
-    JSON field extraction and insertion into postgres remote database function.
+    JSON field extraction and batch insertion into postgres remote database function.
 
     Args:
         arg1 (str): File name.
     """
-    with open(file, 'r') as f:
+    conn = dbConn()
+    cur = conn.cursor()
+
+    with open(file, 'r', encoding='utf-8', errors='ignore') as f:
         data = json.load(f)
+
+    batch_size = 1000
+    batch = []
 
     for documento in data:
         id = documento['id']
@@ -109,7 +115,39 @@ def jsonToPG(file):
         keywords = documento.get('keywords', None)
         url = documento.get('url', '')
 
-        docInsert(id, title, abstract, corpus, url, keywords)
+        if keywords is None:
+            batch.append((id, title, abstract, corpus, url))
+        else:
+            batch.append((id, title, abstract, corpus, keywords, url))
+
+        if len(batch) >= batch_size:
+            # Inserisci il batch nel database
+            insertBatch(cur, batch)
+            batch = []
+
+    # Inserisci eventuali documenti rimanenti
+    if batch:
+        insertBatch(cur, batch)
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
+def insertBatch(cur, batch):
+    """
+    Helper function to insert a batch of documents into the database.
+    """
+    if len(batch[0]) == 5:  # Senza keywords
+        q = ''' 
+        INSERT INTO DOCS (id, title, abstract, corpus, url)
+        VALUES (%s, %s, %s, %s, %s)
+        '''
+    else:  # Con keywords
+        q = ''' 
+        INSERT INTO DOCS (id, title, abstract, corpus, keywords, url)
+        VALUES (%s, %s, %s, %s, %s, %s)
+        '''
+    cur.executemany(q, batch)
 
 def resetTable():
     """

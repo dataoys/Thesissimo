@@ -19,6 +19,7 @@ directory, searcher = create_index()
 def searchUI():
     
     st.title("📚 Ricerca Documenti")
+    ranking_type = st.radio("🔍 Seleziona il tipo di ranking", ["TF_IDF", "BM25"])
 
     with st.expander('🔧Filtra la tua ricerca!'):
         col1, col2, col3 = st.columns(3)
@@ -30,7 +31,7 @@ def searchUI():
             corpus_true = st.checkbox("Corpus")
 
     query_string = st.text_input("🔍 Inserisci il testo da cercare", "")
-    results = search_documents(searcher,title_true, abstract_true, corpus_true, query_string)
+    results = search_documents(searcher,title_true, abstract_true, corpus_true, query_string, ranking_type)
     #print (results)
     if results:
 
