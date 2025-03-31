@@ -1,4 +1,4 @@
-from .CleanDocuments import clean_documents_incrementally
+from .CleanDocuments import clean_documents_in_batches
 
 
-__all__ = ['clean_documents_incrementally']
+__all__ = ['clean_documents_in_batches']
