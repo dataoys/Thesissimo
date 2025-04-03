@@ -1,4 +1,3 @@
-import json 
 import psycopg2 as ps
 import os
 from pathlib import Path
@@ -48,17 +47,27 @@ def createTable():
         abstract_tsv tsvector GENERATED ALWAYS AS (to_tsvector('english', coalesce(abstract,''))) STORED,
         corpus_tsv tsvector GENERATED ALWAYS AS (to_tsvector('english', coalesce(corpus,''))) STORED
     );
-    
-    -- Creiamo gli indici sulle colonne tsvector
-    CREATE INDEX IF NOT EXISTS idx_docs_title ON DOCS USING GIN (title_tsv);
-    CREATE INDEX IF NOT EXISTS idx_docs_abstract ON DOCS USING GIN (abstract_tsv);
-    CREATE INDEX IF NOT EXISTS idx_docs_corpus ON DOCS USING GIN (corpus_tsv);
     '''
 
     cur.execute(q)
     conn.commit()
     cur.close()
     conn.close()
+
+def createIndex():
+    conn = dbConn()
+    cur = conn.cursor()
+    q = '''
+    -- Creiamo gli indici sulle colonne tsvector
+    CREATE INDEX IF NOT EXISTS idx_docs_title ON DOCS USING GIN (title_tsv);
+    CREATE INDEX IF NOT EXISTS idx_docs_abstract ON DOCS USING GIN (abstract_tsv);
+    CREATE INDEX IF NOT EXISTS idx_docs_corpus ON DOCS USING GIN (corpus_tsv);
+    '''
+    cur.execute(q)
+    conn.commit()
+    cur.close()
+    conn.close()
+
 
 #questo perchè alcuni documenti potrebbero non avere delle keywords 
 def docInsert(id, title, abstract, corpus, url, keywords=None):
@@ -222,6 +231,7 @@ def main():
         
     resetTable()
     jsonToPG(FILE_PATH)
+    createIndex()
 
 if __name__ == '__main__':
     main()

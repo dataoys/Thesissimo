@@ -247,3 +247,4 @@ def create_or_get_index(index_dir, json_file, force_rebuild=False):
     # Indicizza i documenti
     index_documents(index_dir, json_file)
     return index.open_dir(index_dir)
+
