@@ -83,6 +83,24 @@ def clean_mathematical_text(text):
     
     return text.strip()
 
+def remove_control_characters(text):
+    """
+    Rimuove i caratteri di controllo non validi da un testo.
+
+    Questo include i caratteri ASCII da 0x00 a 0x1F e 0x7F.
+    
+    Arguments:
+        text (str): Il testo da pulire.
+    
+    Returns:
+        str: Il testo senza i caratteri di controllo.
+    """
+    if not isinstance(text, str):
+        return text
+
+    # Rimuove i caratteri di controllo (da 0x00 a 0x1F e 0x7F)
+    return re.sub(r'[\x00-\x1F\x7F]', '', text)
+
 def clean_documents_in_batches(input_path, output_path="WebScraping/results/Docs_cleaned.json", batch_size=1000):
     """
     Clean documents in batches from a JSON file.
@@ -114,8 +132,10 @@ def clean_documents_in_batches(input_path, output_path="WebScraping/results/Docs
                 # Pulisci il documento
                 if 'abstract' in document:
                     document['abstract'] = clean_mathematical_text(document['abstract'])
+                    document['abstract'] = remove_control_characters(document['abstract'])
                 if 'corpus' in document:
                     document['corpus'] = clean_mathematical_text(document['corpus'])
+                    document['corpus'] = remove_control_characters(document['corpus'])
                 
                 batch.append(document)
                 

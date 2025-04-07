@@ -1,27 +1,42 @@
+import os
+import ijson
 from whoosh.index import create_in
+from whoosh import index
 from whoosh.fields import Schema, TEXT, ID
 from whoosh.scoring import TF_IDF, BM25F
 from whoosh.qparser import OrGroup, MultifieldParser
 from whoosh.analysis import StemmingAnalyzer
-import os
-import json
-from whoosh import index
-from nltk.corpus import wordnet
-from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+from nltk.corpus import wordnet
+from nltk import pos_tag
+from nltk.stem import WordNetLemmatizer
+from pathlib import Path
+import sys
 import nltk
-import ijson
 
-# Assicurati di scaricare le risorse necessarie di NLTK
-try:
-    nltk.data.find('tokenizers/punkt')
-    nltk.data.find('corpora/wordnet')
-    nltk.data.find('corpora/stopwords')
-except LookupError:
-    nltk.download('punkt')
-    nltk.download('wordnet')
-    nltk.download('stopwords') 
+# Add this function after the imports
+def setup_nltk():
+    """
+    Downloads required NLTK resources if not already present.
+    """
+    try:
+        # Test if WordNet is available
+        wordnet.all_lemma_names()
+    except (LookupError, AttributeError):
+        print("⏳ Downloading required NLTK resources...")
+        try:
+            nltk.download('wordnet')
+            nltk.download('averaged_perceptron_tagger')
+            nltk.download('punkt')
+            nltk.download('stopwords')
+            nltk.download('omw-1.4')  # Open Multilingual WordNet
+            print("✅ NLTK resources downloaded successfully")
+        except Exception as e:
+            print(f"❌ Error downloading NLTK resources: {e}")
+            sys.exit(1)
 
+# Funzione per creare lo schema dell'indice
 def create_schema():
     """
     Schema generation function.
@@ -31,7 +46,7 @@ def create_schema():
     Returns:
         scheme: Schema for the Whoosh index.
     """
-    #Eseguiamo stemming di soli campi testuali significanti.
+    # Eseguiamo stemming di soli campi testuali significativi
     return Schema(
         id=ID(stored=True),
         title=TEXT(stored=True, analyzer=StemmingAnalyzer()),
@@ -41,7 +56,7 @@ def create_schema():
         url=TEXT(stored=True)
     )
 
-#Creiamo l'indice
+# Creazione dell'indice
 def create_index(index_dir):
     """
     Creating whoosh index function.
@@ -57,94 +72,91 @@ def create_index(index_dir):
     if not os.path.exists(index_dir):
         os.mkdir(index_dir)
     schema = create_schema()
-    return create_in(index_dir, schema)
+    ix = create_in(index_dir, schema)
+    return ix
 
-# Indicizza i documenti
-def index_documents(index_dir, json_file):
+# Indicizzazione dei documenti in batch
+def index_documents(index_dir, json_file, batch_size=1000):
     """
     Indexing documents function.
 
     This function takes the path of the index directory and the path of the JSON file containing the documents to be indexed.
-    It reads the JSON file and writes the documents to the index.
+    It reads the JSON file and writes the documents to the index in batches.
 
     Arguments:
         index_dir (str): Path to the index directory.
         json_file (str): Path to the JSON file containing the documents.
+        batch_size (int): Number of documents to index per batch.
     """
-    index = create_index(index_dir)
+    # Crea un nuovo indice
+    ix = create_index(index_dir)
+    doc_count = 0
     
-    # Leggere il file JSON in modo incrementale con ijson
-    with open(json_file, 'r', encoding='utf-8') as f:
-        objects = ijson.items(f, 'documents.item')  # Questo assume che 'documents' sia una lista di oggetti
-        
-        with index.writer() as writer:
-            for doc in objects:
-                if not isinstance(doc, dict) or "id" not in doc:
-                    print(f"⚠ Documento non valido (ID sconosciuto), saltato.")
-                    continue  # Salta l'elemento non valido
-                
-                try:
-                    writer.add_document(
-                        id=str(doc['id']),  # Converte in stringa per sicurezza
-                        title=doc.get('title', ''),
-                        abstract=doc.get('abstract', ''),
-                        corpus=doc.get('corpus', ''),
-                        keywords=doc.get('keywords', ''),
-                        url=doc.get('url', '')
-                    )
-                except Exception as e:
-                    print(f"❌ Errore indicizzazione documento ID {doc['id']}. Errore: {e}")
-                    continue  # Continua con il prossimo documento
-
-    print("✅ Indicizzazione completata!") 
-
-
+    try:
+        # Leggere il file JSON in modo incrementale con ijson
+        with open(json_file, 'r', encoding='utf-8', errors='ignore') as f:
+            parser = ijson.parse(f)
+            current_doc = {}
+            batch = []
             
-def expand_query(query_string):
-    """
-    Query expansion function.
+            for prefix, event, value in parser:
+                if prefix.endswith('.id'):
+                    if current_doc:  # Se abbiamo un documento completo, aggiungiamolo al batch
+                        batch.append(current_doc)
+                        current_doc = {}
+                    current_doc['id'] = str(value)
+                elif prefix.endswith('.title'):
+                    current_doc['title'] = value
+                elif prefix.endswith('.abstract'):
+                    current_doc['abstract'] = value
+                elif prefix.endswith('.corpus'):
+                    current_doc['corpus'] = value
+                elif prefix.endswith('.keywords'):
+                    current_doc['keywords'] = value
+                elif prefix.endswith('.url'):
+                    current_doc['url'] = value
 
-    This function takes a query string and expands it with related terms using WordNet.
+                # Se il batch raggiunge la dimensione specificata, scrivilo nell'indice
+                if len(batch) >= batch_size:
+                    with ix.writer() as writer:
+                        for doc in batch:
+                            writer.add_document(
+                                id=doc['id'],
+                                title=doc.get('title', ''),
+                                abstract=doc.get('abstract', ''),
+                                corpus=doc.get('corpus', ''),
+                                keywords=doc.get('keywords', ''),
+                                url=doc.get('url', '')
+                            )
+                    doc_count += len(batch)
+                    print(f"📦 Batch di {len(batch)} documenti indicizzati. Totale: {doc_count}")
+                    batch = []
 
-    Arguments:
-        query_string (string): The user's query string.
+            # Gestisci l'ultimo documento e batch
+            if current_doc:
+                batch.append(current_doc)
+            if batch:
+                with ix.writer() as writer:
+                    for doc in batch:
+                        writer.add_document(
+                            id=doc['id'],
+                            title=doc.get('title', ''),
+                            abstract=doc.get('abstract', ''),
+                            corpus=doc.get('corpus', ''),
+                            keywords=doc.get('keywords', ''),
+                            url=doc.get('url', '')
+                        )
+                doc_count += len(batch)
+                print(f"📦 Ultimo batch di {len(batch)} documenti indicizzati. Totale finale: {doc_count}")
 
-    Returns:
-        string: The expanded query string.
-    """
-    stop_words = set(stopwords.words('english'))
-    tokens = word_tokenize(query_string.lower())
-    expanded_terms = set()
-
-    # Aggiungi i termini originali
-    expanded_terms.update(tokens)
-
-    # Per ogni token, trova sinonimi e termini correlati
-    for token in tokens:
-        if token not in stop_words:
-            # Trova i synset (gruppi di sinonimi)
-            synsets = wordnet.synsets(token)
-            for synset in synsets:
-                # Aggiungi lemmi (sinonimi)
-                expanded_terms.update(lemma.name() for lemma in synset.lemmas())
-                
-                # Aggiungi iperonimi (termini più generali)
-                if synset.hypernyms():
-                    expanded_terms.update(
-                        lemma.name() 
-                        for hypernym in synset.hypernyms() 
-                        for lemma in hypernym.lemmas()
-                    )
-
-    # Rimuovi underscore e stop words dal risultato
-    expanded_terms = {
-        term.replace('_', ' ') 
-        for term in expanded_terms 
-        if term not in stop_words
-    }
+    except Exception as e:
+        print(f"❌ Errore durante l'indicizzazione: {e}")
+        raise
     
-    return ' OR '.join(expanded_terms)
+    print(f"✅ Indicizzazione completata! Totale documenti indicizzati: {doc_count}")
+    return ix
 
+# Funzione per cercare nei documenti indicizzati
 def search_documents(index_dir, query_string, title_true, abstract_true, corpus_true, ranking_type):
     """
     Search Engine Whoosh Function.
@@ -169,17 +181,16 @@ def search_documents(index_dir, query_string, title_true, abstract_true, corpus_
     if not any([title_true, abstract_true, corpus_true]):
         return []
 
-    # Espandi la query con termini correlati
-    expanded_query = expand_query(query_string)
+    # Elabora la query in linguaggio naturale
+    processed_query = process_natural_query(query_string)
+    
     if ranking_type == "TF_IDF":
         rank = TF_IDF()
     else:
-        # Non alteriamo i valori default della funzine (normalizzazione e sensibilità)
         rank = BM25F()
     
     ix = index.open_dir(index_dir)
     with ix.searcher(weighting=rank) as searcher:
-        # Determina i campi da cercare
         fields = []
         if title_true:
             fields.append("title")
@@ -188,14 +199,10 @@ def search_documents(index_dir, query_string, title_true, abstract_true, corpus_
         if corpus_true:
             fields.append("corpus")
             
-        # Usa MultifieldParser invece di QueryParser per cercare in più campi
         parser = MultifieldParser(fields, ix.schema, group=OrGroup)
-        query = parser.parse(expanded_query)
+        query = parser.parse(processed_query)
         
-
-        # Esegui la ricerca con il ranking selezionato
-
-        results = searcher.search(query)
+        results = searcher.search(query, limit=100)  # Nessun limite ai risultati
         return [(result['id'], 
                 result['title'], 
                 result['abstract'], 
@@ -205,6 +212,7 @@ def search_documents(index_dir, query_string, title_true, abstract_true, corpus_
                 result['url']) 
                 for result in results]
 
+# Funzione per verificare se l'indice esiste e è valido
 def index_exists_and_valid(index_dir):
     """
     Check if the index exists and is valid.
@@ -233,9 +241,6 @@ def create_or_get_index(index_dir, json_file, force_rebuild=False):
     """
     Create or get the index function only if it's necessary.
 
-    This function takes the path of the index directory, the path of the JSON file containing the documents to be indexed,
-    and a boolean value to force the rebuild of the index, false by default.
-
     Arguments:
         index_dir (str): Path to the index directory.
         json_file (str): Path to the JSON file containing the documents.
@@ -249,14 +254,106 @@ def create_or_get_index(index_dir, json_file, force_rebuild=False):
     if os.path.exists(lock_path):
         os.remove(lock_path)
 
-    if not force_rebuild and index_exists_and_valid(index_dir):
-        return index.open_dir(index_dir)
+    try:
+        if not force_rebuild and index_exists_and_valid(index_dir):
+            print("🔄 Utilizzando l'indice esistente...")
+            return index.open_dir(index_dir)
         
-    # Se l'indice non esiste o force_rebuild è True, crealo
-    if not os.path.exists(index_dir):
-        os.makedirs(index_dir)
+        print("🔨 Creazione nuovo indice...")
+        if not os.path.exists(index_dir):
+            os.makedirs(index_dir)
             
-    # Indicizza i documenti
-    index_documents(index_dir, json_file)
-    return index.open_dir(index_dir)
+        # Indicizza i documenti e ritorna il nuovo indice
+        return index_documents(index_dir, json_file)
 
+    except Exception as e:
+        print(f"❌ Errore durante la creazione/apertura dell'indice: {e}")
+        raise
+
+def get_wordnet_pos(tag):
+    """
+    Map POS tag to WordNet POS tag for lemmatization
+    """
+    tag_dict = {
+        'N': wordnet.NOUN,
+        'V': wordnet.VERB,
+        'R': wordnet.ADV,
+        'J': wordnet.ADJ
+    }
+    return tag_dict.get(tag[0], wordnet.NOUN)
+
+def process_natural_query(query_string):
+    """
+    Process natural language query.
+    
+    This function takes a natural language query and processes it to create
+    a more effective search query using NLP techniques.
+    
+    Arguments:
+        query_string (str): The natural language query
+        
+    Returns:
+        str: Processed query string
+    """
+    # Inizializza gli strumenti NLP
+    lemmatizer = WordNetLemmatizer()
+    stop_words = set(stopwords.words('english'))
+    
+    # Tokenizzazione e rimozione stopwords
+    tokens = word_tokenize(query_string.lower())
+    tokens = [token for token in tokens if token not in stop_words]
+    
+    # POS tagging
+    pos_tags = pos_tag(tokens)
+    
+    # Lemmatizzazione con POS
+    lemmatized = [lemmatizer.lemmatize(word, get_wordnet_pos(tag)) 
+                  for word, tag in pos_tags]
+    
+    # Espansione con sinonimi e iperonimi
+    expanded_terms = set()
+    for term in lemmatized:
+        # Aggiungi il termine originale
+        expanded_terms.add(term)
+        
+        # Trova sinonimi e iperonimi
+        synsets = wordnet.synsets(term)
+        for synset in synsets[:2]:  # Limita a 2 synset per termine per evitare rumore
+            # Aggiungi sinonimi
+            expanded_terms.update(lemma.name() for lemma in synset.lemmas())
+            
+            # Aggiungi iperonimi
+            if synset.hypernyms():
+                expanded_terms.update(
+                    lemma.name() 
+                    for hypernym in synset.hypernyms() 
+                    for lemma in hypernym.lemmas()
+                )
+    
+    # Pulisci i termini (rimuovi underscore e stopwords)
+    expanded_terms = {
+        term.replace('_', ' ') 
+        for term in expanded_terms 
+        if term not in stop_words
+    }
+    
+    # Costruisci la query per Whoosh
+    processed_query = ' OR '.join(expanded_terms)
+    print(f"Query elaborata: {processed_query}")  # Debug
+    return processed_query
+
+if __name__ == "__main__":
+    setup_nltk()
+    # Esempio di utilizzo
+    project_root = Path(__file__).parent.parent
+    index_dir = str(project_root / "WhooshIndex")  
+    json_file = str(project_root / "WebScraping/results/Docs_cleaned.json") 
+    
+    print("🚀 Avvio indicizzazione...")
+    # Crea o ottieni l'indice
+    ix = create_or_get_index(index_dir, json_file, force_rebuild=True)
+    
+    # Verifica il numero di documenti nell'indice
+    with ix.searcher() as searcher:
+        doc_count = searcher.doc_count()
+        print(f"📊 Numero totale di documenti nell'indice: {doc_count}")
