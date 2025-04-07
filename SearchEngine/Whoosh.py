@@ -77,17 +77,33 @@ def index_documents(index_dir, json_file):
         documents = json.load(f)
     
     # Poi scriviamo nell'indice
-    with index.writer() as writer:
-        for doc in documents:
-            writer.add_document(
-                id=str(doc['id']),
-                title=doc['title'],
-                abstract=doc['abstract'],
-                corpus=doc['corpus'],
-                keywords=doc.get('keywords', ''),
-                url=doc['url']
-            )
+    with open(json_file, 'r', encoding='utf-8') as f:
+        documents = json.load(f)
 
+    print("Tipo di documents:", type(documents))  # Dovrebbe stampare <class 'list'>
+    #print("Esempio di documents:", )  # Stampa i primi 2 elementi per verificare la struttura
+
+    with index.writer() as writer:
+        for i, doc in enumerate(documents):
+            if not isinstance(doc, dict) or "id" not in doc:
+                print(f"⚠ Documento non valido (ID sconosciuto), saltato.")
+                continue  # Salta l'elemento non valido
+            
+            try:
+                writer.add_document(
+                    id=str(doc['id']),  # Converte in stringa per sicurezza
+                    title=doc.get('title', ''),
+                    abstract=doc.get('abstract', ''),
+                    corpus=doc.get('corpus', ''),
+                    keywords=doc.get('keywords', ''),
+                    url=doc.get('url', '')
+                )
+            except Exception as e:
+                print(f"❌ Errore indicizzazione documento ID {doc['id']}. Errore: {e}")
+                continue 
+
+
+            
 def expand_query(query_string):
     """
     Query expansion function.

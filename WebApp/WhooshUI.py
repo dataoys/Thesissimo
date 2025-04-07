@@ -74,6 +74,8 @@ def searchUI():
         col1, col2, col3 = st.columns(3)
         with col1:
             title_true = st.checkbox("Titolo")
+
+            
         with col2:
             abstract_true = st.checkbox("Abstract")
         with col3:
