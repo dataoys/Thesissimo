@@ -32,7 +32,6 @@ def searchUI():
 
     query_string = st.text_input("🔍 Inserisci il testo da cercare", "")
     results = search_documents(searcher,title_true, abstract_true, corpus_true, query_string, ranking_type)
-    #print (results)
     if results:
 
         st.success(f"Trovati {len(results.scoreDocs)} documenti")

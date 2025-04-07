@@ -14,9 +14,10 @@ from java.nio.file import Paths
 from org.apache.lucene.search.similarities import BM25Similarity, ClassicSimilarity
 
 from pathlib import Path
-import json
+import sys
 import os
 import ijson
+import gc
 project_root = Path(__file__).parent.parent
 json_file = str(project_root / "WebScraping/results/Docs_cleaned.json") 
 index_file= str(project_root / "SearchEngine/index")
@@ -111,68 +112,80 @@ def create_index():
     """
     Creating Lucene index with batch processing and memory management.
     """
+    print("🔄 Inizializzazione JVM...")
     env = lucene.getVMEnv()
     env.attachCurrentThread()
 
-    # Configurazione ottimizzata per l'IndexWriter
+    print("📁 Apertura directory dell'indice...")
     directory = FSDirectory.open(Paths.get(index_file))
+    
+    print("⚙️ Configurazione IndexWriter...")
     config = IndexWriterConfig(StandardAnalyzer())
     config.setOpenMode(IndexWriterConfig.OpenMode.CREATE)
     
     # Ottimizzazioni della configurazione
-    config.setRAMBufferSizeMB(64.0)  # Riduce l'uso della RAM
-    config.setUseCompoundFile(True)  # Riduce il numero di file aperti
-    config.setMaxBufferedDocs(1000)  # Controlla il flushing su disco
+    config.setRAMBufferSizeMB(32.0)  # Ridotto per minimizzare l'uso della memoria
+    config.setUseCompoundFile(True)
+    config.setMaxBufferedDocs(100)
     
     writer = IndexWriter(directory, config)
+    print("✅ IndexWriter creato correttamente")
     
-    # Riduce ulteriormente la dimensione del batch
-    BATCH_SIZE = 10
+    BATCH_SIZE = 50  # Aumentato per ridurre il numero di commit
     batch = []
     doc_count = 0
-    total_docs = 0
+    error_count = 0
 
     try:
-        # Conta i documenti in modo efficiente
-        print("📊 Conteggio documenti...")
-        total_docs = sum(1 for line in open(json_file, 'rb') if b'"id":' in line)
-        print(f"📊 Totale documenti da indicizzare: {total_docs}")
-
-        # Processa i documenti in batch più piccoli
+        print("📊 Verifica esistenza file JSON...")
+        if not os.path.exists(json_file):
+            raise FileNotFoundError(f"File non trovato: {json_file}")
+            
+        print("📖 Apertura file JSON...")
         with open(json_file, 'rb') as f:
-            parser = ijson.parse(f, use_float=True)  # use_float=True per ottimizzare il parsing
+            print("🔍 Inizio parsing JSON...")
+            parser = ijson.parse(f, use_float=True)
             current_doc = {}
             
             for prefix, event, value in parser:
                 try:
                     if prefix.endswith('.id'):
-                        if current_doc:
-                            doc = Document()
-                            # Ottimizza l'aggiunta dei campi
-                            for field, content in [
-                                ("title", current_doc.get('title', '')),
-                                ("abstract", current_doc.get('abstract', '')),
-                                ("corpus", current_doc.get('corpus', '')),
-                                ("keywords", current_doc.get('keywords', '')),
-                                ("url", current_doc.get('url', ''))
-                            ]:
-                                if content:  # Aggiungi solo campi non vuoti
-                                    doc.add(TextField(field, content, Field.Store.YES))
-                            
-                            batch.append(doc)
-                            
-                            if len(batch) >= BATCH_SIZE:
-                                writer.addDocuments(batch)
-                                doc_count += len(batch)
+                        if current_doc:  # Se abbiamo un documento completo
+                            try:
+                                doc = Document()
+                                # Verifica che i campi obbligatori siano presenti
+                                if not current_doc.get('id'):
+                                    raise ValueError("ID mancante nel documento")
                                 
-                                # Commit solo ogni 100 batch per ridurre le operazioni I/O
-                                if doc_count % (BATCH_SIZE * 100) == 0:
-                                    writer.commit()
-                                    print(f"📦 Progresso: {doc_count}/{total_docs} documenti ({(doc_count/total_docs)*100:.2f}%)")
+                                for field, content in [
+                                    ("id", str(current_doc.get('id', ''))),
+                                    ("title", current_doc.get('title', '')),
+                                    ("abstract", current_doc.get('abstract', '')),
+                                    ("corpus", current_doc.get('corpus', '')),
+                                    ("keywords", current_doc.get('keywords', '')),
+                                    ("url", current_doc.get('url', ''))
+                                ]:
+                                    if content:
+                                        doc.add(TextField(field, content, Field.Store.YES))
+                                
+                                batch.append(doc)
+                                
+                                if len(batch) >= BATCH_SIZE:
+                                    writer.addDocuments(batch)
+                                    doc_count += len(batch)
                                     
-                                batch.clear()
-                                import gc
-                                gc.collect()  # Forza il garbage collector
+                                    # Commit ogni 1000 documenti
+                                    if doc_count % 1000 == 0:
+                                        writer.commit()
+                                        print(f"✅ Progresso: {doc_count} documenti indicizzati ({error_count} errori)")
+                                        gc.collect()
+                                    
+                                    batch.clear()
+                                
+                            except Exception as doc_error:
+                                error_count += 1
+                                if error_count <= 5:  # Mostra solo i primi 5 errori in dettaglio
+                                    print(f"⚠️ Errore nel documento {current_doc.get('id', 'ID sconosciuto')}: {str(doc_error)}")
                                 
                         current_doc = {'id': value}
                     elif prefix.endswith('.title'):
@@ -187,29 +200,28 @@ def create_index():
                         current_doc['url'] = value
                         
                 except Exception as e:
-                    print(f"⚠️ Errore nel processare un documento: {e}")
-                    continue  # Salta al prossimo documento in caso di errore
+                    error_count += 1
+                    continue
 
         # Gestisci l'ultimo batch
         if batch:
             writer.addDocuments(batch)
             writer.commit()
             doc_count += len(batch)
-            print(f"📦 Ultimo batch completato. Totale: {doc_count}/{total_docs}")
 
     except Exception as e:
-        print(f"❌ Errore durante l'indicizzazione: {e}")
+        print(f"❌ Errore critico durante l'indicizzazione: {str(e)}")
         raise
     finally:
         try:
             writer.close()
-            print("✅ Writer chiuso correttamente")
+            print(f"\n📊 Riepilogo finale:")
+            print(f"✅ Documenti indicizzati con successo: {doc_count}")
+            print(f"⚠️ Errori riscontrati: {error_count}")
         except Exception as e:
-            print(f"⚠️ Errore nella chiusura del writer: {e}")
+            print(f"❌ Errore durante la chiusura del writer: {str(e)}")
 
-    print(f"✅ Indicizzazione completata! Documenti indicizzati: {doc_count}")
-
-    # Apri l'indice e crea un IndexSearcher
+    print("📖 Apertura indice per ricerca...")
     reader = DirectoryReader.open(directory)
     searcher = IndexSearcher(reader)
     return directory, searcher
@@ -217,56 +229,44 @@ def create_index():
 if __name__ == "__main__":
     print("🚀 Inizializzazione del processo di indicizzazione...")
     
-    # Verifica che il percorso dell'indice esista
-    if not os.path.exists(index_file):
-        os.makedirs(index_file)
-        print(f"📁 Creata directory per l'indice: {index_file}")
-
-    try:
-        # Conta il numero totale di documenti nel JSON
-        with open(json_file, 'r', encoding='utf-8') as f:
-            total_docs = len(json.load(f))
-        print(f"📊 Totale documenti da indicizzare: {total_docs}")
-
-        # Crea l'indice e l'IndexSearcher
-        print("🏗️ Creazione dell'indice in corso...")
-        directory, searcher = create_index()
-
-        # Verifica il numero di documenti nell'indice
-        reader = searcher.getIndexReader()
-        indexed_docs = reader.numDocs()
-        print(f"✅ Indicizzazione completata!")
-        print(f"📈 Statistiche finali:")
-        print(f"   - Documenti totali indicizzati: {indexed_docs}")
-        print(f"   - Dimensione media dei documenti: {reader.getSumTotalTermFreq('contents') / indexed_docs:.2f} termini")
-        print(f"   - Numero totale di termini unici: {reader.terms('contents').size()}")
-
-        # Esegui una ricerca di test
-        print("\n🔍 Esecuzione ricerca di test...")
-        test_query = "machine learning"
-        print(f"   Query di test: '{test_query}'")
+    # Verifica percorsi
+    print(f"📁 File JSON: {json_file}")
+    print(f"📁 Directory indice: {index_file}")
+    
+    if not os.path.exists(json_file):
+        print(f"❌ File JSON non trovato: {json_file}")
+        sys.exit(1)
         
-        results = search_documents(searcher, True, True, True, test_query, "BM25")
-        if results and results.totalHits.value > 0:
-            print(f"   ✨ Trovati {results.totalHits.value} documenti")
-            print("\n📑 Primi 3 risultati:")
-            for i, score_doc in enumerate(results.scoreDocs[:3]):
-                doc = searcher.doc(score_doc.doc)
-                print(f"\n   {i+1}. Documento:")
-                print(f"      Titolo: {doc.get('title')[:100]}...")
-                print(f"      Score: {score_doc.score:.4f}")
-        else:
-            print("   ❌ Nessun documento trovato per la query di test")
+    if not os.path.exists(index_file):
+        print(f"📁 Creazione directory indice: {index_file}")
+        os.makedirs(index_file)
+
+    local_reader = None
+    local_directory = None
+    
+    try:
+        print("🏗️ Avvio creazione indice...")
+        directory, searcher = create_index()
+        local_reader = searcher.getIndexReader()
+        local_directory = directory
+        
+        indexed_docs = local_reader.numDocs()
+        print(f"📈 Documenti totali indicizzati: {indexed_docs}")
+        print(f"📊 Dimensione indice: {os.path.getsize(index_file) / (1024*1024):.2f} MB")
 
     except Exception as e:
-        print(f"❌ Errore durante l'esecuzione: {e}")
+        print(f"❌ Errore durante l'esecuzione: {str(e)}")
+        print(f"Stack trace completo:")
+        import traceback
+        print(traceback.format_exc())
     finally:
         try:
-            # Chiudi le risorse
-            reader.close()
-            directory.close()
-            print("\n🔒 Risorse chiuse correttamente")
+            if local_reader:
+                local_reader.close()
+            if local_directory:
+                local_directory.close()
+            print("🔒 Risorse chiuse correttamente")
         except Exception as e:
-            print(f"⚠️ Errore durante la chiusura delle risorse: {e}")
+            print(f"⚠️ Errore durante la chiusura delle risorse: {str(e)}")
 
-    print("\n✨ Processo completato!")
+    print("✨ Processo completato!")

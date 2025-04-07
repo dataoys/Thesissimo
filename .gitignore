@@ -6,4 +6,5 @@ etc
 lib
 pyvenv.cfg
 share
+SearchEngine/index
 
