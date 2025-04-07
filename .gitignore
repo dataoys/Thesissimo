@@ -1,3 +1,9 @@
 WebScraping/results/Docs*
 WhooshIndex
 Queries/__pycache__/*
+bin
+etc
+lib
+pyvenv.cfg
+share
+
