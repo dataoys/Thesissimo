@@ -340,9 +340,11 @@ def process_natural_query(query_string):
     # Costruisci la query per Whoosh
     processed_query = ' OR '.join(expanded_terms)
     print(f"Query elaborata: {processed_query}")  # Debug
-    return processed_query
+    return processed_query#
 
-if __name__ == "__main__":
+
+#RIMUOVERE COMMENTO ED ESEGUIRE PER GENERARE INDICE
+#if __name__ == "__main__":
     setup_nltk()
     # Esempio di utilizzo
     project_root = Path(__file__).parent.parent
