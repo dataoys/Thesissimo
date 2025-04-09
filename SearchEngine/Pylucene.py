@@ -13,8 +13,11 @@ import ijson
 project_root = Path(__file__).parent.parent
 json_file = str(project_root / "WebScraping/results/Docs_cleaned.json") 
 index_file= str(project_root / "SearchEngine/index")
-
+import matplotlib.pyplot as plt
+from sklearn.metrics import precision_recall_curve
+import numpy as np
 import yake
+import tempfile
 import nltk
 from nltk.tokenize import word_tokenize
 from nltk.stem import PorterStemmer
@@ -40,6 +43,119 @@ def initialize_jvm():
     env = lucene.getVMEnv()
     env.attachCurrentThread()
 
+def calculate_precision_recall(searcher, query_string, ranking_type="BM25", threshold=0.5):
+    """
+    Calculate precision and recall for a determined query.
+    """
+    try:
+        # Esegui la ricerca
+        if ranking_type == "BM25":
+            searcher.setSimilarity(BM25Similarity())
+        else:
+            searcher.setSimilarity(ClassicSimilarity())
+            
+        # Crea una query su tutti i campi
+        query_builder = BooleanQuery.Builder()
+        analyzer = StandardAnalyzer()
+        expanded_query = expand_query(query_string)
+        
+        # Cerca in tutti i campi per le metriche
+        title_query = QueryParser("title", analyzer).parse(expanded_query)
+        abstract_query = QueryParser("abstract", analyzer).parse(expanded_query)
+        corpus_query = QueryParser("corpus", analyzer).parse(expanded_query)
+        
+        query_builder.add(title_query, BooleanClause.Occur.SHOULD)
+        query_builder.add(abstract_query, BooleanClause.Occur.SHOULD)
+        query_builder.add(corpus_query, BooleanClause.Occur.SHOULD)
+        
+        query = query_builder.build()
+        results = searcher.search(query, 100)
+
+        if not results or results.totalHits.value == 0:
+            return [], [], []
+
+        # Normalizza gli scores in modo più robusto
+        scores = np.array([scoreDoc.score for scoreDoc in results.scoreDocs])
+        if len(scores) == 0:
+            return [], [], []
+            
+        # Normalizzazione min-max invece che solo max
+        min_score = np.min(scores)
+        max_score = np.max(scores)
+        if max_score == min_score:
+            normalized_scores = np.ones_like(scores)
+        else:
+            normalized_scores = (scores - min_score) / (max_score - min_score)
+
+        # Usa una soglia adattiva basata sulla distribuzione degli scores
+        if threshold is None:
+            threshold = np.percentile(normalized_scores, 70)  # top 30% come rilevanti
+            
+        # Calcola y_true
+        y_true = np.where(normalized_scores >= threshold, 1, 0)
+        
+        if not (np.any(y_true == 1) and np.any(y_true == 0)):
+            return [], [], []
+        
+        # Calcola precision-recall
+        precision_values, recall_values, _ = precision_recall_curve(y_true, normalized_scores)
+        
+        # Filtro i valori per rimuovere duplicati e ordinare
+        unique_idx = np.unique(recall_values, return_index=True)[1]
+        precision_values = precision_values[unique_idx]
+        recall_values = recall_values[unique_idx]
+        
+        return precision_values.tolist(), recall_values.tolist(), normalized_scores.tolist()
+
+    except Exception as e:
+        print(f"Errore nel calcolo precision-recall: {str(e)}")
+        return [], [], []
+
+def plot_precision_recall_curve(precision_values, recall_values, query_string):
+    """
+    Genera il grafico precision-recall.
+    """
+    try:
+        plt.figure(figsize=(10, 6))
+        
+        # Ordina i valori per recall crescente per una curva più pulita
+        sorting_idx = np.argsort(recall_values)
+        recall_values = np.array(recall_values)[sorting_idx]
+        precision_values = np.array(precision_values)[sorting_idx]
+        
+        # Plotting
+        plt.plot(recall_values, precision_values, 'b-', label='P/R curve')
+        
+        # Aggiungi media precision e recall come linee tratteggiate
+        avg_precision = np.mean(precision_values)
+        avg_recall = np.mean(recall_values)
+        
+        plt.axhline(y=avg_precision, color='r', linestyle='--', 
+                   label=f'Avg Precision: {avg_precision:.3f}')
+        plt.axvline(x=avg_recall, color='g', linestyle='--', 
+                   label=f'Avg Recall: {avg_recall:.3f}')
+        
+        # Configurazione del grafico
+        plt.xlabel('Recall')
+        plt.ylabel('Precision')
+        plt.title(f'Precision-Recall Curve\nQuery: "{query_string}"')
+        plt.grid(True, linestyle='--', alpha=0.7)
+        plt.legend(loc='lower left')
+        
+        # Imposta i limiti degli assi da 0 a 1
+        plt.xlim([-0.05, 1.05])
+        plt.ylim([-0.05, 1.05])
+
+        # Salva il grafico
+        with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as tmp:
+            plt.savefig(tmp.name, bbox_inches='tight', dpi=300)
+            plt.close()
+            return tmp.name
+
+    except Exception as e:
+        print(f"Errore nella generazione del grafico: {str(e)}")
+        return None
+
 def search_documents(searcher, title_true, abstract_true, corpus_true, query_string, ranking_type):
     """
     Search Engine PyLucene Function.
@@ -58,47 +174,51 @@ def search_documents(searcher, title_true, abstract_true, corpus_true, query_str
     Returns:
         TopDocs: Lucene search results
     """
-    if not query_string.strip():
-        return None
-        
-    if not any([title_true, abstract_true, corpus_true]):
-        return None
+    if not query_string.strip() or not any([title_true, abstract_true, corpus_true]):
+        return None, None, None
     
     try:
-        # Espandi la query
+        # Esegui la ricerca normale
         expanded_query = expand_query(query_string)
         
-        # Configura il ranking
         if ranking_type == "BM25":
             searcher.setSimilarity(BM25Similarity())
-        else:  # TF_IDF
+        else:
             searcher.setSimilarity(ClassicSimilarity())
             
-        # Crea la query booleana
         query_builder = BooleanQuery.Builder()
         analyzer = StandardAnalyzer()
         
-        # Aggiungi campi alla ricerca in base ai filtri
         if title_true:
             title_query = QueryParser("title", analyzer).parse(expanded_query)
             query_builder.add(title_query, BooleanClause.Occur.SHOULD)
-            
         if abstract_true:
             abstract_query = QueryParser("abstract", analyzer).parse(expanded_query)
             query_builder.add(abstract_query, BooleanClause.Occur.SHOULD)
-            
         if corpus_true:
             corpus_query = QueryParser("corpus", analyzer).parse(expanded_query)
             query_builder.add(corpus_query, BooleanClause.Occur.SHOULD)
             
-        # Esegui la ricerca
         query = query_builder.build()
-        results = searcher.search(query, 100)  # Limitato a 100 risultati
-        return results
+        results = searcher.search(query, 100)
+
+        # Calcola precision-recall
+        precision_values, recall_values, scores = calculate_precision_recall(
+            searcher, query_string, ranking_type
+        )
+        
+        # Genera il grafico
+        plot_path = None
+        if precision_values and recall_values:
+            plot_path = plot_precision_recall_curve(
+                precision_values, recall_values, query_string
+            )
+
+        return results, (precision_values, recall_values), plot_path
         
     except Exception as e:
         print(f"Errore durante la ricerca: {e}")
-        return None
+        return None, None, None
 
 def get_wordnet_pos(tag):
     """
@@ -130,7 +250,7 @@ def expand_query(query_string):
             n=3,
             dedupLim=0.9,
             dedupFunc='seqm',
-            windowSize=1,
+            windowsSize=1,
             top=5,
             features=None
         )
@@ -204,7 +324,6 @@ def expand_query(query_string):
         
         final_query = ' OR '.join(query_parts)
         
-        print(f"Query espansa: {final_query}")  # Debug
         return final_query
 
     except Exception as e:
