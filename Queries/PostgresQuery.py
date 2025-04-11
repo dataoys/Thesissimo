@@ -19,13 +19,27 @@ def dbConn():
     """
     
     #Recuperiamo in modo sicuro la password dal file .env
-    password = os.getenv('MY_SECRET_PASSWORD')
+    #password = os.getenv('MY_SECRET_PASSWORD')
 
-    connection_string = f"postgres://avnadmin:{password}@th-eso-thesissimo.i.aivencloud.com:15597/defaultdb?sslmode=require"
+    #connection_string = f"postgres://avnadmin:{password}@th-eso-thesissimo.i.aivencloud.com:15597/defaultdb?sslmode=require"
 
     # Connetti al database
-    connection = ps.connect(connection_string)
-    return connection
+    #connection = ps.connect(connection_string)
+    #return connection
+
+    try:
+        conn = ps.connect(
+            dbname="thesissimo",
+            user="postgres",
+            password="postgres",
+            host="host.docker.internal",
+            port="5432"
+        )
+        print("Connessione al database riuscita!")
+        return conn
+    except ps.Error as e:
+        print("Errore durante la connessione al database:", e)
+        return None
 
 def createTable():
     """
@@ -58,10 +72,12 @@ def createIndex():
     conn = dbConn()
     cur = conn.cursor()
     q = '''
-    -- Creiamo gli indici sulle colonne tsvector
-    CREATE INDEX IF NOT EXISTS idx_docs_title ON DOCS USING GIN (title_tsv);
-    CREATE INDEX IF NOT EXISTS idx_docs_abstract ON DOCS USING GIN (abstract_tsv);
-    CREATE INDEX IF NOT EXISTS idx_docs_corpus ON DOCS USING GIN (corpus_tsv);
+    CREATE INDEX idx_docs_title_tsv ON docs USING GiST (to_tsvector('english', title));
+    CREATE INDEX idx_docs_abstract_tsv ON docs USING GiST (to_tsvector('english', abstract));
+    CREATE INDEX idx_docs_corpus_tsv ON docs USING GiST (to_tsvector('english', corpus));
+    CREATE INDEX IF NOT EXISTS idx_docs_title_tsv ON docs USING GIN (title_tsv);
+    CREATE INDEX IF NOT EXISTS idx_docs_abstract_tsv ON docs USING GIN (abstract_tsv);
+    CREATE INDEX IF NOT EXISTS idx_docs_corpus_tsv ON docs USING GIN (corpus_tsv);
     '''
     cur.execute(q)
     conn.commit()

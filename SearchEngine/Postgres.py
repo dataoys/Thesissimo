@@ -73,15 +73,14 @@ def search(search_query, title_true, abstract_true, corpus_true, ranking_type):
             if title_true and abstract_true and corpus_true:
                 q = '''
                 SELECT id, title, abstract, corpus, keywords, url,
-                       ts_rank(to_tsvector(title) || 
-                              to_tsvector(abstract) || 
-                              to_tsvector(corpus),
-                              plainto_tsquery(%s)) as rank
+                       ts_rank(title_tsv || abstract_tsv || corpus_tsv,
+                              to_tsquery(%s)) as rank
                 FROM docs 
-                WHERE to_tsvector(title) @@ plainto_tsquery(%s)
-                OR to_tsvector(abstract) @@ plainto_tsquery(%s)
-                OR to_tsvector(corpus) @@ plainto_tsquery(%s)
+                WHERE title_tsv @@ to_tsquery(%s)
+                   OR abstract_tsv @@ to_tsquery(%s)
+                   OR corpus_tsv @@ to_tsquery(%s)
                 ORDER BY rank DESC
+                LIMIT 100
                 '''
                 cur.execute(q, (search_query, search_query, search_query, search_query))
             
@@ -89,11 +88,11 @@ def search(search_query, title_true, abstract_true, corpus_true, ranking_type):
             if title_true and not abstract_true and not corpus_true:
                 q = '''
                 SELECT id, title, abstract, corpus, keywords, url,
-                       ts_rank(to_tsvector(title),
-                              plainto_tsquery(%s)) as rank
+                       ts_rank(title_tsv, to_tsquery('english', %s)) as rank
                 FROM docs 
-                WHERE to_tsvector(title) @@ plainto_tsquery(%s)
+                WHERE title_tsv @@ to_tsquery('english', %s)
                 ORDER BY rank DESC
+                LIMIT 100
                 '''
                 cur.execute(q, (search_query, search_query))
             
@@ -101,11 +100,11 @@ def search(search_query, title_true, abstract_true, corpus_true, ranking_type):
             if abstract_true and not title_true and not corpus_true:
                 q = '''
                 SELECT id, title, abstract, corpus, keywords, url,
-                       ts_rank(to_tsvector(abstract),
-                              plainto_tsquery(%s)) as rank
+                       ts_rank(abstract_tsv, to_tsquery('english', %s)) as rank
                 FROM docs 
-                WHERE to_tsvector(abstract) @@ plainto_tsquery(%s)
+                WHERE abstract_tsv @@ to_tsquery('english', %s)
                 ORDER BY rank DESC
+                LIMIT 100
                 '''
                 cur.execute(q, (search_query, search_query))
             
@@ -113,11 +112,11 @@ def search(search_query, title_true, abstract_true, corpus_true, ranking_type):
             if corpus_true and not title_true and not abstract_true:
                 q = '''
                 SELECT id, title, abstract, corpus, keywords, url,
-                       ts_rank(to_tsvector(corpus),
-                              plainto_tsquery(%s)) as rank
+                       ts_rank(corpus_tsv, to_tsquery('english', %s)) as rank
                 FROM docs 
-                WHERE to_tsvector(corpus) @@ plainto_tsquery(%s)
+                WHERE corpus_tsv @@ to_tsquery('english', %s)
                 ORDER BY rank DESC
+                LIMIT 100
                 '''
                 cur.execute(q, (search_query, search_query))
         elif ranking_type == 'ts_rank_cd':
@@ -125,15 +124,14 @@ def search(search_query, title_true, abstract_true, corpus_true, ranking_type):
             if title_true and abstract_true and corpus_true:
                 q = '''
                 SELECT id, title, abstract, corpus, keywords, url,
-                       ts_rank_cd(to_tsvector(title) || 
-                                 to_tsvector(abstract) || 
-                                 to_tsvector(corpus),
-                                 plainto_tsquery(%s)) as rank
+                       ts_rank_cd(title_tsv || abstract_tsv || corpus_tsv,
+                                to_tsquery('english', %s)) as rank
                 FROM docs 
-                WHERE to_tsvector(title) @@ plainto_tsquery(%s)
-                OR to_tsvector(abstract) @@ plainto_tsquery(%s)
-                OR to_tsvector(corpus) @@ plainto_tsquery(%s)
+                WHERE title_tsv @@ to_tsquery('english', %s)
+                   OR abstract_tsv @@ to_tsquery('english', %s)
+                   OR corpus_tsv @@ to_tsquery('english', %s)
                 ORDER BY rank DESC
+                LIMIT 100
                 '''
                 cur.execute(q, (search_query, search_query, search_query, search_query))
             
@@ -141,11 +139,11 @@ def search(search_query, title_true, abstract_true, corpus_true, ranking_type):
             if title_true and not abstract_true and not corpus_true:
                 q = '''
                 SELECT id, title, abstract, corpus, keywords, url,
-                       ts_rank_cd(to_tsvector(title),
-                                 plainto_tsquery(%s)) as rank
+                       ts_rank_cd(title_tsv, to_tsquery('english', %s)) as rank
                 FROM docs 
-                WHERE to_tsvector(title) @@ plainto_tsquery(%s)
+                WHERE title_tsv @@ to_tsquery('english', %s)
                 ORDER BY rank DESC
+                LIMIT 100
                 '''
                 cur.execute(q, (search_query, search_query))
             
@@ -153,11 +151,11 @@ def search(search_query, title_true, abstract_true, corpus_true, ranking_type):
             if abstract_true and not title_true and not corpus_true:
                 q = '''
                 SELECT id, title, abstract, corpus, keywords, url,
-                       ts_rank_cd(to_tsvector(abstract),
-                                 plainto_tsquery(%s)) as rank
+                       ts_rank_cd(abstract_tsv, to_tsquery('english', %s)) as rank
                 FROM docs 
-                WHERE to_tsvector(abstract) @@ plainto_tsquery(%s)
+                WHERE abstract_tsv @@ to_tsquery('english', %s)
                 ORDER BY rank DESC
+                LIMIT 100
                 '''
                 cur.execute(q, (search_query, search_query))
             
@@ -165,11 +163,11 @@ def search(search_query, title_true, abstract_true, corpus_true, ranking_type):
             if corpus_true and not title_true and not abstract_true:
                 q = '''
                 SELECT id, title, abstract, corpus, keywords, url,
-                       ts_rank_cd(to_tsvector(corpus),
-                                 plainto_tsquery(%s)) as rank
+                       ts_rank_cd(corpus_tsv, to_tsquery('english', %s)) as rank
                 FROM docs 
-                WHERE to_tsvector(corpus) @@ plainto_tsquery(%s)
+                WHERE corpus_tsv @@ to_tsquery('english', %s)
                 ORDER BY rank DESC
+                LIMIT 100
                 '''
                 cur.execute(q, (search_query, search_query))
                 
