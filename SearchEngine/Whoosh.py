@@ -14,6 +14,7 @@ from nltk.stem import WordNetLemmatizer
 from pathlib import Path
 import sys
 import nltk
+import yake  # Aggiungi questo import
 
 # Add this function after the imports
 def setup_nltk():
@@ -21,22 +22,29 @@ def setup_nltk():
     Downloads required NLTK resources if not already present.
     """
     try:
-        # Test if WordNet is available
-        wordnet.all_lemma_names()
-    except (LookupError, AttributeError):
-        print("⏳ Downloading required NLTK resources...")
+        # Test if WordNet is available by trying to access a basic attribute or method
+        # Using synsets as a more robust check than all_lemma_names for initialization
+        nltk.corpus.wordnet.synsets('test')
+        print("✅ NLTK resources (including WordNet) appear to be loaded.")
+    except (LookupError, AttributeError) as e: # Catch AttributeError as well
+        print(f"⏳ NLTK resources not found or WordNet not fully initialized ({e}). Downloading/Reloading...")
         try:
-            nltk.download('wordnet')
-            nltk.download('averaged_perceptron_tagger')
-            nltk.download('punkt')
-            nltk.download('stopwords')
-            nltk.download('omw-1.4')  # Open Multilingual WordNet
-            print("✅ NLTK resources downloaded successfully")
-        except Exception as e:
-            print(f"❌ Error downloading NLTK resources: {e}")
-            sys.exit(1)
+            nltk.download('wordnet', quiet=True)
+            nltk.download('averaged_perceptron_tagger', quiet=True)
+            nltk.download('punkt', quiet=True)
+            nltk.download('stopwords', quiet=True)
+            nltk.download('omw-1.4', quiet=True)  # Open Multilingual WordNet
+            print("👍 NLTK resources downloaded.")
+            # Attempt to force load WordNet after download
+            from nltk.corpus import wordnet as wn
+            wn.ensure_loaded()
+            print("✅ NLTK WordNet explicitly loaded.")
+        except Exception as e_download:
+            print(f"❌ Error downloading or loading NLTK resources: {e_download}")
+            # Consider raising an error or handling it if essential for app startup
+            # For now, we'll let it proceed, but functionality might be impaired.
 
-# Funzione per creare lo schema dell'indice
+# Function to create index schema
 def create_schema():
     """
     Schema generation function.
@@ -170,6 +178,7 @@ def search_documents(index_dir, query_string, title_true, abstract_true, corpus_
         title_true (bool): First filter.
         abstract_true (bool): Second filter.
         corpus_true (bool): Third filter.
+        ranking_type (str): The ranking algorithm to use ("TF_IDF" or "BM25F").
         
 
     Returns:
@@ -183,7 +192,7 @@ def search_documents(index_dir, query_string, title_true, abstract_true, corpus_
 
     # Elabora la query in linguaggio naturale
     processed_query = process_natural_query(query_string)
-    
+    #processed_query = query_string  # Per ora non elaboriamo la query
     if ranking_type == "TF_IDF":
         rank = TF_IDF()
     else:
@@ -192,14 +201,23 @@ def search_documents(index_dir, query_string, title_true, abstract_true, corpus_
     ix = index.open_dir(index_dir)
     with ix.searcher(weighting=rank) as searcher:
         fields = []
+        field_boosts = {} # Dizionario per i boost dei campi
+
         if title_true:
             fields.append("title")
+            field_boosts["title"] = 2.0  # Assegna un boost di 2.0 al titolo
         if abstract_true:
             fields.append("abstract")
+            field_boosts["abstract"] = 1.3 # Boost di default per l'abstract
         if corpus_true:
             fields.append("corpus")
+            field_boosts["corpus"] = 1.0 # Boost di default per il corpus
             
-        parser = MultifieldParser(fields, ix.schema, group=OrGroup)
+        # Se nessun campo è selezionato, non ha senso continuare
+        if not fields:
+            return []
+
+        parser = MultifieldParser(fields, ix.schema, group=OrGroup, fieldboosts=field_boosts)
         query = parser.parse(processed_query)
         
         results = searcher.search(query, limit=100)  # Nessun limite ai risultati
@@ -299,63 +317,93 @@ def process_natural_query(query_string):
     lemmatizer = WordNetLemmatizer()
     stop_words = set(stopwords.words('english'))
     
-    # Tokenizzazione e rimozione stopwords
+    # 1. Keyword extraction with YAKE
+    kw_extractor = yake.KeywordExtractor(
+        lan="en",
+        n=3, 
+        dedupLim=0.9,
+        dedupFunc='seqm',
+        windowsSize=1,
+        top=5, # Estrai le top 5 keyword
+        features=None
+    )
+    keywords = [kw[0].lower() for kw in kw_extractor.extract_keywords(query_string)]
+
+    # Tokenizzazione e rimozione stopwords dalla query originale
     tokens = word_tokenize(query_string.lower())
-    tokens = [token for token in tokens if token not in stop_words]
     
-    # POS tagging
-    pos_tags = pos_tag(tokens)
+    # Combina keyword e token originali per la lemmatizzazione e l'espansione
+    # per assicurarsi che le keyword multi-parola siano considerate
+    base_terms_for_nlp = list(set(keywords + tokens))
+    base_terms_for_nlp = [term for term in base_terms_for_nlp if term.isalnum() and term not in stop_words]
+
+    pos_tags = pos_tag(base_terms_for_nlp)
     
-    # Lemmatizzazione con POS
     lemmatized = [lemmatizer.lemmatize(word, get_wordnet_pos(tag)) 
                   for word, tag in pos_tags]
     
-    # Espansione con sinonimi e iperonimi
+    # Espansione con sinonimi, iperonimi e iponimi
     expanded_terms = set()
-    for term in lemmatized:
-        # Aggiungi il termine originale
-        expanded_terms.add(term)
+    # Aggiungi le keyword estratte da YAKE (già in minuscolo) e i termini lemmatizzati originali
+    expanded_terms.update(keywords)
+    expanded_terms.update(lemmatized)
         
-        # Trova sinonimi e iperonimi
+    # Termini su cui basare l'espansione WordNet (keyword + lemmi originali)
+    terms_for_wordnet_expansion = set(keywords + lemmatized)
+
+    for term in terms_for_wordnet_expansion:
+        # Aggiungi il termine stesso (già fatto, ma per sicurezza)
+        expanded_terms.add(term)
         synsets = wordnet.synsets(term)
         for synset in synsets[:2]:  # Limita a 2 synset per termine per evitare rumore
             # Aggiungi sinonimi
-            expanded_terms.update(lemma.name() for lemma in synset.lemmas())
+            expanded_terms.update(lemma.name().lower().replace('_', ' ') for lemma in synset.lemmas() if lemma.name().lower() not in stop_words)
             
             # Aggiungi iperonimi
-            if synset.hypernyms():
-                expanded_terms.update(
-                    lemma.name() 
-                    for hypernym in synset.hypernyms() 
-                    for lemma in hypernym.lemmas()
-                )
+            for hypernym in synset.hypernyms():
+                expanded_terms.update(lemma.name().lower().replace('_', ' ') for lemma in hypernym.lemmas() if lemma.name().lower() not in stop_words)
+
+            # Aggiungi iponimi (termini più specifici)
+            for hyponym in synset.hyponyms()[:1]: # Limita a 1 iponimo per synset per non allargare eccessivamente
+                expanded_terms.update(lemma.name().lower().replace('_', ' ') for lemma in hyponym.lemmas() if lemma.name().lower() not in stop_words)
     
-    # Pulisci i termini (rimuovi underscore e stopwords)
-    expanded_terms = {
-        term.replace('_', ' ') 
-        for term in expanded_terms 
-        if term not in stop_words
+    # Pulisci i termini finali
+    final_expanded_terms = {
+        term.strip() for term in expanded_terms if term.strip() and term.strip() not in stop_words and len(term.strip()) > 1
     }
     
-    # Costruisci la query per Whoosh
-    processed_query = ' OR '.join(expanded_terms)
-    print(f"Query elaborata: {processed_query}")  # Debug
-    return processed_query#
+    if not final_expanded_terms: # Fallback se nessun termine è stato generato
+        # Usa le keyword o i lemmi originali se disponibili
+        fallback_terms = set(keywords + lemmatized)
+        fallback_terms = {t for t in fallback_terms if t and t not in stop_words and len(t) > 1}
+        if fallback_terms:
+            processed_query = ' OR '.join(fallback_terms)
+        else: # Fallback estremo: usa la query originale tokenizzata e senza stopwords
+            original_tokens_no_stops = [token for token in word_tokenize(query_string.lower()) if token.isalnum() and token not in stop_words and len(token)>1]
+            if original_tokens_no_stops:
+                 processed_query = ' OR '.join(original_tokens_no_stops)
+            else:
+                 processed_query = query_string # Ultimo fallback, query originale
+    else:
+        processed_query = ' OR '.join(final_expanded_terms)
+        
+    print(f"Whoosh - Query elaborata: {processed_query}")
+    return processed_query
 
 
 #RIMUOVERE COMMENTO ED ESEGUIRE PER GENERARE INDICE
-#if __name__ == "__main__":
+if __name__ == "__main__":
     setup_nltk()
     # Esempio di utilizzo
-    project_root = Path(__file__).parent.parent
-    index_dir = str(project_root / "WhooshIndex")  
-    json_file = str(project_root / "WebScraping/results/Docs_cleaned.json") 
+    # project_root = Path(__file__).parent.parent
+    # index_dir = str(project_root / "WhooshIndex")  
+    # json_file = str(project_root / "WebScraping/results/Docs_cleaned.json") 
     
-    print("🚀 Avvio indicizzazione...")
-    # Crea o ottieni l'indice
-    ix = create_or_get_index(index_dir, json_file, force_rebuild=True)
+    # print("🚀 Avvio indicizzazione...")
+    # # Crea o ottieni l'indice
+    # ix = create_or_get_index(index_dir, json_file, force_rebuild=True)
     
-    # Verifica il numero di documenti nell'indice
-    with ix.searcher() as searcher:
-        doc_count = searcher.doc_count()
-        print(f"📊 Numero totale di documenti nell'indice: {doc_count}")
+    # # Verifica il numero di documenti nell'indice
+    # with ix.searcher() as searcher:
+    #     doc_count = searcher.doc_count()
+    #     print(f"📊 Numero totale di documenti nell'indice: {doc_count}")

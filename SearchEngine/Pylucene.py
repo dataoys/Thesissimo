@@ -20,7 +20,6 @@ import yake
 import tempfile
 import nltk
 from nltk.tokenize import word_tokenize
-from nltk.stem import PorterStemmer
 from nltk.corpus import stopwords
 from nltk.corpus import wordnet
 from nltk import pos_tag

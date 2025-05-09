@@ -19,6 +19,8 @@ from SearchEngine.Pylucene import create_index, search_documents
 directory, searcher = create_index()
 
 def searchUI():
+    st.sidebar.image('/root/JuriScan/forces-7427867e0c0aa40128b3f01dd26a1945c3c08359-doc-doxygen-awesome-css/doc/doxygen-awesome-css/Logo.png', width=150)
+    st.sidebar.write("Thesissimo è un motore di ricerca innovativo progettato per permettere agli studenti, ricercatori e professionisti di cercare tra decine di  migliaia di tesi universitarie relative a materie scientifiche. Che si tratti di scienze, astrofisica, o ingegneria noi abbiamo la risposta. Con una ricerca precisa, rapida e facile da usare, Thesissimo rende più facile l'accesso a risorse accademiche.")
     st.title("📚 Ricerca Documenti")
     ranking_type = st.radio("🔍 Seleziona il tipo di ranking", ["TF_IDF", "BM25"])
 
@@ -30,6 +32,10 @@ def searchUI():
             abstract_true = st.checkbox("Abstract")
         with col3:
             corpus_true = st.checkbox("Corpus")
+    
+    st.info("""Lil Tip: Do a query with natural language. The output will include synonyms, so the more term you use, the better the search!\n\nFor example:\n\n
+         Document about radioactivity\n\n
+        """, icon="💡") 
 
     query_string = st.text_input("🔍 Inserisci il testo da cercare", "")
     results, pr_metrics, plot_path = search_documents(searcher, title_true, abstract_true, corpus_true, query_string, ranking_type)

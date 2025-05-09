@@ -83,10 +83,10 @@ def searchUI():
         with col3:
             corpus_true = st.checkbox("Corpus")
 
-    st.info("""💡 Lil Tip: Do a query with natural language \n
-    - es: "document about radioactivity" 
-    - The output will include synonyms 
-    - The more term you use, the better the search!""") 
+    st.info("""Lil Tip: Do a query with natural language. The output will include synonyms, so the more term you use, the better the search!\n\nFor example:\n\n
+         Document about radioactivity\n\n
+        """, icon="💡") 
+
     
     query_string = st.text_input("🔍 Inserisci il testo da cercare", "")
     results = search_documents(index_dir, query_string,title_true, abstract_true, corpus_true, ranking_type)

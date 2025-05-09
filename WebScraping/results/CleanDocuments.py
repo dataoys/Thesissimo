@@ -27,7 +27,13 @@ def clean_mathematical_text(text):
     if not isinstance(text, str):
         return text
         
-    # Rimuove i caratteri Unicode e le notazioni LaTeX
+    # Remove HTML conversion error message with flexible whitespace matching
+    error_pattern = r'HTML conversions sometimes display errors.*?best practices\.'
+    text = re.sub(error_pattern, '', text, flags=re.IGNORECASE | re.DOTALL)
+    
+    # Remove any remaining artifacts from the error message
+    text = re.sub(r'Authors:.*?supported packages\.', '', text, flags=re.IGNORECASE | re.DOTALL)
+    # Remove specific unicode characters
     replacements = {
         'italic_': '',
         'bold_': '',
@@ -105,30 +111,37 @@ def clean_documents_in_batches(input_path, output_path="WebScraping/results/Docs
     """
     Clean documents in batches from a JSON file.
 
-    This function reads documents from a JSON file incrementally, cleans them in batches, and writes the cleaned documents to a new JSON file.
+    This function reads documents from a JSON file incrementally, cleans them in batches, 
+    and writes the cleaned documents to a new JSON file.
 
     Arguments:
         input_path (str): Path to the input JSON file.
         output_path (str): Path to the output JSON file.
         batch_size (int): Number of documents to process in each batch.
     """
-    # Verifica che la directory di output esista
     output_dir = os.path.dirname(output_path)
     if not os.path.exists(output_dir):
-        os.makedirs(output_dir)  # Crea la directory se non esiste
+        os.makedirs(output_dir)
 
     try:
         with open(input_path, 'r', encoding='utf-8', errors="ignore") as infile, \
              open(output_path, 'w', encoding='utf-8') as outfile:
             
-            # Scrivi l'inizio dell'array JSON
             outfile.write("[\n")
             
             batch = []
             first = True
+            total_docs = 0
+            print("🔄 Inizio pulizia documenti...")
             
             # Itera sui documenti nel file JSON
             for document in ijson.items(infile, "item"):
+                total_docs += 1
+                
+                # Stampa progresso ogni 50 documenti
+                if total_docs % 50 == 0:
+                    print(f"📝 Processati {total_docs} documenti...")
+                
                 # Pulisci il documento
                 if 'abstract' in document:
                     document['abstract'] = clean_mathematical_text(document['abstract'])
@@ -139,11 +152,12 @@ def clean_documents_in_batches(input_path, output_path="WebScraping/results/Docs
                 
                 batch.append(document)
                 
-                # Se il batch raggiunge la dimensione specificata, scrivilo nel file di output
+                # Se il batch raggiunge la dimensione specificata, scrivilo
                 if len(batch) >= batch_size:
                     if not first:
                         outfile.write(",\n")
                     json.dump(batch, outfile, indent=4, ensure_ascii=False)
+                    print(f"💾 Salvato batch di {len(batch)} documenti...")
                     batch = []
                     first = False
             
@@ -152,19 +166,19 @@ def clean_documents_in_batches(input_path, output_path="WebScraping/results/Docs
                 if not first:
                     outfile.write(",\n")
                 json.dump(batch, outfile, indent=4, ensure_ascii=False)
+                print(f"💾 Salvato ultimo batch di {len(batch)} documenti...")
             
-            # Scrivi la fine dell'array JSON
             outfile.write("\n]")
+            print(f"✅ Completato! Totale documenti processati: {total_docs}")
+            
     except FileNotFoundError:
-        print(f"Errore: Il file {input_path} non è stato trovato")
+        print(f"❌ Errore: Il file {input_path} non è stato trovato")
     except OSError as e:
-        print(f"Errore durante l'apertura o la scrittura del file: {e}")
+        print(f"❌ Errore durante l'apertura o la scrittura del file: {e}")
     except Exception as e:
-        print(f"Si è verificato un errore: {e}")
+        print(f"❌ Si è verificato un errore: {e}")
 
 try:
-    # Pulizia dei documenti in batch
-    clean_documents_in_batches(input_path, output_path, batch_size=1000)
     print(f"File pulito salvato in: {output_path}")
 
 except FileNotFoundError:
@@ -173,3 +187,9 @@ except json.JSONDecodeError:
     print(f"Errore: Il file {input_path} non contiene un JSON valido")
 except Exception as e:
     print(f"Si è verificato un errore: {str(e)}")
+
+if __name__ == "__main__":
+    # Esegui la funzione di pulizia
+    clean_documents_in_batches(input_path, output_path)
+    print(f"File pulito salvato in: {output_path}")
+    

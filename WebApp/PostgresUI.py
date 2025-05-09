@@ -12,7 +12,7 @@ def searchUI():
 
     This function creates the main interface of the Streamlit application for the Postgres search engine.
     """
-    st.title("📚 Ricerca Documenti")
+    st.title("📚 Ricerc a Documenti")
     ranking_type = st.radio("🔍 Seleziona il tipo di ranking", ["ts_rank", "ts_rank_cd"])
 
     
@@ -25,10 +25,10 @@ def searchUI():
         with col3:
             corpus_true = st.checkbox("Corpus")
         
-    st.info("""💡 Lil Tip: Do a query with natural language \n
-    - es: "document about radioactivity" 
-    - The output will include synonyms 
-    - The more term you use, the better the search!""") 
+    st.info("""Lil Tip: Do a query with natural language. The output will include synonyms, so the more term you use, the better the search!\n\nFor example:\n\n
+         Document about radioactivity\n\n
+        """, icon="💡") 
+ 
     search_query = st.text_input("🔍 Inserisci il testo da cercare", "")
 
     results = search(search_query, title_true, abstract_true, corpus_true, ranking_type)

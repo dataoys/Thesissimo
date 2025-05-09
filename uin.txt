@@ -1,0 +1,4 @@
+1. UIN: Sto scrivendo un progetto matematico che calcola il teorema di pitagora sui quadrati
+    a. matematico teorema pitagora quadrati
+    b. title:"teorema di pitagora" AND abstract:"matematica quadrati pitagora"
+    c. 
