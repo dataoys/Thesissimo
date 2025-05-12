@@ -1,4 +1,71 @@
-1. UIN: Sto scrivendo un progetto matematico che calcola il teorema di pitagora sui quadrati
-    a. matematico teorema pitagora quadrati
-    b. title:"teorema di pitagora" AND abstract:"matematica quadrati pitagora"
-    c. 
+Questo file contiene le UIN (User Information Need) che verranno sottoposte ai nostri
+motori di ricerca al fine di effettuare i benchmark.
+Per ogni UIN andremo a estrarre almeno 4 query e di queste alemeno 3 utilizzeranno i campi
+dei nostri documenti.
+
+Dato che il nostro programma è provvisto di interfaccia grafica, è possibile selezionare
+la query sui campi del nostro dataset da interfaccia, dunque non è necessario copiare la query
+preceduta dai campi. 
+Questo risulta a scopo informativo.
+---------------------------------------------------------------------------------------------
+
+1. Theoretical Physics
+    "What is the role of conformal symmetry in quantum field theory?"
+
+Query:
+    title:"conformal symmetry" AND abstract:"quantum field theory"
+
+
+2. Applied Mathematics
+    "Are there recent advancements in spectral methods for solving partial differential equations?"
+
+Query:
+    abstract:"spectral method" AND abstract:"partial differential equations"
+
+3. Astrophysics / Cosmology
+    "How do supermassive black holes influence early galaxy formation?"
+
+Query:
+    title:"supermassive black holes" AND corpus:"galaxy formation"
+
+4. Mechanical Engineering
+    "What are the latest methods for topology optimization in lightweight mechanical design?"
+
+Query:
+    "topology optimization" AND "mechanical design"
+
+5. Artificial Intelligence in Physics
+    "How is deep learning used to model chaotic physical systems?"
+
+Query:
+    title:"deep learning" AND abstract:"chaotic systems"
+
+6. Electrical Engineering / Smart Grids
+    "What neural network architectures are used for power estimation in smart grids?"
+
+Query:
+    corpus:"neural networks" AND abstract:"smart grid"
+
+7. Pure Mathematics
+    "What are the recent developments in the study of prime gaps and their distribution?"
+
+Query:
+    title:"prime gaps" AND abstract:"distribution"
+
+8. Astrobiology / Exoplanets
+    "What methods are used to detect biosignatures on exoplanets?"
+
+Query:
+    corpus:"biosignatures" AND abstract:"exoplanets"
+
+9. Quantum Computing
+    "How is quantum error correction implemented in current quantum computing models?"
+
+Query:
+    title:"quantum error correction" AND corpus:"quantum computing"
+
+10. Astrology / Historical Science
+    "What are the historical links between astrology and early astronomy in scientific literature?"
+
+Query:
+    corpus:"astrology" AND corpus:"early astronomy"
