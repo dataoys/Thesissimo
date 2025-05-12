@@ -8,6 +8,7 @@ from org.apache.lucene.queryparser.classic import QueryParser
 from java.nio.file import Paths
 from org.apache.lucene.search.similarities import BM25Similarity, ClassicSimilarity
 
+
 from pathlib import Path
 import ijson
 project_root = Path(__file__).parent.parent
@@ -53,21 +54,8 @@ def calculate_precision_recall(searcher, query_string, ranking_type="BM25", thre
         else:
             searcher.setSimilarity(ClassicSimilarity())
             
-        # Crea una query su tutti i campi
-        query_builder = BooleanQuery.Builder()
         analyzer = StandardAnalyzer()
-        expanded_query = expand_query(query_string)
-        
-        # Cerca in tutti i campi per le metriche
-        title_query = QueryParser("title", analyzer).parse(expanded_query)
-        abstract_query = QueryParser("abstract", analyzer).parse(expanded_query)
-        corpus_query = QueryParser("corpus", analyzer).parse(expanded_query)
-        
-        query_builder.add(title_query, BooleanClause.Occur.SHOULD)
-        query_builder.add(abstract_query, BooleanClause.Occur.SHOULD)
-        query_builder.add(corpus_query, BooleanClause.Occur.SHOULD)
-        
-        query = query_builder.build()
+        query = parse_advanced_query(query_string, analyzer)
         results = searcher.search(query, 100)
 
         if not results or results.totalHits.value == 0:
@@ -173,34 +161,39 @@ def search_documents(searcher, title_true, abstract_true, corpus_true, query_str
     Returns:
         TopDocs: Lucene search results
     """
-    if not query_string.strip() or not any([title_true, abstract_true, corpus_true]):
+    if not query_string.strip():
         return None, None, None
     
     try:
-        # Esegui la ricerca normale
-        expanded_query = expand_query(query_string)
-        
         if ranking_type == "BM25":
             searcher.setSimilarity(BM25Similarity())
         else:
             searcher.setSimilarity(ClassicSimilarity())
             
-        query_builder = BooleanQuery.Builder()
         analyzer = StandardAnalyzer()
         
-        if title_true:
-            title_query = QueryParser("title", analyzer).parse(expanded_query)
-            query_builder.add(title_query, BooleanClause.Occur.SHOULD)
-        if abstract_true:
-            abstract_query = QueryParser("abstract", analyzer).parse(expanded_query)
-            query_builder.add(abstract_query, BooleanClause.Occur.SHOULD)
-        if corpus_true:
-            corpus_query = QueryParser("corpus", analyzer).parse(expanded_query)
-            query_builder.add(corpus_query, BooleanClause.Occur.SHOULD)
+        # If the query contains field-specific searches, ignore the checkboxes
+        if ':' in query_string:
+            query = parse_advanced_query(query_string, analyzer)
+        else:
+            # Use the original checkbox-based logic
+            query_builder = BooleanQuery.Builder()
+            expanded_query = expand_query(query_string)
             
-        query = query_builder.build()
+            if title_true:
+                title_query = QueryParser("title", analyzer).parse(expanded_query)
+                query_builder.add(title_query, BooleanClause.Occur.SHOULD)
+            if abstract_true:
+                abstract_query = QueryParser("abstract", analyzer).parse(expanded_query)
+                query_builder.add(abstract_query, BooleanClause.Occur.SHOULD)
+            if corpus_true:
+                corpus_query = QueryParser("corpus", analyzer).parse(expanded_query)
+                query_builder.add(corpus_query, BooleanClause.Occur.SHOULD)
+            
+            query = query_builder.build()
+        
         results = searcher.search(query, 100)
-
+        
         # Calcola precision-recall
         precision_values, recall_values, scores = calculate_precision_recall(
             searcher, query_string, ranking_type
@@ -328,6 +321,47 @@ def expand_query(query_string):
     except Exception as e:
         print(f"Errore nell'espansione della query: {e}")
         return query_string  # Fallback to original query
+
+def parse_advanced_query(query_string, analyzer):
+    """
+    Parse a query string that may contain field-specific searches.
+    Example: "title:space AND corpus:python" or "abstract:law OR title:justice"
+    """
+    query_builder = BooleanQuery.Builder()
+    
+    # Split the query by AND/OR operators
+    parts = query_string.split(' AND ')
+    for and_part in parts:
+        or_parts = and_part.split(' OR ')
+        or_builder = BooleanQuery.Builder()
+        
+        for part in or_parts:
+            if ':' in part:
+                # Field-specific search
+                field, term = part.split(':', 1)
+                field = field.lower().strip()
+                term = term.strip()
+                if field in ['title', 'abstract', 'corpus', 'keywords']:
+                    expanded_term = expand_query(term)
+                    field_query = QueryParser(field, analyzer).parse(expanded_term)
+                    or_builder.add(field_query, BooleanClause.Occur.SHOULD)
+            else:
+                # Default search in all fields
+                term = part.strip()
+                if term:
+                    expanded_term = expand_query(term)
+                    title_query = QueryParser("title", analyzer).parse(expanded_term)
+                    abstract_query = QueryParser("abstract", analyzer).parse(expanded_term)
+                    corpus_query = QueryParser("corpus", analyzer).parse(expanded_term)
+                    
+                    or_builder.add(title_query, BooleanClause.Occur.SHOULD)
+                    or_builder.add(abstract_query, BooleanClause.Occur.SHOULD)
+                    or_builder.add(corpus_query, BooleanClause.Occur.SHOULD)
+        
+        or_query = or_builder.build()
+        query_builder.add(or_query, BooleanClause.Occur.MUST)
+    
+    return query_builder.build()
 
 # Percorsi base
 project_root = Path(__file__).parent.parent
