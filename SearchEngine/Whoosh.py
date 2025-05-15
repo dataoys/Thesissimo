@@ -4,7 +4,7 @@ from whoosh.index import create_in
 from whoosh import index
 from whoosh.fields import Schema, TEXT, ID
 from whoosh.scoring import TF_IDF, BM25F
-from whoosh.qparser import OrGroup, MultifieldParser, QueryParser, AndGroup
+from whoosh.qparser import OrGroup, MultifieldParser
 from whoosh.analysis import StemmingAnalyzer
 from whoosh import query
 from nltk.corpus import stopwords
@@ -12,10 +12,8 @@ from nltk.tokenize import word_tokenize
 from nltk.corpus import wordnet
 from nltk import pos_tag
 from nltk.stem import WordNetLemmatizer
-from pathlib import Path
-import sys
 import nltk
-import yake  # Aggiungi questo import
+import yake  
 
 # Add this function after the imports
 def setup_nltk():
@@ -169,46 +167,28 @@ def index_documents(index_dir, json_file, batch_size=1000):
 def parse_advanced_query(query_string, schema):
     """
     Parse a query string that may contain field-specific searches.
-    Example: "title:space AND corpus:python" or "abstract:law OR title:justice"
+    Example: "title:neural networks AND corpus:python" or "abstract:law OR title:justice"
     """
     try:
-        # Split by AND first
-        and_parts = query_string.split(' AND ')
-        and_queries = []
-
-        for and_part in and_parts:
-            or_parts = and_part.split(' OR ')
-            or_queries = []
-
-            for part in or_parts:
-                if ':' in part:
-                    # Field-specific search
-                    field, term = part.split(':', 1)
-                    field = field.lower().strip()
-                    term = term.strip()
-
-                    if field in ['title', 'abstract', 'corpus', 'keywords']:
-                        # Process the term for better search
-                        processed_term = process_natural_query(term)
-                        # Create a field query
-                        field_query = query.Term(field, processed_term)
-                        or_queries.append(field_query)
-
-            if or_queries:
-                if len(or_queries) > 1:
-                    or_clause = query.Or(or_queries)
-                else:
-                    or_clause = or_queries[0]
-                and_queries.append(or_clause)
-
-        if and_queries:
-            if len(and_queries) > 1:
-                return query.And(and_queries)
-            else:
-                return and_queries[0]
-        else:
-            return None
-
+        from whoosh import qparser
+        
+        # Create a QueryParser that supports multiple fields and phrase queries
+        parser = qparser.MultifieldParser(['title', 'abstract', 'corpus'], 
+                                        schema,
+                                        group=qparser.OrGroup)
+        
+        # Enable phrase query support
+        parser.add_plugin(qparser.PhrasePlugin())
+        parser.add_plugin(qparser.OperatorsPlugin())
+        
+        # Clean up the query string to ensure proper parsing
+        query_string = query_string.replace('title:', 'title:/')
+        query_string = query_string.replace('abstract:', 'abstract:/')
+        query_string = query_string.replace('corpus:', 'corpus:/')
+        
+        # Parse and return the query
+        return parser.parse(query_string)
+        
     except Exception as e:
         print(f"Error parsing advanced query: {e}")
         return None
@@ -216,45 +196,30 @@ def parse_advanced_query(query_string, schema):
 def search_documents(index_dir, query_string, title_true, abstract_true, corpus_true, ranking_type):
     """
     Search Engine Whoosh Function.
-
-    This function takes the user's input string from the search bar, and 3 boolean values that represent
-    the user's choice of where to search (title, abstract, corpus) and the index directory.
-
-    Arguments:
-        index_dir (str): Path to the index directory.
-        query_string (str): The user's input.
-        title_true (bool): First filter.
-        abstract_true (bool): Second filter.
-        corpus_true (bool): Third filter.
-        ranking_type (str): The ranking algorithm to use ("TF_IDF" or "BM25F").
-        
-
-    Returns:
-        list: list of the document matching the user query.
     """
     if not query_string.strip():
         return []
-        
+    
     if not any([title_true, abstract_true, corpus_true]) and ':' not in query_string:
         return []
 
+    # Choose scoring function
     if ranking_type == "TF_IDF":
-        rank = TF_IDF()
+        scorer = TF_IDF()
     else:
-        rank = BM25F()
+        scorer = BM25F()
     
     ix = index.open_dir(index_dir)
-    with ix.searcher(weighting=rank) as searcher:
-        try:
+    try:
+        with ix.searcher(weighting=scorer) as searcher:
+            # Field-specific search
             if ':' in query_string:
-                # Use advanced query parsing for field-specific searches
-                parsed_query = parse_advanced_query(query_string, ix.schema)
-                if parsed_query:
-                    query_obj = parsed_query
-                else:
-                    return []  # No valid query
+                query_obj = parse_advanced_query(query_string, ix.schema)
+                if query_obj is None:
+                    return []
             else:
-                # Use traditional checkbox-based search
+                # Checkbox-based search with expanded query
+                processed_query = process_natural_query(query_string)
                 fields = []
                 if title_true:
                     fields.append("title")
@@ -263,26 +228,31 @@ def search_documents(index_dir, query_string, title_true, abstract_true, corpus_
                 if corpus_true:
                     fields.append("corpus")
                 
-                if not fields:
-                    return []
-                    
-                processed_query = process_natural_query(query_string)
                 parser = MultifieldParser(fields, ix.schema, group=OrGroup)
+                parser.add_plugin(qparser.PhrasePlugin())
                 query_obj = parser.parse(processed_query)
             
+            # Execute search with highlighting
             results = searcher.search(query_obj, limit=100)
-            return [(result['id'], 
-                    result['title'], 
-                    result['abstract'], 
-                    result['corpus'], 
-                    result['keywords'], 
+            
+            # Format results
+            formatted_results = []
+            for result in results:
+                formatted_results.append((
+                    result['id'],
+                    result['title'],
+                    result['abstract'],
+                    result['corpus'],
+                    result['keywords'],
                     result.score,
-                    result['url']) 
-                    for result in results]
-                    
-        except Exception as e:
-            print(f"Error during search: {e}")
-            return []
+                    result['url']
+                ))
+            
+            return formatted_results
+            
+    except Exception as e:
+        print(f"Error during search: {e}")
+        return []
 
 # Funzione per verificare se l'indice esiste e è valido
 def index_exists_and_valid(index_dir):

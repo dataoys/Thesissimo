@@ -12,7 +12,9 @@ def searchUI():
 
     This function creates the main interface of the Streamlit application for the Postgres search engine.
     """
-    st.title("📚 Ricerc a Documenti")
+    st.sidebar.image('/root/JuriScan/forces-7427867e0c0aa40128b3f01dd26a1945c3c08359-doc-doxygen-awesome-css/doc/doxygen-awesome-css/Logo.png', width=150)
+    st.sidebar.write("Thesissimo è un motore di ricerca innovativo progettato per permettere agli studenti, ricercatori e professionisti di cercare tra decine di  migliaia di tesi universitarie relative a materie scientifiche. Che si tratti di scienze, astrofisica, o ingegneria noi abbiamo la risposta. Con una ricerca precisa, rapida e facile da usare, Thesissimo rende più facile l'accesso a risorse accademiche.")
+    st.title("📚 Ricerca Documenti")
     ranking_type = st.radio("🔍 Seleziona il tipo di ranking", ["ts_rank", "ts_rank_cd"])
 
     

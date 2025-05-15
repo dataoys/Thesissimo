@@ -8,7 +8,6 @@ from org.apache.lucene.queryparser.classic import QueryParser
 from java.nio.file import Paths
 from org.apache.lucene.search.similarities import BM25Similarity, ClassicSimilarity
 
-
 from pathlib import Path
 import ijson
 project_root = Path(__file__).parent.parent
@@ -147,24 +146,13 @@ def search_documents(searcher, title_true, abstract_true, corpus_true, query_str
     """
     Search Engine PyLucene Function.
     
-    This function takes the user's input string from the search bar, and 3 boolean values that represent
-    the user's choice of where to search (title, abstract, corpus).
-    
-    Arguments:
-        searcher (IndexSearcher): The Lucene searcher object
-        title_true (bool): Search in title
-        abstract_true (bool): Search in abstract
-        corpus_true (bool): Search in corpus
-        query_string (str): The user's input
-        ranking_type (str): The ranking method to use ("TF_IDF" or "BM25")
-        
-    Returns:
-        TopDocs: Lucene search results
+    Supports both field-specific and checkbox-based searches.
     """
     if not query_string.strip():
         return None, None, None
     
     try:
+        # Set similarity based on ranking type
         if ranking_type == "BM25":
             searcher.setSimilarity(BM25Similarity())
         else:
@@ -172,41 +160,52 @@ def search_documents(searcher, title_true, abstract_true, corpus_true, query_str
             
         analyzer = StandardAnalyzer()
         
-        # If the query contains field-specific searches, ignore the checkboxes
+        # Build query based on search type
         if ':' in query_string:
+            # Field-specific search
             query = parse_advanced_query(query_string, analyzer)
         else:
-            # Use the original checkbox-based logic
+            # Checkbox-based search
             query_builder = BooleanQuery.Builder()
-            expanded_query = expand_query(query_string)
             
             if title_true:
-                title_query = QueryParser("title", analyzer).parse(expanded_query)
+                parser = QueryParser("title", analyzer)
+                title_query = parser.parse(query_string)
                 query_builder.add(title_query, BooleanClause.Occur.SHOULD)
+                
             if abstract_true:
-                abstract_query = QueryParser("abstract", analyzer).parse(expanded_query)
+                parser = QueryParser("abstract", analyzer)
+                abstract_query = parser.parse(query_string)
                 query_builder.add(abstract_query, BooleanClause.Occur.SHOULD)
+                
             if corpus_true:
-                corpus_query = QueryParser("corpus", analyzer).parse(expanded_query)
+                parser = QueryParser("corpus", analyzer)
+                corpus_query = parser.parse(query_string)
                 query_builder.add(corpus_query, BooleanClause.Occur.SHOULD)
-            
+                
+            if not any([title_true, abstract_true, corpus_true]):
+                return None, None, None
+                
             query = query_builder.build()
         
+        # Execute search
         results = searcher.search(query, 100)
         
-        # Calcola precision-recall
+        # Calculate precision-recall metrics
         precision_values, recall_values, scores = calculate_precision_recall(
             searcher, query_string, ranking_type
         )
         
-        # Genera il grafico
+        # Generate precision-recall plot
         plot_path = None
         if precision_values and recall_values:
             plot_path = plot_precision_recall_curve(
-                precision_values, recall_values, query_string
+                precision_values,
+                recall_values,
+                query_string
             )
-
-        return results, (precision_values, recall_values), plot_path
+            
+        return results, plot_path, scores
         
     except Exception as e:
         print(f"Errore durante la ricerca: {e}")
@@ -249,7 +248,6 @@ def expand_query(query_string):
         keywords = [kw[0].lower() for kw in kw_extractor.extract_keywords(query_string)]
 
         # 2. NLP Processing
-        # Initialize tools
         lemmatizer = WordNetLemmatizer()
         stop_words = set(stopwords.words('english'))
         
@@ -257,54 +255,51 @@ def expand_query(query_string):
         tokens = word_tokenize(query_string.lower())
         tokens = [token for token in tokens if token.isalnum() and token not in stop_words]
         
-        # POS tagging for better lemmatization
+        # POS tagging and lemmatization
         pos_tags = pos_tag(tokens)
-        
-        # Lemmatization with POS tags
         lemmatized = [lemmatizer.lemmatize(word, get_wordnet_pos(tag)) 
                      for word, tag in pos_tags]
 
         # 3. Semantic Expansion
         expanded_terms = set()
-        
-        # Add original terms
         expanded_terms.update(lemmatized)
         expanded_terms.update(keywords)
         
-        # Add WordNet expansions
+        # WordNet expansions
         for term in lemmatized:
-            # Get synsets
             synsets = wordnet.synsets(term)
-            
             for synset in synsets[:2]:  # Limit to top 2 synsets per term
                 # Add synonyms
-                expanded_terms.update(lemma.name().lower() 
-                                   for lemma in synset.lemmas())
+                expanded_terms.update(
+                    lemma.name().lower()
+                    for lemma in synset.lemmas()
+                    if lemma.name().lower() not in stop_words
+                )
                 
                 # Add hypernyms (more general terms)
-                expanded_terms.update(
-                    lemma.name().lower()
-                    for hypernym in synset.hypernyms()
-                    for lemma in hypernym.lemmas()
-                )
+                for hypernym in synset.hypernyms():
+                    expanded_terms.update(
+                        lemma.name().lower()
+                        for lemma in hypernym.lemmas()
+                        if lemma.name().lower() not in stop_words
+                    )
                 
                 # Add hyponyms (more specific terms)
-                expanded_terms.update(
-                    lemma.name().lower()
-                    for hyponym in synset.hyponyms()[:2]  # Limit hyponyms
-                    for lemma in hyponym.lemmas()
-                )
+                for hyponym in synset.hyponyms()[:2]:  # Limit hyponyms
+                    expanded_terms.update(
+                        lemma.name().lower()
+                        for lemma in hyponym.lemmas()
+                        if lemma.name().lower() not in stop_words
+                    )
 
-        # 4. Clean and format expanded terms
-        # Remove underscores, stopwords, and short terms
+        # 4. Clean expanded terms
         cleaned_terms = {
             term.replace('_', ' ') 
             for term in expanded_terms 
-            if term not in stop_words and len(term) > 2
+            if len(term) > 2
         }
 
         # 5. Build Lucene query
-        # Combine terms with OR operator and boost important terms
         query_parts = []
         
         # Boost original keywords
@@ -312,14 +307,15 @@ def expand_query(query_string):
             query_parts.append(f'({keyword})^2')
             
         # Add other terms
-        query_parts.extend(list(cleaned_terms - set(keywords)))
+        other_terms = cleaned_terms - set(keywords)
+        query_parts.extend(other_terms)
         
+        # Build final query with OR operator
         final_query = ' OR '.join(query_parts)
-        
         return final_query
 
     except Exception as e:
-        print(f"Errore nell'espansione della query: {e}")
+        print(f"Error expanding query: {e}")
         return query_string  # Fallback to original query
 
 def parse_advanced_query(query_string, analyzer):
@@ -329,38 +325,68 @@ def parse_advanced_query(query_string, analyzer):
     """
     query_builder = BooleanQuery.Builder()
     
-    # Split the query by AND/OR operators
-    parts = query_string.split(' AND ')
-    for and_part in parts:
+    # Split by AND first
+    and_parts = query_string.split(' AND ')
+    for and_part in and_parts:
+        # Handle OR parts within each AND clause
         or_parts = and_part.split(' OR ')
-        or_builder = BooleanQuery.Builder()
+        or_query_builder = BooleanQuery.Builder()
         
-        for part in or_parts:
-            if ':' in part:
-                # Field-specific search
-                field, term = part.split(':', 1)
+        for or_part in or_parts:
+            if ':' in or_part:
+                field, term = or_part.split(':', 1)
                 field = field.lower().strip()
-                term = term.strip()
-                if field in ['title', 'abstract', 'corpus', 'keywords']:
-                    expanded_term = expand_query(term)
-                    field_query = QueryParser(field, analyzer).parse(expanded_term)
-                    or_builder.add(field_query, BooleanClause.Occur.SHOULD)
+                term = term.strip().strip('"').strip("'").strip()
+                
+                if field in ['title', 'abstract', 'corpus']:
+                    parser = QueryParser(field, analyzer)
+                    field_query = parser.parse(term)
+                    or_query_builder.add(field_query, BooleanClause.Occur.SHOULD)
             else:
-                # Default search in all fields
-                term = part.strip()
-                if term:
-                    expanded_term = expand_query(term)
-                    title_query = QueryParser("title", analyzer).parse(expanded_term)
-                    abstract_query = QueryParser("abstract", analyzer).parse(expanded_term)
-                    corpus_query = QueryParser("corpus", analyzer).parse(expanded_term)
-                    
-                    or_builder.add(title_query, BooleanClause.Occur.SHOULD)
-                    or_builder.add(abstract_query, BooleanClause.Occur.SHOULD)
-                    or_builder.add(corpus_query, BooleanClause.Occur.SHOULD)
+                # If no field is specified, search in all fields
+                term = or_part.strip()
+                for field in ['title', 'abstract', 'corpus']:
+                    parser = QueryParser(field, analyzer)
+                    field_query = parser.parse(term)
+                    or_query_builder.add(field_query, BooleanClause.Occur.SHOULD)
         
-        or_query = or_builder.build()
-        query_builder.add(or_query, BooleanClause.Occur.MUST)
+        # Add the OR combination to main query with MUST (AND)
+        query_builder.add(or_query_builder.build(), BooleanClause.Occur.MUST)
     
+    return query_builder.build()
+
+def build_checkbox_query(query_string, title_true, abstract_true, corpus_true, analyzer):
+    """
+    Build a query based on checkbox selections and search terms.
+    
+    Args:
+        query_string (str): The search terms
+        title_true (bool): Whether to search in title
+        abstract_true (bool): Whether to search in abstract
+        corpus_true (bool): Whether to search in corpus
+        analyzer (StandardAnalyzer): The Lucene analyzer to use
+        
+    Returns:
+        Query: A Lucene query object
+    """
+    query_builder = BooleanQuery.Builder()
+    expanded_terms = expand_query(query_string)
+    
+    if not any([title_true, abstract_true, corpus_true]):
+        return None
+        
+    if title_true:
+        title_query = QueryParser("title", analyzer).parse(expanded_terms)
+        query_builder.add(title_query, BooleanClause.Occur.SHOULD)
+        
+    if abstract_true:
+        abstract_query = QueryParser("abstract", analyzer).parse(expanded_terms)
+        query_builder.add(abstract_query, BooleanClause.Occur.SHOULD)
+        
+    if corpus_true:
+        corpus_query = QueryParser("corpus", analyzer).parse(expanded_terms)
+        query_builder.add(corpus_query, BooleanClause.Occur.SHOULD)
+        
     return query_builder.build()
 
 # Percorsi base

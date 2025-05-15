@@ -1,5 +1,4 @@
 import psycopg2 as ps
-import os
 from pathlib import Path
 import ijson
 
