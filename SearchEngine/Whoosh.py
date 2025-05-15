@@ -4,8 +4,9 @@ from whoosh.index import create_in
 from whoosh import index
 from whoosh.fields import Schema, TEXT, ID
 from whoosh.scoring import TF_IDF, BM25F
-from whoosh.qparser import OrGroup, MultifieldParser
+from whoosh.qparser import OrGroup, MultifieldParser, QueryParser, AndGroup
 from whoosh.analysis import StemmingAnalyzer
+from whoosh import query
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.corpus import wordnet
@@ -165,6 +166,53 @@ def index_documents(index_dir, json_file, batch_size=1000):
     return ix
 
 # Funzione per cercare nei documenti indicizzati
+def parse_advanced_query(query_string, schema):
+    """
+    Parse a query string that may contain field-specific searches.
+    Example: "title:space AND corpus:python" or "abstract:law OR title:justice"
+    """
+    try:
+        # Split by AND first
+        and_parts = query_string.split(' AND ')
+        and_queries = []
+
+        for and_part in and_parts:
+            or_parts = and_part.split(' OR ')
+            or_queries = []
+
+            for part in or_parts:
+                if ':' in part:
+                    # Field-specific search
+                    field, term = part.split(':', 1)
+                    field = field.lower().strip()
+                    term = term.strip()
+
+                    if field in ['title', 'abstract', 'corpus', 'keywords']:
+                        # Process the term for better search
+                        processed_term = process_natural_query(term)
+                        # Create a field query
+                        field_query = query.Term(field, processed_term)
+                        or_queries.append(field_query)
+
+            if or_queries:
+                if len(or_queries) > 1:
+                    or_clause = query.Or(or_queries)
+                else:
+                    or_clause = or_queries[0]
+                and_queries.append(or_clause)
+
+        if and_queries:
+            if len(and_queries) > 1:
+                return query.And(and_queries)
+            else:
+                return and_queries[0]
+        else:
+            return None
+
+    except Exception as e:
+        print(f"Error parsing advanced query: {e}")
+        return None
+
 def search_documents(index_dir, query_string, title_true, abstract_true, corpus_true, ranking_type):
     """
     Search Engine Whoosh Function.
@@ -187,12 +235,9 @@ def search_documents(index_dir, query_string, title_true, abstract_true, corpus_
     if not query_string.strip():
         return []
         
-    if not any([title_true, abstract_true, corpus_true]):
+    if not any([title_true, abstract_true, corpus_true]) and ':' not in query_string:
         return []
 
-    # Elabora la query in linguaggio naturale
-    processed_query = process_natural_query(query_string)
-    #processed_query = query_string  # Per ora non elaboriamo la query
     if ranking_type == "TF_IDF":
         rank = TF_IDF()
     else:
@@ -200,35 +245,44 @@ def search_documents(index_dir, query_string, title_true, abstract_true, corpus_
     
     ix = index.open_dir(index_dir)
     with ix.searcher(weighting=rank) as searcher:
-        fields = []
-        field_boosts = {} # Dizionario per i boost dei campi
-
-        if title_true:
-            fields.append("title")
-            field_boosts["title"] = 2.0  # Assegna un boost di 2.0 al titolo
-        if abstract_true:
-            fields.append("abstract")
-            field_boosts["abstract"] = 1.3 # Boost di default per l'abstract
-        if corpus_true:
-            fields.append("corpus")
-            field_boosts["corpus"] = 1.0 # Boost di default per il corpus
+        try:
+            if ':' in query_string:
+                # Use advanced query parsing for field-specific searches
+                parsed_query = parse_advanced_query(query_string, ix.schema)
+                if parsed_query:
+                    query_obj = parsed_query
+                else:
+                    return []  # No valid query
+            else:
+                # Use traditional checkbox-based search
+                fields = []
+                if title_true:
+                    fields.append("title")
+                if abstract_true:
+                    fields.append("abstract")
+                if corpus_true:
+                    fields.append("corpus")
+                
+                if not fields:
+                    return []
+                    
+                processed_query = process_natural_query(query_string)
+                parser = MultifieldParser(fields, ix.schema, group=OrGroup)
+                query_obj = parser.parse(processed_query)
             
-        # Se nessun campo è selezionato, non ha senso continuare
-        if not fields:
+            results = searcher.search(query_obj, limit=100)
+            return [(result['id'], 
+                    result['title'], 
+                    result['abstract'], 
+                    result['corpus'], 
+                    result['keywords'], 
+                    result.score,
+                    result['url']) 
+                    for result in results]
+                    
+        except Exception as e:
+            print(f"Error during search: {e}")
             return []
-
-        parser = MultifieldParser(fields, ix.schema, group=OrGroup, fieldboosts=field_boosts)
-        query = parser.parse(processed_query)
-        
-        results = searcher.search(query, limit=100)  # Nessun limite ai risultati
-        return [(result['id'], 
-                result['title'], 
-                result['abstract'], 
-                result['corpus'], 
-                result['keywords'], 
-                result.score,
-                result['url']) 
-                for result in results]
 
 # Funzione per verificare se l'indice esiste e è valido
 def index_exists_and_valid(index_dir):

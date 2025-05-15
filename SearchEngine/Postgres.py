@@ -37,6 +37,38 @@ def extract_keywords(uin):
     
     return filtered_keywords
 
+def parse_advanced_query(query_string):
+    """
+    Parse a query string that may contain field-specific searches.
+    Example: "title:space AND corpus:python" or "abstract:law OR title:justice"
+    """
+    parts = query_string.split(' AND ')
+    query_parts = []
+    
+    for part in parts:
+        or_parts = part.split(' OR ')
+        or_query_parts = []
+        
+        for or_part in or_parts:
+            if ':' in or_part:
+                field, term = or_part.split(':', 1)
+                field = field.lower().strip()
+                term = term.strip()
+                
+                if field in ['title', 'abstract', 'corpus', 'keywords']:
+                    or_query_parts.append(f"{field}_tsv @@ to_tsquery('english', '{term}')")
+            else:
+                term = or_part.strip()
+                or_query_parts.append(f"""(title_tsv @@ to_tsquery('english', '{term}') OR
+                                         abstract_tsv @@ to_tsquery('english', '{term}') OR
+                                         corpus_tsv @@ to_tsquery('english', '{term}'))""")
+        if or_query_parts:
+            query_parts.append('(' + ' OR '.join(or_query_parts) + ')')
+            
+    if query_parts:
+        return ' AND '.join(query_parts)
+    else:
+        return None
 
 def search(search_query, title_true, abstract_true, corpus_true, ranking_type):
     """
@@ -60,118 +92,136 @@ def search(search_query, title_true, abstract_true, corpus_true, ranking_type):
     conn = dbConn()
     cur = conn.cursor()
     
-    keywords = extract_keywords(search_query)
-    if not keywords:
-        return []
-    
-    # Converte la lista di parole chiave in una stringa separata da ' & '
-    search_query = ' & '.join(keywords) 
-    
-    if search_query:
-        if ranking_type == 'ts_rank':
-            # ricerca su tutti i campi dei documenti
-            if title_true and abstract_true and corpus_true:
-                q = '''
-                SELECT id, title, abstract, corpus, keywords, url,
-                       ts_rank(title_tsv || abstract_tsv || corpus_tsv,
-                              to_tsquery(%s)) as rank
-                FROM docs 
-                WHERE title_tsv @@ to_tsquery(%s)
-                   OR abstract_tsv @@ to_tsquery(%s)
-                   OR corpus_tsv @@ to_tsquery(%s)
-                ORDER BY rank DESC
-                LIMIT 100
-                '''
-                cur.execute(q, (search_query, search_query, search_query, search_query))
-            
-            # ricerca solamente sul titolo dei documenti
-            if title_true and not abstract_true and not corpus_true:
-                q = '''
-                SELECT id, title, abstract, corpus, keywords, url,
-                       ts_rank(title_tsv, to_tsquery('english', %s)) as rank
-                FROM docs 
-                WHERE title_tsv @@ to_tsquery('english', %s)
-                ORDER BY rank DESC
-                LIMIT 100
-                '''
-                cur.execute(q, (search_query, search_query))
-            
-            # ricerca sull'abstract dei documenti
-            if abstract_true and not title_true and not corpus_true:
-                q = '''
-                SELECT id, title, abstract, corpus, keywords, url,
-                       ts_rank(abstract_tsv, to_tsquery('english', %s)) as rank
-                FROM docs 
-                WHERE abstract_tsv @@ to_tsquery('english', %s)
-                ORDER BY rank DESC
-                LIMIT 100
-                '''
-                cur.execute(q, (search_query, search_query))
-            
-            # ricerca solo sul corpo del testo dei documenti
-            if corpus_true and not title_true and not abstract_true:
-                q = '''
-                SELECT id, title, abstract, corpus, keywords, url,
-                       ts_rank(corpus_tsv, to_tsquery('english', %s)) as rank
-                FROM docs 
-                WHERE corpus_tsv @@ to_tsquery('english', %s)
-                ORDER BY rank DESC
-                LIMIT 100
-                '''
-                cur.execute(q, (search_query, search_query))
-        elif ranking_type == 'ts_rank_cd':
-            # ricerca su tutti i campi dei documenti
-            if title_true and abstract_true and corpus_true:
-                q = '''
-                SELECT id, title, abstract, corpus, keywords, url,
-                       ts_rank_cd(title_tsv || abstract_tsv || corpus_tsv,
-                                to_tsquery('english', %s)) as rank
-                FROM docs 
-                WHERE title_tsv @@ to_tsquery('english', %s)
-                   OR abstract_tsv @@ to_tsquery('english', %s)
-                   OR corpus_tsv @@ to_tsquery('english', %s)
-                ORDER BY rank DESC
-                LIMIT 100
-                '''
-                cur.execute(q, (search_query, search_query, search_query, search_query))
-            
-            # ricerca solamente sul titolo dei documenti
-            if title_true and not abstract_true and not corpus_true:
-                q = '''
-                SELECT id, title, abstract, corpus, keywords, url,
-                       ts_rank_cd(title_tsv, to_tsquery('english', %s)) as rank
-                FROM docs 
-                WHERE title_tsv @@ to_tsquery('english', %s)
-                ORDER BY rank DESC
-                LIMIT 100
-                '''
-                cur.execute(q, (search_query, search_query))
-            
-            # ricerca sull'abstract dei documenti
-            if abstract_true and not title_true and not corpus_true:
-                q = '''
-                SELECT id, title, abstract, corpus, keywords, url,
-                       ts_rank_cd(abstract_tsv, to_tsquery('english', %s)) as rank
-                FROM docs 
-                WHERE abstract_tsv @@ to_tsquery('english', %s)
-                ORDER BY rank DESC
-                LIMIT 100
-                '''
-                cur.execute(q, (search_query, search_query))
-            
-            # ricerca solo sul corpo del testo dei documenti
-            if corpus_true and not title_true and not abstract_true:
-                q = '''
-                SELECT id, title, abstract, corpus, keywords, url,
-                       ts_rank_cd(corpus_tsv, to_tsquery('english', %s)) as rank
-                FROM docs 
-                WHERE corpus_tsv @@ to_tsquery('english', %s)
-                ORDER BY rank DESC
-                LIMIT 100
-                '''
-                cur.execute(q, (search_query, search_query))
+    # Check if the query contains field-specific searches
+    if ':' in search_query:
+        # Use advanced query parsing
+        where_clause = parse_advanced_query(search_query)
+        if where_clause:
+            q = f'''
+            SELECT id, title, abstract, corpus, keywords, url,
+                   ts_rank_cd(title_tsv || abstract_tsv || corpus_tsv,
+                              to_tsquery('english', %s)) as rank
+            FROM docs 
+            WHERE {where_clause}
+            ORDER BY rank DESC
+            LIMIT 100
+            '''
+            cur.execute(q, ('',))  # Dummy value, as the query is constructed dynamically
+        else:
+            return []
+    else:
+        # Use the original checkbox-based logic
+        keywords = extract_keywords(search_query)
+        if not keywords:
+            return []
+        
+        search_query = ' & '.join(keywords) 
+        
+        if search_query:
+            if ranking_type == 'ts_rank':
+                # ricerca su tutti i campi dei documenti
+                if title_true and abstract_true and corpus_true:
+                    q = '''
+                    SELECT id, title, abstract, corpus, keywords, url,
+                           ts_rank(title_tsv || abstract_tsv || corpus_tsv,
+                                  to_tsquery('english', %s)) as rank
+                    FROM docs 
+                    WHERE title_tsv @@ to_tsquery('english', %s)
+                       OR abstract_tsv @@ to_tsquery('english', %s)
+                       OR corpus_tsv @@ to_tsquery('english', %s)
+                    ORDER BY rank DESC
+                    LIMIT 100
+                    '''
+                    cur.execute(q, (search_query, search_query, search_query, search_query))
                 
-        results = cur.fetchall()
-        cur.close()
-        conn.close()
-        return results
+                # ricerca solamente sul titolo dei documenti
+                if title_true and not abstract_true and not corpus_true:
+                    q = '''
+                    SELECT id, title, abstract, corpus, keywords, url,
+                           ts_rank(title_tsv, to_tsquery('english', %s)) as rank
+                    FROM docs 
+                    WHERE title_tsv @@ to_tsquery('english', %s)
+                    ORDER BY rank DESC
+                    LIMIT 100
+                    '''
+                    cur.execute(q, (search_query, search_query))
+                
+                # ricerca sull'abstract dei documenti
+                if abstract_true and not title_true and not corpus_true:
+                    q = '''
+                    SELECT id, title, abstract, corpus, keywords, url,
+                           ts_rank(abstract_tsv, to_tsquery('english', %s)) as rank
+                    FROM docs 
+                    WHERE abstract_tsv @@ to_tsquery('english', %s)
+                    ORDER BY rank DESC
+                    LIMIT 100
+                    '''
+                    cur.execute(q, (search_query, search_query))
+                
+                # ricerca solo sul corpo del testo dei documenti
+                if corpus_true and not title_true and not abstract_true:
+                    q = '''
+                    SELECT id, title, abstract, corpus, keywords, url,
+                           ts_rank(corpus_tsv, to_tsquery('english', %s)) as rank
+                    FROM docs 
+                    WHERE corpus_tsv @@ to_tsquery('english', %s)
+                    ORDER BY rank DESC
+                    LIMIT 100
+                    '''
+                    cur.execute(q, (search_query, search_query))
+            elif ranking_type == 'ts_rank_cd':
+                # ricerca su tutti i campi dei documenti
+                if title_true and abstract_true and corpus_true:
+                    q = '''
+                    SELECT id, title, abstract, corpus, keywords, url,
+                           ts_rank_cd(title_tsv || abstract_tsv || corpus_tsv,
+                                    to_tsquery('english', %s)) as rank
+                    FROM docs 
+                    WHERE title_tsv @@ to_tsquery('english', %s)
+                       OR abstract_tsv @@ to_tsquery('english', %s)
+                       OR corpus_tsv @@ to_tsquery('english', %s)
+                    ORDER BY rank DESC
+                    LIMIT 100
+                    '''
+                    cur.execute(q, (search_query, search_query, search_query, search_query))
+                
+                # ricerca solamente sul titolo dei documenti
+                if title_true and not abstract_true and not corpus_true:
+                    q = '''
+                    SELECT id, title, abstract, corpus, keywords, url,
+                           ts_rank_cd(title_tsv, to_tsquery('english', %s)) as rank
+                    FROM docs 
+                    WHERE title_tsv @@ to_tsquery('english', %s)
+                    ORDER BY rank DESC
+                    LIMIT 100
+                    '''
+                    cur.execute(q, (search_query, search_query))
+                
+                # ricerca sull'abstract dei documenti
+                if abstract_true and not title_true and not corpus_true:
+                    q = '''
+                    SELECT id, title, abstract, corpus, keywords, url,
+                           ts_rank_cd(abstract_tsv, to_tsquery('english', %s)) as rank
+                    FROM docs 
+                    WHERE abstract_tsv @@ to_tsquery('english', %s)
+                    ORDER BY rank DESC
+                    LIMIT 100
+                    '''
+                    cur.execute(q, (search_query, search_query))
+                
+                # ricerca solo sul corpo del testo dei documenti
+                if corpus_true and not title_true and not abstract_true:
+                    q = '''
+                    SELECT id, title, abstract, corpus, keywords, url,
+                           ts_rank_cd(corpus_tsv, to_tsquery('english', %s)) as rank
+                    FROM docs 
+                    WHERE corpus_tsv @@ to_tsquery('english', %s)
+                    ORDER BY rank DESC
+                    LIMIT 100
+                    '''
+                    cur.execute(q, (search_query, search_query))
+                    
+            results = cur.fetchall()
+            cur.close()
+            conn.close()
+            return results
