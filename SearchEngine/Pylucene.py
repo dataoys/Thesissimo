@@ -146,7 +146,8 @@ def search_documents(searcher, title_true, abstract_true, corpus_true, query_str
     """
     Search Engine PyLucene Function.
     
-    Supports both field-specific and checkbox-based searches.
+    Supports both field-specific and checkbox-based searches, as well as
+    queries with logical operators across all fields.
     """
     if not query_string.strip():
         return None, None, None
@@ -160,12 +161,20 @@ def search_documents(searcher, title_true, abstract_true, corpus_true, query_str
             
         analyzer = StandardAnalyzer()
         
+        # If no fields are selected, default to all fields
+        if not any([title_true, abstract_true, corpus_true]):
+            title_true = True
+            abstract_true = True
+            corpus_true = True
+        
         # Build query based on search type
-        if ':' in query_string:
-            # Field-specific search
+        if ':' in query_string or ' AND ' in query_string or ' OR ' in query_string:
+            # Advanced query (field-specific or complex logic)
+            print(f"Using advanced query parsing for: {query_string}")
             query = parse_advanced_query(query_string, analyzer)
         else:
-            # Checkbox-based search
+            # Simple checkbox-based search
+            print(f"Using checkbox search for: {query_string}")
             query_builder = BooleanQuery.Builder()
             
             if title_true:
@@ -183,12 +192,10 @@ def search_documents(searcher, title_true, abstract_true, corpus_true, query_str
                 corpus_query = parser.parse(query_string)
                 query_builder.add(corpus_query, BooleanClause.Occur.SHOULD)
                 
-            if not any([title_true, abstract_true, corpus_true]):
-                return None, None, None
-                
             query = query_builder.build()
         
         # Execute search
+        print(f"Executing search with query: {query}")
         results = searcher.search(query, 100)
         
         # Calculate precision-recall metrics
@@ -208,7 +215,9 @@ def search_documents(searcher, title_true, abstract_true, corpus_true, query_str
         return results, plot_path, scores
         
     except Exception as e:
-        print(f"Errore durante la ricerca: {e}")
+        print(f"Error during search: {e}")
+        import traceback
+        traceback.print_exc()
         return None, None, None
 
 def get_wordnet_pos(tag):
@@ -321,9 +330,16 @@ def expand_query(query_string):
 def parse_advanced_query(query_string, analyzer):
     """
     Parse a query string that may contain field-specific searches.
-    Example: "title:space AND corpus:python" or "abstract:law OR title:justice"
+    Examples:
+    - "title:space AND corpus:python" - field specific search
+    - "abstract:law OR title:justice" - field specific with OR
+    - "machine learning" AND "neural networks" - search in all fields
+    - "quantum computing" OR "quantum mechanics" - OR logic across all fields
     """
     query_builder = BooleanQuery.Builder()
+    
+    # Check if query has any field specifications
+    has_field_specs = any(field + ":" in query_string for field in ['title', 'abstract', 'corpus'])
     
     # Split by AND first
     and_parts = query_string.split(' AND ')
@@ -333,25 +349,41 @@ def parse_advanced_query(query_string, analyzer):
         or_query_builder = BooleanQuery.Builder()
         
         for or_part in or_parts:
-            if ':' in or_part:
+            if ':' in or_part and has_field_specs:
+                # Field-specific search
                 field, term = or_part.split(':', 1)
                 field = field.lower().strip()
-                term = term.strip().strip('"').strip("'").strip()
+                term = term.strip()
+                
+                # Handle quoted phrases by preserving the quotes
+                if term.startswith('"') and term.endswith('"'):
+                    # Keep the quotes for exact phrase matching
+                    pass
+                else:
+                    # Remove any stray quotes
+                    term = term.strip('"').strip("'").strip()
                 
                 if field in ['title', 'abstract', 'corpus']:
                     parser = QueryParser(field, analyzer)
                     field_query = parser.parse(term)
                     or_query_builder.add(field_query, BooleanClause.Occur.SHOULD)
             else:
-                # If no field is specified, search in all fields
+                # Search across all fields if no field is specified
                 term = or_part.strip()
+                
+                # Create a sub-query that searches this term in all fields
+                fields_builder = BooleanQuery.Builder()
                 for field in ['title', 'abstract', 'corpus']:
                     parser = QueryParser(field, analyzer)
                     field_query = parser.parse(term)
-                    or_query_builder.add(field_query, BooleanClause.Occur.SHOULD)
+                    fields_builder.add(field_query, BooleanClause.Occur.SHOULD)
+                
+                or_query_builder.add(fields_builder.build(), BooleanClause.Occur.SHOULD)
         
         # Add the OR combination to main query with MUST (AND)
-        query_builder.add(or_query_builder.build(), BooleanClause.Occur.MUST)
+        or_query = or_query_builder.build()
+        if or_query.clauses().size() > 0:  # Only add if there are clauses
+            query_builder.add(or_query, BooleanClause.Occur.MUST)
     
     return query_builder.build()
 
