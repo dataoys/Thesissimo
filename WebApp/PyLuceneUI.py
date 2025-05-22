@@ -7,8 +7,6 @@ except ValueError:
 import streamlit as st
 from pathlib import Path
 import sys
-import numpy as np
-import os
 
 project_root = Path(__file__).parent.parent
 json_file = str(project_root / "WebScraping/results/Docs_cleaned.json") 
@@ -42,16 +40,6 @@ def searchUI():
     
     if results:
         st.success(f"Trovati {len(results.scoreDocs)} documenti")
-
-        # Mostra il grafico Precision-Recall se disponibile
-        if plot_path and os.path.exists(plot_path):
-            st.subheader("📊 Metriche di Performance")
-            st.image(plot_path, caption="Curva Precision-Recall")
-            
-            if pr_metrics:
-                precision_values, recall_values = pr_metrics
-                st.write(f"Precision media: {np.mean(precision_values):.3f}")
-                st.write(f"Recall media: {np.mean(recall_values):.3f}")
 
         # Mostra i risultati
         for scoreDoc in results.scoreDocs:
