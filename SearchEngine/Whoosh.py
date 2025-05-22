@@ -6,7 +6,7 @@ from whoosh.fields import Schema, TEXT, ID
 from whoosh.scoring import TF_IDF, BM25F
 from whoosh.qparser import OrGroup, MultifieldParser
 from whoosh.analysis import StemmingAnalyzer
-from whoosh import query
+from whoosh import qparser
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.corpus import wordnet
@@ -167,30 +167,109 @@ def index_documents(index_dir, json_file, batch_size=1000):
 def parse_advanced_query(query_string, schema):
     """
     Parse a query string that may contain field-specific searches.
-    Example: "title:neural networks AND corpus:python" or "abstract:law OR title:justice"
+    Examples: 
+    - "title:neural networks AND corpus:python" 
+    - "abstract:law OR title:justice"
+    - "machine learning AND neural networks" (searches all fields)
     """
     try:
-        from whoosh import qparser
+        # Check if query has any field specifications
+        has_field_specs = any(field + ":" in query_string for field in ['title', 'abstract', 'corpus', 'keywords'])
         
-        # Create a QueryParser that supports multiple fields and phrase queries
-        parser = qparser.MultifieldParser(['title', 'abstract', 'corpus'], 
-                                        schema,
-                                        group=qparser.OrGroup)
+        # For queries without field specifications but with AND/OR operators
+        if not has_field_specs and (" AND " in query_string or " OR " in query_string):
+            print(f"Processing query without field specs: {query_string}")
+            
+            # Create a specific parser for non-field queries with AND/OR
+            parser = qparser.QueryParser("content", schema)
+            parser.add_plugin(qparser.GroupPlugin())
+            parser.add_plugin(qparser.PhrasePlugin())
+            
+            # Split the query into terms respecting quotes
+            terms = []
+            current_term = ""
+            in_quotes = False
+            
+            for char in query_string:
+                if char == '"':
+                    in_quotes = not in_quotes
+                    current_term += char
+                elif char == ' ' and not in_quotes:
+                    if current_term:
+                        terms.append(current_term)
+                        current_term = ""
+                else:
+                    current_term += char
+            
+            if current_term:
+                terms.append(current_term)
+            
+            # Build the query with appropriate operators
+            final_query_parts = []
+            i = 0
+            while i < len(terms):
+                if terms[i].upper() in ["AND", "OR"]:
+                    # Skip operators
+                    i += 1
+                    continue
+                    
+                # Handle phrase (with quotes)
+                term = terms[i].strip('"')
+                
+                # Build a sub-query that searches this term in all fields
+                sub_query = []
+                for field in ['title', 'abstract', 'corpus']:
+                    if '"' in terms[i]:
+                        # For phrases, keep them intact
+                        sub_query.append(f'{field}:"{term}"')
+                    else:
+                        # For single terms
+                        sub_query.append(f'{field}:{term}')
+                
+                final_query_parts.append("(" + " OR ".join(sub_query) + ")")
+                
+                # Check if we need to add an operator
+                if i + 1 < len(terms) and terms[i+1].upper() in ["AND", "OR"]:
+                    final_query_parts.append(terms[i+1])
+                    i += 2
+                else:
+                    i += 1
+            
+            # Join all parts
+            expanded_query = " ".join(final_query_parts)
+            print(f"Expanded query: {expanded_query}")
+            
+            # Parse with a field-aware parser
+            field_parser = qparser.QueryParser("content", schema)
+            field_parser.add_plugin(qparser.FieldsPlugin())
+            field_parser.add_plugin(qparser.PhrasePlugin())
+            field_parser.add_plugin(qparser.OperatorsPlugin())
+            
+            return field_parser.parse(expanded_query)
+            
+        # For field-specific queries or simple queries
+        elif has_field_specs:
+            # Use a parser that respects field prefixes
+            parser = qparser.QueryParser("content", schema)
+            parser.add_plugin(qparser.FieldsPlugin())
+        else:
+            # For simple queries without operators, search across all fields
+            parser = qparser.MultifieldParser(['title', 'abstract', 'corpus'], 
+                                           schema,
+                                           group=qparser.OrGroup)
         
-        # Enable phrase query support
+        # Add plugins for advanced features
         parser.add_plugin(qparser.PhrasePlugin())
         parser.add_plugin(qparser.OperatorsPlugin())
-        
-        # Clean up the query string to ensure proper parsing
-        query_string = query_string.replace('title:', 'title:/')
-        query_string = query_string.replace('abstract:', 'abstract:/')
-        query_string = query_string.replace('corpus:', 'corpus:/')
         
         # Parse and return the query
         return parser.parse(query_string)
         
     except Exception as e:
         print(f"Error parsing advanced query: {e}")
+        print(f"Query string was: {query_string}")
+        import traceback
+        traceback.print_exc()
         return None
 
 def search_documents(index_dir, query_string, title_true, abstract_true, corpus_true, ranking_type):
@@ -200,8 +279,11 @@ def search_documents(index_dir, query_string, title_true, abstract_true, corpus_
     if not query_string.strip():
         return []
     
-    if not any([title_true, abstract_true, corpus_true]) and ':' not in query_string:
-        return []
+    # If no fields are selected, default to searching all fields
+    if not any([title_true, abstract_true, corpus_true]):
+        title_true = True
+        abstract_true = True
+        corpus_true = True
 
     # Choose scoring function
     if ranking_type == "TF_IDF":
@@ -212,51 +294,44 @@ def search_documents(index_dir, query_string, title_true, abstract_true, corpus_
     ix = index.open_dir(index_dir)
     try:
         with ix.searcher(weighting=scorer) as searcher:
-            # Field-specific search
-            if ':' in query_string:
+            # Use advanced parsing for complex queries with field specifications or AND/OR operators
+            if ':' in query_string or ' AND ' in query_string or ' OR ' in query_string:
+                print(f"Using advanced query parsing for: {query_string}")
                 query_obj = parse_advanced_query(query_string, ix.schema)
                 if query_obj is None:
+                    print("Failed to parse advanced query")
                     return []
             else:
-                # Checkbox-based search.
-                # To search for the query_string as an exact phrase,
-                # wrap it in quotes.
-                # The process_natural_query function expands the query,
-                # which is not desired for an exact phrase search.
+                # Simple query (no field specs, no AND/OR)
+                print(f"Using simple query: {query_string}")
                 
-                # Original line that expands the query:
-                # processed_query = process_natural_query(query_string)
+                # Determine fields to search based on checkboxes
+                fields = []
+                if title_true:
+                    fields.append("title")
+                if abstract_true:
+                    fields.append("abstract")
+                if corpus_true:
+                    fields.append("corpus")
                 
-                # New line to treat the query_string as an exact phrase:
-                
+                # For phrase queries, preserve the exact phrase
                 if '"' in query_string:
-                    phrase_to_search = f'"{query_string}"'
-                    fields = ['title', 'abstract', 'corpus']
-                else:  
-                    phrase_to_search <= query_string
-                    fields = []
-                    if title_true:
-                        fields.append("title")
-                    if abstract_true:
-                        fields.append("abstract")
-                    if corpus_true:
-                        fields.append("corpus")
-
+                    phrase_to_search = query_string  # Keep quotes intact
+                else:
+                    # Process the query for better results
+                    phrase_to_search = process_natural_query(query_string)
                 
-                # If no fields are selected, it might be better to search in all default fields
-                # or handle this case explicitly. For now, assuming at least one field is true
-                # or the query will be empty if fields list is empty.
-
-
-
+                # Use MultifieldParser for simple queries
                 parser = MultifieldParser(fields, ix.schema, group=OrGroup)
-                parser.add_plugin(qparser.PhrasePlugin()) # Already correctly added
-                
-                # Parse the exact phrase query string
+                parser.add_plugin(qparser.PhrasePlugin())
                 query_obj = parser.parse(phrase_to_search)
             
-            # Execute search with highlighting
+            # Print the final query for debugging
+            print(f"Final query object: {query_obj}")
+            
+            # Execute search
             results = searcher.search(query_obj, limit=100)
+            print(f"Search returned {len(results)} results")
             
             # Format results
             formatted_results = []
@@ -275,6 +350,8 @@ def search_documents(index_dir, query_string, title_true, abstract_true, corpus_
             
     except Exception as e:
         print(f"Error during search: {e}")
+        import traceback
+        traceback.print_exc()
         return []
 
 # Funzione per verificare se l'indice esiste e è valido
