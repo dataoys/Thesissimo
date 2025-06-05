@@ -1,3 +1,11 @@
+"""!
+@file Whoosh.py
+@brief Whoosh search engine implementation for JuriScan
+@details Pure Python search engine with advanced NLP features and semantic query expansion
+@author Magni && Testoni
+@date 2025
+"""
+
 import os
 import ijson
 from whoosh.index import create_in
@@ -19,8 +27,12 @@ import traceback # For detailed error printing
 
 # Add this function after the imports
 def setup_nltk():
-    """
-    Downloads required NLTK resources if not already present.
+    """!
+    @brief Download and setup required NLTK resources
+    @details Downloads WordNet, POS tagger, tokenizer, and stopwords if not available.
+             Includes error handling and fallback mechanisms.
+    @return None
+    @throws Exception if NLTK resources cannot be downloaded
     """
     try:
         # Test if WordNet is available by trying to access a basic attribute or method
@@ -47,13 +59,11 @@ def setup_nltk():
 
 # Function to create index schema
 def create_schema():
-    """
-    Schema generation function.
-
-    According to our document structure, this function generates a schema for the Whoosh index.
-
-    Returns:
-        scheme: Schema for the Whoosh index.
+    """!
+    @brief Generate Whoosh index schema for document structure
+    @return Schema object configured for document fields
+    @details Creates schema with ID, title, abstract, corpus, keywords, and URL fields.
+             Uses stemming analyzer for text fields to improve search recall.
     """
     # Eseguiamo stemming di soli campi testuali significativi
     return Schema(
@@ -66,9 +76,12 @@ def create_schema():
     )
 
 # Creazione dell'indice
-def create_whoosh_index_internal(index_dir): # Renamed to avoid confusion
-    """
-    Internal function to create a new Whoosh index structure.
+def create_whoosh_index_internal(index_dir):
+    """!
+    @brief Internal function to create new Whoosh index structure
+    @param index_dir Path to the index directory
+    @return Index object for the newly created index
+    @details Creates directory if needed and initializes empty Whoosh index with schema
     """
     if not os.path.exists(index_dir):
         print(f"Creating directory for Whoosh index: {index_dir}")
@@ -80,8 +93,14 @@ def create_whoosh_index_internal(index_dir): # Renamed to avoid confusion
 
 # Indicizzazione dei documenti in batch
 def index_documents(index_dir, json_file, batch_size=1000):
-    """
-    Indexing documents function. FORCES REBUILD.
+    """!
+    @brief Index documents from JSON file into Whoosh index
+    @param index_dir Path to the index directory
+    @param json_file Path to the JSON document file
+    @param batch_size Number of documents to process in each batch (default: 1000)
+    @return Index object for the populated index
+    @details Forces rebuild of index, processes documents in batches for memory efficiency.
+             Uses incremental JSON parsing to handle large files.
     """
     print(f"--- Starting Whoosh Indexing ---")
     print(f"Index directory: {index_dir}")
@@ -157,12 +176,13 @@ def index_documents(index_dir, json_file, batch_size=1000):
 
 # Funzione per cercare nei documenti indicizzati
 def parse_advanced_query(query_string, schema):
-    """
-    Parse a query string that may contain field-specific searches.
-    Examples: 
-    - "title:neural networks AND corpus:python" 
-    - "abstract:law OR title:justice"
-    - "machine learning AND neural networks" (searches all fields)
+    """!
+    @brief Parse complex query strings with field specifications and operators
+    @param query_string Query string to parse (may contain field:term AND/OR operators)
+    @param schema Whoosh schema object for field validation
+    @return Parsed Query object or None if parsing fails
+    @details Handles field-specific searches, phrase queries, and logical operators.
+             Expands non-field queries to search across multiple fields.
     """
     try:
         # Check if query has any field specifications
@@ -265,8 +285,16 @@ def parse_advanced_query(query_string, schema):
         return None
 
 def search_documents(index_dir, query_string, title_true, abstract_true, corpus_true, ranking_type):
-    """
-    Search Engine Whoosh Function.
+    """!
+    @brief Main search function for Whoosh engine
+    @param index_dir Path to the Whoosh index directory
+    @param query_string The search query string
+    @param title_true Boolean flag to search in title field
+    @param abstract_true Boolean flag to search in abstract field
+    @param corpus_true Boolean flag to search in corpus field
+    @param ranking_type Scoring algorithm ("TF_IDF" or "BM25F")
+    @return List of tuples containing (id, title, abstract, corpus, keywords, score, url)
+    @details Supports both simple and advanced query parsing with natural language processing
     """
     if not query_string.strip():
         return []
@@ -360,16 +388,11 @@ def search_documents(index_dir, query_string, title_true, abstract_true, corpus_
 
 # Funzione per verificare se l'indice esiste e è valido
 def index_exists_and_valid(index_dir):
-    """
-    Check if the index exists and is valid.
-
-    This function takes the path of the index directory and checks if the index exists and contains documents.
-
-    Arguments:
-        index_dir (str): Path to the index directory.
-
-    Returns:
-        bool: True if the index exists and contains documents, False otherwise.
+    """!
+    @brief Check if Whoosh index exists and contains documents
+    @param index_dir Path to the index directory
+    @return True if valid index with documents exists, False otherwise
+    @details Verifies directory existence, index validity, and document count
     """
     
     if not os.path.exists(index_dir):
@@ -384,8 +407,13 @@ def index_exists_and_valid(index_dir):
         return False
 
 def create_or_get_index(index_dir, json_file, force_rebuild=False):
-    """
-    Create or get the index function only if it's necessary.
+    """!
+    @brief Create new index or open existing Whoosh index
+    @param index_dir Path to the index directory
+    @param json_file Path to the JSON document file
+    @param force_rebuild Force recreation of index even if it exists (default: False)
+    @return Index object ready for searching
+    @details Manages index lifecycle with lock file cleanup and rebuilding options
     """
     print(f"--- Whoosh create_or_get_index ---")
     print(f"Index dir: {index_dir}, JSON file: {json_file}, Force rebuild: {force_rebuild}")
@@ -412,8 +440,11 @@ def create_or_get_index(index_dir, json_file, force_rebuild=False):
         raise
 
 def get_wordnet_pos(tag):
-    """
-    Map POS tag to WordNet POS tag for lemmatization
+    """!
+    @brief Map NLTK POS tag to WordNet POS tag for accurate lemmatization
+    @param tag NLTK part-of-speech tag
+    @return WordNet POS constant (NOUN, VERB, ADJ, ADV)
+    @details Converts NLTK POS tags to WordNet format for proper lemmatization
     """
     tag_dict = {
         'N': wordnet.NOUN,
@@ -424,17 +455,12 @@ def get_wordnet_pos(tag):
     return tag_dict.get(tag[0], wordnet.NOUN)
 
 def process_natural_query(query_string):
-    """
-    Process natural language query.
-    
-    This function takes a natural language query and processes it to create
-    a more effective search query using NLP techniques.
-    
-    Arguments:
-        query_string (str): The natural language query
-        
-    Returns:
-        str: Processed query string
+    """!
+    @brief Process natural language query with NLP techniques
+    @param query_string The natural language query to process
+    @return Processed query string with expanded terms
+    @details Uses YAKE keyword extraction, lemmatization, and WordNet expansion
+             for synonyms, hypernyms, and hyponyms. Includes fallback mechanisms.
     """
     # Inizializza gli strumenti NLP
     lemmatizer = WordNetLemmatizer()

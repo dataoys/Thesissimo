@@ -1,3 +1,11 @@
+"""!
+@file PyLuceneUI.py
+@brief Streamlit web interface for PyLucene search engine
+@details Provides interactive web UI for document search using PyLucene with JVM management
+@author Magni && Testoni
+@date 2025
+"""
+
 import lucene
 try:
     lucene.initVM()
@@ -17,6 +25,16 @@ from SearchEngine.Pylucene import create_index, search_documents
 directory, searcher = create_index()
 
 def searchUI():
+    """!
+    @brief Main Streamlit UI function for PyLucene search interface
+    @details Creates complete web interface including:
+             - JVM initialization and index management
+             - Search field configuration and filters
+             - Document ranking type selection (TF_IDF, BM25)
+             - Results display with document scores and links
+             - Integration with PyLucene precision-recall metrics
+    @return None
+    """
     st.sidebar.image('/root/JuriScan/forces-7427867e0c0aa40128b3f01dd26a1945c3c08359-doc-doxygen-awesome-css/doc/doxygen-awesome-css/Logo.png', width=150)
     st.sidebar.write("Thesissimo è un motore di ricerca innovativo progettato per permettere agli studenti, ricercatori e professionisti di cercare tra decine di  migliaia di tesi universitarie relative a materie scientifiche. Che si tratti di scienze, astrofisica, o ingegneria noi abbiamo la risposta. Con una ricerca precisa, rapida e facile da usare, Thesissimo rende più facile l'accesso a risorse accademiche.")
     st.title("📚 Ricerca Documenti")

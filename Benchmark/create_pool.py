@@ -1,3 +1,12 @@
+"""!
+@file create_pool.py
+@brief Creates relevance pools by aggregating results from multiple search engines
+@details This module implements the pooling method for information retrieval evaluation,
+         collecting top results from PyLucene, Whoosh, and PostgreSQL engines for manual relevance assessment
+@authors Magni && Testoni
+@date 2024
+"""
+
 import json
 from pathlib import Path
 import lucene # Import lucene here for the getVMEnv check
@@ -71,7 +80,13 @@ POSTGRES_RANKING_TYPES = ["ts_rank", "ts_rank_cd"]
 
 
 def load_queries_from_uin(uin_file_path):
-    """Loads queries from the uin.txt file."""
+    """!
+    @brief Load queries from the UIN (User Information Need) file
+    @param uin_file_path Path to the uin.txt file containing test queries
+    @return List of query strings extracted from the file
+    @details Parses the uin.txt file format where queries follow "Query:" markers
+             on subsequent lines. Handles encoding and file not found errors.
+    """
     queries = []
     try:
         with open(uin_file_path, 'r', encoding='utf-8') as f:
@@ -91,7 +106,16 @@ def load_queries_from_uin(uin_file_path):
     return queries
 
 def get_pylucene_top_n_ids(query_string, searcher, n=TOP_N_FOR_POOLING, ranking_type="BM25"):
-    """Wrapper for PyLucene search to get top N document IDs."""
+    """!
+    @brief Retrieve top N document IDs from PyLucene search engine
+    @param query_string The search query to execute
+    @param searcher PyLucene IndexSearcher object
+    @param n Number of top results to retrieve (default: TOP_N_FOR_POOLING)
+    @param ranking_type Ranking algorithm to use ("BM25" or "TFIDF")
+    @return List of document IDs as strings
+    @details Executes search across all fields and extracts document IDs from results.
+             Handles search errors and returns empty list on failure.
+    """
     if not pylucene_search_documents or not searcher:
         return []
     try:
@@ -111,7 +135,16 @@ def get_pylucene_top_n_ids(query_string, searcher, n=TOP_N_FOR_POOLING, ranking_
 
 
 def get_whoosh_top_n_ids(query_string, ix_path_str, n=TOP_N_FOR_POOLING, ranking_type="BM25F"):
-    """Wrapper for Whoosh search to get top N document IDs using an existing index."""
+    """!
+    @brief Retrieve top N document IDs from Whoosh search engine
+    @param query_string The search query to execute
+    @param ix_path_str Path to the Whoosh index directory as string
+    @param n Number of top results to retrieve (default: TOP_N_FOR_POOLING)
+    @param ranking_type Ranking algorithm to use ("BM25F" or "TF_IDF")
+    @return List of document IDs as strings
+    @details Uses existing Whoosh index and custom search function.
+             Handles empty index and search errors gracefully.
+    """
     if not whoosh_search_documents: 
         print("SearchEngine.whoosh_search_documents (custom function) not available in get_whoosh_top_n_ids.")
         return []
@@ -127,7 +160,15 @@ def get_whoosh_top_n_ids(query_string, ix_path_str, n=TOP_N_FOR_POOLING, ranking
         return []
 
 def get_postgres_top_n_ids(query_string, n=TOP_N_FOR_POOLING, ranking_type="ts_rank_cd"):
-    """Wrapper for PostgreSQL search to get top N document IDs."""
+    """!
+    @brief Retrieve top N document IDs from PostgreSQL search engine
+    @param query_string The search query to execute
+    @param n Number of top results to retrieve (default: TOP_N_FOR_POOLING)
+    @param ranking_type PostgreSQL ranking function ("ts_rank" or "ts_rank_cd")
+    @return List of document IDs as strings
+    @details Executes full-text search on PostgreSQL database and extracts document IDs.
+             Handles database connection and query execution errors.
+    """
     if not postgres_search:
         return []
     try:
@@ -139,9 +180,17 @@ def get_postgres_top_n_ids(query_string, n=TOP_N_FOR_POOLING, ranking_type="ts_r
         return []
 
 def create_relevance_pool():
-    """
-    Reads queries, runs them on all search engines using EXISTING indices with multiple ranking types,
-    pools top N results, and saves them to Pool.json for manual relevance judgment.
+    """!
+    @brief Main function to create relevance pools for benchmark evaluation
+    @details Implements the pooling method by:
+             1. Loading test queries from uin.txt
+             2. Running queries on all available search engines with multiple ranking algorithms
+             3. Collecting top N results from each engine/ranking combination
+             4. Merging results into unique document sets per query
+             5. Saving pooled results to Pool.json for manual relevance judgment
+    @return None
+    @throws IOError if output file cannot be written
+    @note Requires existing indices for all search engines to function properly
     """
     if not ENGINES_MODULES_AVAILABLE:
         print("SearchEngine modules not available. Cannot create pool.")

@@ -1,3 +1,11 @@
+"""!
+@file Scraper.py
+@brief Main web scraping module for JuriScan document collection
+@details Implements automated document scraping from academic sources with pause/resume functionality
+@author Magni && Testoni
+@date 2025
+"""
+
 import requests
 from bs4 import BeautifulSoup
 from UrlGenerator import UrlGenerators
@@ -35,8 +43,11 @@ pause_event = threading.Event()
 pause_event.set()  #Imposta inizialmente l'evento come "non in pausa"
 
 def get_random_user_agent():
-    """
-    Function to get a random user agent string.
+    """!
+    @brief Generate random user agent string for web requests
+    @return Random user agent string from predefined list
+    @details Provides browser rotation to avoid detection and blocking.
+             Includes Chrome, Firefox, and Safari user agents for different platforms.
     """
     user_agents = [
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
@@ -47,8 +58,12 @@ def get_random_user_agent():
     return random.choice(user_agents)
 
 def scraping(url):
-    """
-    Function to scrape a list of URL.
+    """!
+    @brief Scrape document content from a single URL
+    @param url The URL to scrape for document content
+    @return Dictionary containing extracted document fields or None if failed
+    @details Extracts title, abstract, corpus, keywords, and URL from academic papers.
+             Handles LaTeX content, implements error recovery, and respects rate limiting.
     """
     try:
         print(f"Scraping URL: {url}")
@@ -124,8 +139,12 @@ def scraping(url):
     return None
 
 def process_urls_sequential(urls):
-    """
-    Function to process a list of URLs sequentially.
+    """!
+    @brief Process list of URLs sequentially with progress tracking
+    @param urls List of URLs to scrape
+    @return List of successfully scraped document dictionaries
+    @details Implements sequential processing with progress bar and error handling.
+             Respects pause events and provides real-time feedback.
     """
     results = []
     
@@ -138,8 +157,11 @@ def process_urls_sequential(urls):
     return results
 
 def monitor_input():
-    """
-    Function to monitor the user input and control pause/resume functionality.
+    """!
+    @brief Monitor user input for pause/resume commands during scraping
+    @details Runs in separate thread to handle real-time pause/resume functionality.
+             Accepts 'pause' and 'resume' commands to control scraping process.
+    @return None
     """
     global pause_event
     while True:
@@ -152,8 +174,17 @@ def monitor_input():
             pause_event.set()  # Riprende lo scraping
 
 def init():
-    """
-    Main function of the Web Scraping application.
+    """!
+    @brief Initialize and orchestrate the complete web scraping pipeline
+    @details Main function that coordinates the entire scraping workflow:
+             1. Creates necessary directories and files
+             2. Generates URLs for scraping
+             3. Starts monitoring thread for user commands
+             4. Executes sequential scraping with progress tracking
+             5. Processes and cleans scraped documents
+             6. Imports cleaned data into PostgreSQL database
+    @return None
+    @throws Exception if directory creation, file I/O, or database operations fail
     """
     # Crea le directory se non esistono
     results_dir = project_root / "WebScraping/results"

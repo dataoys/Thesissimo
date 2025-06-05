@@ -1,3 +1,11 @@
+"""!
+@file PostgresUI.py
+@brief Streamlit web interface for PostgreSQL search engine
+@details Provides interactive web UI for document search using PostgreSQL full-text search
+@author Magni && Testoni
+@date 2025
+"""
+
 import streamlit as st
 from pathlib import Path
 import sys
@@ -7,10 +15,14 @@ sys.path.append(str(project_root))
 from SearchEngine.Postgres import search
 
 def searchUI():
-    """
-    Main function of the Streamlit postgres application.
-
-    This function creates the main interface of the Streamlit application for the Postgres search engine.
+    """!
+    @brief Main Streamlit UI function for PostgreSQL search interface
+    @details Creates complete web interface including:
+             - Search field configuration and filters
+             - PostgreSQL ranking type selection (ts_rank, ts_rank_cd)
+             - Results display with document ranking scores
+             - Support for field-specific and natural language queries
+    @return None
     """
     st.sidebar.image('/root/JuriScan/forces-7427867e0c0aa40128b3f01dd26a1945c3c08359-doc-doxygen-awesome-css/doc/doxygen-awesome-css/Logo.png', width=150)
     st.sidebar.write("Thesissimo è un motore di ricerca innovativo progettato per permettere agli studenti, ricercatori e professionisti di cercare tra decine di  migliaia di tesi universitarie relative a materie scientifiche. Che si tratti di scienze, astrofisica, o ingegneria noi abbiamo la risposta. Con una ricerca precisa, rapida e facile da usare, Thesissimo rende più facile l'accesso a risorse accademiche.")

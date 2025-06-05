@@ -1,3 +1,11 @@
+"""!
+@file WhooshUI.py
+@brief Streamlit web interface for Whoosh search engine
+@details Provides interactive web UI for document search using Whoosh with precision-recall visualization
+@author Magni && Testoni
+@date 2025
+"""
+
 import streamlit as st
 from pathlib import Path
 import sys
@@ -9,17 +17,13 @@ sys.path.append(str(project_root))
 from SearchEngine.Whoosh import create_or_get_index, search_documents
 
 def calculate_precision_recall(results, relevant_docs):
-    """
-    Calculate the precision and recall of the search results.
-
-    This function calculates the precision and recall of the search results based on the relevant documents provided.
-
-    Arguments:
-        results (list): List of search results.
-        relevant_docs (list): List of relevant documents.
-
-    Returns:
-        tuple: A tuple containing the precision and recall values.
+    """!
+    @brief Calculate precision and recall metrics for search results
+    @param results List of search results from Whoosh engine
+    @param relevant_docs List of relevant document IDs for evaluation
+    @return Tuple containing (precision, recall) values
+    @details Computes precision as true positives / retrieved documents
+             and recall as true positives / total relevant documents
     """
     retrieved_docs = len(results)
     true_positives = sum(1 for doc in results if doc[0] in relevant_docs)
@@ -30,14 +34,12 @@ def calculate_precision_recall(results, relevant_docs):
     return precision, recall
 
 def plot_precision_recall(precision, recall):
-    """
-    Plot the precision-recall curve.
-
-    This function plots the precision-recall curve based on the precision and recall values provided.
-
-    Arguments:
-        precision (list): List of precision values.
-        recall (list): List of recall values.
+    """!
+    @brief Generate and display precision-recall curve plot
+    @param precision List of precision values to plot
+    @param recall List of recall values to plot
+    @details Creates matplotlib figure with precision-recall curve,
+             displays grid and proper axis limits, integrates with Streamlit
     """
     plt.figure()
     plt.plot(recall, precision, marker='o')
@@ -51,10 +53,14 @@ def plot_precision_recall(precision, recall):
 
 # Funzione principale per indicizzare e cercare
 def searchUI():
-    """
-    Main function of the Streamlit Whoosh application.
-
-    This function creates the main interface of the Streamlit application for the Whoosh search engine.
+    """!
+    @brief Main Streamlit UI function for Whoosh search interface
+    @details Creates complete web interface including:
+             - Search field configuration and filters
+             - Document ranking type selection
+             - Results display with expandable document details
+             - Precision-recall visualization in sidebar
+    @return None
     """
     project_root = Path(__file__).parent.parent
     index_dir = str(project_root / "WhooshIndex")  

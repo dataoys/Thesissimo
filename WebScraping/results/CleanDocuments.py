@@ -1,3 +1,11 @@
+"""!
+@file CleanDocuments.py
+@brief Advanced document cleaning module for mathematical and scientific text
+@details Implements batch processing for cleaning academic documents with mathematical content
+@author JuriScan Team
+@date 2024
+"""
+
 import os
 import ijson
 import json
@@ -13,16 +21,12 @@ Path to the output JSON file.
 output_path = "WebScraping/results/Docs_cleaned.json"
 
 def clean_mathematical_text(text):
-    """
-    Clean a text containing mathematical expressions.
-
-    This function cleans a text containing mathematical expressions by removing Unicode characters and LaTeX notations.
-
-    Arguments:
-        text (str): The text to clean.
-
-    Returns:
-        str: The cleaned text.
+    """!
+    @brief Clean text containing mathematical expressions and Unicode artifacts
+    @param text Input text with mathematical notation and Unicode characters
+    @return Cleaned text with mathematical expressions normalized
+    @details Removes specific Unicode characters, LaTeX artifacts, HTML conversion errors,
+             and mathematical notation while preserving readable content
     """
     if not isinstance(text, str):
         return text
@@ -67,7 +71,7 @@ def clean_mathematical_text(text):
         '\u02dd': '',
         '\u0161': '',
         '\u2030': '',
-        '\u00cf': '',
+        '\u00CF': '',
         '\u2021': ''
     }
     
@@ -90,16 +94,12 @@ def clean_mathematical_text(text):
     return text.strip()
 
 def remove_control_characters(text):
-    """
-    Rimuove i caratteri di controllo non validi da un testo.
-
-    Questo include i caratteri ASCII da 0x00 a 0x1F e 0x7F.
-    
-    Arguments:
-        text (str): Il testo da pulire.
-    
-    Returns:
-        str: Il testo senza i caratteri di controllo.
+    """!
+    @brief Remove invalid control characters from text
+    @param text Input text potentially containing control characters
+    @return Text with control characters removed
+    @details Removes ASCII control characters (0x00-0x1F and 0x7F) that can
+             cause issues in text processing and database storage
     """
     if not isinstance(text, str):
         return text
@@ -108,16 +108,16 @@ def remove_control_characters(text):
     return re.sub(r'[\x00-\x1F\x7F]', '', text)
 
 def clean_documents_in_batches(input_path, output_path="WebScraping/results/Docs_cleaned.json", batch_size=1000):
-    """
-    Clean documents in batches from a JSON file.
-
-    This function reads documents from a JSON file incrementally, cleans them in batches, 
-    and writes the cleaned documents to a new JSON file.
-
-    Arguments:
-        input_path (str): Path to the input JSON file.
-        output_path (str): Path to the output JSON file.
-        batch_size (int): Number of documents to process in each batch.
+    """!
+    @brief Process and clean documents in memory-efficient batches
+    @param input_path Path to the input JSON file with raw documents
+    @param output_path Path to the output JSON file for cleaned documents
+    @param batch_size Number of documents to process in each batch (default: 1000)
+    @details Implements incremental JSON parsing and batch processing for large datasets.
+             Provides progress tracking and error handling for robust document cleaning.
+    @return None
+    @throws FileNotFoundError if input file doesn't exist
+    @throws OSError for file I/O errors
     """
     output_dir = os.path.dirname(output_path)
     if not os.path.exists(output_dir):
@@ -192,4 +192,3 @@ if __name__ == "__main__":
     # Esegui la funzione di pulizia
     clean_documents_in_batches(input_path, output_path)
     print(f"File pulito salvato in: {output_path}")
-    

@@ -1,3 +1,11 @@
+"""!
+@file Postgres.py
+@brief PostgreSQL full-text search engine implementation for JuriScan
+@details Provides PostgreSQL-based document searching with ts_rank algorithms
+@author Magni && Testoni
+@date 2025
+"""
+
 import nltk
 from nltk.tokenize import word_tokenize
 from nltk.tag import pos_tag
@@ -10,16 +18,12 @@ nltk.download('averaged_perceptron_tagger_eng')
 nltk.download('stopwords')
 
 def extract_keywords(uin):
-    """
-    Keyword extraction function using NLTK.
-
-    This function takes the user's input string from the search bar and returns a list of keywords extracted from it.
-
-    Arguments:
-        uin (str): Search bar input.
-
-    Returns:
-        list: List of keywords extracted from the input string.
+    """!
+    @brief Extract keywords from user input using NLTK POS tagging
+    @param uin Search bar input string
+    @return List of keywords filtered from nouns and verbs
+    @details Tokenizes input, performs POS tagging, and filters for meaningful
+             parts of speech while removing English stopwords
     """
 
     # Tokenizza la stringa di input
@@ -38,10 +42,12 @@ def extract_keywords(uin):
     return filtered_keywords
 
 def parse_advanced_query(query_string):
-    """
-    Parse a query string that may contain field-specific searches.
-    Example: "title:space AND corpus:python" or "abstract:law OR title:justice"
-    Supports multi-word searches like: title:"machine learning" AND corpus:"neural networks"
+    """!
+    @brief Parse field-specific query strings with AND/OR operators
+    @param query_string Query string with field specifications (e.g., "title:space AND corpus:python")
+    @return Tuple of (where_clause, params, fields_used)
+    @details Supports multi-word searches in quotes and logical operators.
+             Returns SQL WHERE clause, parameters, and field usage tracking.
     """
     parts = query_string.split(' AND ')
     query_parts = []
@@ -95,18 +101,15 @@ def parse_advanced_query(query_string):
     return None, [], fields_used
 
 def build_search_query(search_terms, title_true, abstract_true, corpus_true, ranking_type='ts_rank_cd'):
-    """
-    Build a PostgreSQL query based on search terms and selected fields.
-    
-    Args:
-        search_terms (str): The search terms to look for
-        title_true (bool): Whether to search in title field
-        abstract_true (bool): Whether to search in abstract field
-        corpus_true (bool): Whether to search in corpus field
-        ranking_type (str): The ranking function to use ('ts_rank' or 'ts_rank_cd')
-        
-    Returns:
-        tuple: (query_string, params) for executing the PostgreSQL query
+    """!
+    @brief Build PostgreSQL full-text search query with ranking
+    @param search_terms The search terms to look for
+    @param title_true Boolean flag to search in title field
+    @param abstract_true Boolean flag to search in abstract field
+    @param corpus_true Boolean flag to search in corpus field
+    @param ranking_type The ranking function to use ('ts_rank' or 'ts_rank_cd')
+    @return Tuple of (query_string, params) for PostgreSQL execution
+    @details Constructs SQL query with tsvector matching and relevance ranking
     """
     # Build the ranking expression based on selected fields
     rank_fields = []
@@ -141,22 +144,17 @@ def build_search_query(search_terms, title_true, abstract_true, corpus_true, ran
     return query, params
 
 def search(search_query, title_true, abstract_true, corpus_true, ranking_type='ts_rank_cd'):
-    """
-    Search Engine Postgres Function.
-
-    This function supports two types of searches:
-    1. Field-specific searches using syntax like "title:word AND abstract:phrase"
-    2. Checkbox-based searches that look for terms in selected fields
-
-    Args:
-        search_query (str): The user's input query
-        title_true (bool): Whether to search in title field
-        abstract_true (bool): Whether to search in abstract field
-        corpus_true (bool): Whether to search in corpus field
-        ranking_type (str): The ranking function to use ('ts_rank' or 'ts_rank_cd')
-
-    Returns:
-        list: List of matching documents, ordered by relevance
+    """!
+    @brief Main PostgreSQL search function with dual search modes
+    @param search_query The user's input query string
+    @param title_true Boolean flag to search in title field
+    @param abstract_true Boolean flag to search in abstract field
+    @param corpus_true Boolean flag to search in corpus field
+    @param ranking_type The ranking function to use ('ts_rank' or 'ts_rank_cd')
+    @return List of matching documents ordered by relevance
+    @details Supports both field-specific searches (with AND/OR syntax) and
+             checkbox-based searches. Uses PostgreSQL full-text search capabilities.
+    @throws ValueError If database connection fails or query execution errors occur
     """
     conn = dbConn()
     cur = conn.cursor()

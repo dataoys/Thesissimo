@@ -1,3 +1,12 @@
+"""!
+@file Pylucene.py
+@brief PyLucene search engine implementation for JuriScan
+@details This module provides PyLucene-based document indexing and searching capabilities
+         with support for BM25 and Classic similarity algorithms.
+@author Magni && Testoni
+@date 2025
+"""
+
 import lucene
 from org.apache.lucene.analysis.standard import StandardAnalyzer
 from org.apache.lucene.store import FSDirectory
@@ -7,6 +16,7 @@ from org.apache.lucene.search import IndexSearcher, BooleanQuery, BooleanClause
 from org.apache.lucene.queryparser.classic import QueryParser
 from java.nio.file import Paths
 from org.apache.lucene.search.similarities import BM25Similarity, ClassicSimilarity
+
 
 from pathlib import Path
 import ijson
@@ -36,6 +46,13 @@ except LookupError:
     nltk.download('stopwords')
 
 def initialize_jvm():
+    """!
+    @brief Initialize the Java Virtual Machine for PyLucene
+    @details Sets up the JVM with headless configuration for server environments.
+             Attaches the current thread to the JVM if it's already initialized.
+    @return None
+    @throws Exception if JVM initialization fails
+    """
     if not lucene.getVMEnv():
         print("Inizializzazione JVM...")
         lucene.initVM(vmargs=['-Djava.awt.headless=true'])
@@ -43,8 +60,15 @@ def initialize_jvm():
     env.attachCurrentThread()
 
 def calculate_precision_recall(searcher, query_string, ranking_type="BM25", threshold=0.5):
-    """
-    Calculate precision and recall for a determined query.
+    """!
+    @brief Calculate precision and recall metrics for a given query
+    @param searcher The Lucene IndexSearcher object
+    @param query_string The search query string
+    @param ranking_type Ranking algorithm to use ("BM25" or "Classic")
+    @param threshold Score threshold for relevance determination (default: 0.5)
+    @return Tuple containing (precision_values, recall_values, normalized_scores)
+    @details Executes search across all fields and calculates precision-recall metrics
+             using adaptive threshold based on score distribution
     """
     try:
         # Esegui la ricerca
@@ -53,8 +77,21 @@ def calculate_precision_recall(searcher, query_string, ranking_type="BM25", thre
         else:
             searcher.setSimilarity(ClassicSimilarity())
             
+        # Crea una query su tutti i campi
+        query_builder = BooleanQuery.Builder()
         analyzer = StandardAnalyzer()
-        query = parse_advanced_query(query_string, analyzer)
+        expanded_query = expand_query(query_string)
+        
+        # Cerca in tutti i campi per le metriche
+        title_query = QueryParser("title", analyzer).parse(expanded_query)
+        abstract_query = QueryParser("abstract", analyzer).parse(expanded_query)
+        corpus_query = QueryParser("corpus", analyzer).parse(expanded_query)
+        
+        query_builder.add(title_query, BooleanClause.Occur.SHOULD)
+        query_builder.add(abstract_query, BooleanClause.Occur.SHOULD)
+        query_builder.add(corpus_query, BooleanClause.Occur.SHOULD)
+        
+        query = query_builder.build()
         results = searcher.search(query, 100)
 
         if not results or results.totalHits.value == 0:
@@ -97,7 +134,7 @@ def calculate_precision_recall(searcher, query_string, ranking_type="BM25", thre
         print(f"Errore nel calcolo precision-recall: {str(e)}")
         return [], [], []
 
-def plot_precision_recall_curve(precision_values, recall_values, query_string):
+#def plot_precision_recall_curve(precision_values, recall_values, query_string):
     """
     Genera il grafico precision-recall.
     """
@@ -143,86 +180,70 @@ def plot_precision_recall_curve(precision_values, recall_values, query_string):
         return None
 
 def search_documents(searcher, title_true, abstract_true, corpus_true, query_string, ranking_type):
+    """!
+    @brief Main search function for PyLucene engine
+    @param searcher The Lucene IndexSearcher object
+    @param title_true Boolean flag to search in title field
+    @param abstract_true Boolean flag to search in abstract field  
+    @param corpus_true Boolean flag to search in corpus field
+    @param query_string The search query string
+    @param ranking_type Ranking algorithm to use ("BM25" or "TFIDF")
+    @return Tuple containing (results, precision_recall_data, plot_path)
+    @details Supports both field-specific and checkbox-based searches with
+             logical operators (AND/OR) across all fields. Includes precision-recall analysis.
     """
-    Search Engine PyLucene Function.
-    
-    Supports both field-specific and checkbox-based searches, as well as
-    queries with logical operators across all fields.
-    """
-    if not query_string.strip():
+    if not query_string.strip() or not any([title_true, abstract_true, corpus_true]):
         return None, None, None
     
     try:
-        # Set similarity based on ranking type
+        # Esegui la ricerca normale
+        expanded_query = expand_query(query_string)
+        
         if ranking_type == "BM25":
             searcher.setSimilarity(BM25Similarity())
         else:
             searcher.setSimilarity(ClassicSimilarity())
             
+        query_builder = BooleanQuery.Builder()
         analyzer = StandardAnalyzer()
         
-        # If no fields are selected, default to all fields
-        if not any([title_true, abstract_true, corpus_true]):
-            title_true = True
-            abstract_true = True
-            corpus_true = True
-        
-        # Build query based on search type
-        if ':' in query_string or ' AND ' in query_string or ' OR ' in query_string:
-            # Advanced query (field-specific or complex logic)
-            print(f"Using advanced query parsing for: {query_string}")
-            query = parse_advanced_query(query_string, analyzer)
-        else:
-            # Simple checkbox-based search
-            print(f"Using checkbox search for: {query_string}")
-            query_builder = BooleanQuery.Builder()
+        if title_true:
+            title_query = QueryParser("title", analyzer).parse(expanded_query)
+            query_builder.add(title_query, BooleanClause.Occur.SHOULD)
+        if abstract_true:
+            abstract_query = QueryParser("abstract", analyzer).parse(expanded_query)
+            query_builder.add(abstract_query, BooleanClause.Occur.SHOULD)
+        if corpus_true:
+            corpus_query = QueryParser("corpus", analyzer).parse(expanded_query)
+            query_builder.add(corpus_query, BooleanClause.Occur.SHOULD)
             
-            if title_true:
-                parser = QueryParser("title", analyzer)
-                title_query = parser.parse(query_string)
-                query_builder.add(title_query, BooleanClause.Occur.SHOULD)
-                
-            if abstract_true:
-                parser = QueryParser("abstract", analyzer)
-                abstract_query = parser.parse(query_string)
-                query_builder.add(abstract_query, BooleanClause.Occur.SHOULD)
-                
-            if corpus_true:
-                parser = QueryParser("corpus", analyzer)
-                corpus_query = parser.parse(query_string)
-                query_builder.add(corpus_query, BooleanClause.Occur.SHOULD)
-                
-            query = query_builder.build()
-        
-        # Execute search
-        print(f"Executing search with query: {query}")
+        query = query_builder.build()
         results = searcher.search(query, 100)
-        
-        # Calculate precision-recall metrics
+
+        # Calcola precision-recall
         precision_values, recall_values, scores = calculate_precision_recall(
             searcher, query_string, ranking_type
         )
         
-        # Generate precision-recall plot
+        # Genera il grafico
         plot_path = None
         if precision_values and recall_values:
             plot_path = plot_precision_recall_curve(
-                precision_values,
-                recall_values,
-                query_string
+                precision_values, recall_values, query_string
             )
-            
-        return results, plot_path, scores
+
+        return results, (precision_values, recall_values), plot_path
         
     except Exception as e:
-        print(f"Error during search: {e}")
-        import traceback
-        traceback.print_exc()
+        print(f"Errore durante la ricerca: {e}")
         return None, None, None
 
 def get_wordnet_pos(tag):
-    """
-    Maps NLTK POS tags to WordNet POS tags
+    """!
+    @brief Map NLTK POS tags to WordNet POS tags for lemmatization
+    @param tag NLTK POS tag string
+    @return WordNet POS tag constant
+    @details Converts NLTK part-of-speech tags to WordNet format for accurate lemmatization
     """
     tag_dict = {
         'N': wordnet.NOUN,
@@ -233,15 +254,12 @@ def get_wordnet_pos(tag):
     return tag_dict.get(tag[0], wordnet.NOUN)
 
 def expand_query(query_string):
-    """
-    Expands a natural language query using YAKE for keyword extraction,
-    NLTK for NLP processing, and WordNet for semantic expansion.
-    
-    Args:
-        query_string (str): The natural language query
-        
-    Returns:
-        str: Expanded query for Lucene
+    """!
+    @brief Expand natural language query using NLP techniques
+    @param query_string The natural language query to expand
+    @return Expanded query string formatted for Lucene
+    @details Uses YAKE for keyword extraction, NLTK for NLP processing, and WordNet
+             for semantic expansion with synonyms, hypernyms, and hyponyms
     """
     try:
         # 1. Keyword extraction with YAKE
@@ -257,6 +275,7 @@ def expand_query(query_string):
         keywords = [kw[0].lower() for kw in kw_extractor.extract_keywords(query_string)]
 
         # 2. NLP Processing
+        # Initialize tools
         lemmatizer = WordNetLemmatizer()
         stop_words = set(stopwords.words('english'))
         
@@ -264,51 +283,54 @@ def expand_query(query_string):
         tokens = word_tokenize(query_string.lower())
         tokens = [token for token in tokens if token.isalnum() and token not in stop_words]
         
-        # POS tagging and lemmatization
+        # POS tagging for better lemmatization
         pos_tags = pos_tag(tokens)
+        
+        # Lemmatization with POS tags
         lemmatized = [lemmatizer.lemmatize(word, get_wordnet_pos(tag)) 
                      for word, tag in pos_tags]
 
         # 3. Semantic Expansion
         expanded_terms = set()
+        
+        # Add original terms
         expanded_terms.update(lemmatized)
         expanded_terms.update(keywords)
         
-        # WordNet expansions
+        # Add WordNet expansions
         for term in lemmatized:
+            # Get synsets
             synsets = wordnet.synsets(term)
+            
             for synset in synsets[:2]:  # Limit to top 2 synsets per term
                 # Add synonyms
-                expanded_terms.update(
-                    lemma.name().lower()
-                    for lemma in synset.lemmas()
-                    if lemma.name().lower() not in stop_words
-                )
+                expanded_terms.update(lemma.name().lower() 
+                                   for lemma in synset.lemmas())
                 
                 # Add hypernyms (more general terms)
-                for hypernym in synset.hypernyms():
-                    expanded_terms.update(
-                        lemma.name().lower()
-                        for lemma in hypernym.lemmas()
-                        if lemma.name().lower() not in stop_words
-                    )
+                expanded_terms.update(
+                    lemma.name().lower()
+                    for hypernym in synset.hypernyms()
+                    for lemma in hypernym.lemmas()
+                )
                 
                 # Add hyponyms (more specific terms)
-                for hyponym in synset.hyponyms()[:2]:  # Limit hyponyms
-                    expanded_terms.update(
-                        lemma.name().lower()
-                        for lemma in hyponym.lemmas()
-                        if lemma.name().lower() not in stop_words
-                    )
+                expanded_terms.update(
+                    lemma.name().lower()
+                    for hyponym in synset.hyponyms()[:2]  # Limit hyponyms
+                    for lemma in hyponym.lemmas()
+                )
 
-        # 4. Clean expanded terms
+        # 4. Clean and format expanded terms
+        # Remove underscores, stopwords, and short terms
         cleaned_terms = {
             term.replace('_', ' ') 
             for term in expanded_terms 
-            if len(term) > 2
+            if term not in stop_words and len(term) > 2
         }
 
         # 5. Build Lucene query
+        # Combine terms with OR operator and boost important terms
         query_parts = []
         
         # Boost original keywords
@@ -316,110 +338,15 @@ def expand_query(query_string):
             query_parts.append(f'({keyword})^2')
             
         # Add other terms
-        other_terms = cleaned_terms - set(keywords)
-        query_parts.extend(other_terms)
+        query_parts.extend(list(cleaned_terms - set(keywords)))
         
-        # Build final query with OR operator
         final_query = ' OR '.join(query_parts)
+        
         return final_query
 
     except Exception as e:
-        print(f"Error expanding query: {e}")
+        print(f"Errore nell'espansione della query: {e}")
         return query_string  # Fallback to original query
-
-def parse_advanced_query(query_string, analyzer):
-    """
-    Parse a query string that may contain field-specific searches.
-    Examples:
-    - "title:space AND corpus:python" - field specific search
-    - "abstract:law OR title:justice" - field specific with OR
-    - "machine learning" AND "neural networks" - search in all fields
-    - "quantum computing" OR "quantum mechanics" - OR logic across all fields
-    """
-    query_builder = BooleanQuery.Builder()
-    
-    # Check if query has any field specifications
-    has_field_specs = any(field + ":" in query_string for field in ['title', 'abstract', 'corpus'])
-    
-    # Split by AND first
-    and_parts = query_string.split(' AND ')
-    for and_part in and_parts:
-        # Handle OR parts within each AND clause
-        or_parts = and_part.split(' OR ')
-        or_query_builder = BooleanQuery.Builder()
-        
-        for or_part in or_parts:
-            if ':' in or_part and has_field_specs:
-                # Field-specific search
-                field, term = or_part.split(':', 1)
-                field = field.lower().strip()
-                term = term.strip()
-                
-                # Handle quoted phrases by preserving the quotes
-                if term.startswith('"') and term.endswith('"'):
-                    # Keep the quotes for exact phrase matching
-                    pass
-                else:
-                    # Remove any stray quotes
-                    term = term.strip('"').strip("'").strip()
-                
-                if field in ['title', 'abstract', 'corpus']:
-                    parser = QueryParser(field, analyzer)
-                    field_query = parser.parse(term)
-                    or_query_builder.add(field_query, BooleanClause.Occur.SHOULD)
-            else:
-                # Search across all fields if no field is specified
-                term = or_part.strip()
-                
-                # Create a sub-query that searches this term in all fields
-                fields_builder = BooleanQuery.Builder()
-                for field in ['title', 'abstract', 'corpus']:
-                    parser = QueryParser(field, analyzer)
-                    field_query = parser.parse(term)
-                    fields_builder.add(field_query, BooleanClause.Occur.SHOULD)
-                
-                or_query_builder.add(fields_builder.build(), BooleanClause.Occur.SHOULD)
-        
-        # Add the OR combination to main query with MUST (AND)
-        or_query = or_query_builder.build()
-        if or_query.clauses().size() > 0:  # Only add if there are clauses
-            query_builder.add(or_query, BooleanClause.Occur.MUST)
-    
-    return query_builder.build()
-
-def build_checkbox_query(query_string, title_true, abstract_true, corpus_true, analyzer):
-    """
-    Build a query based on checkbox selections and search terms.
-    
-    Args:
-        query_string (str): The search terms
-        title_true (bool): Whether to search in title
-        abstract_true (bool): Whether to search in abstract
-        corpus_true (bool): Whether to search in corpus
-        analyzer (StandardAnalyzer): The Lucene analyzer to use
-        
-    Returns:
-        Query: A Lucene query object
-    """
-    query_builder = BooleanQuery.Builder()
-    expanded_terms = expand_query(query_string)
-    
-    if not any([title_true, abstract_true, corpus_true]):
-        return None
-        
-    if title_true:
-        title_query = QueryParser("title", analyzer).parse(expanded_terms)
-        query_builder.add(title_query, BooleanClause.Occur.SHOULD)
-        
-    if abstract_true:
-        abstract_query = QueryParser("abstract", analyzer).parse(expanded_terms)
-        query_builder.add(abstract_query, BooleanClause.Occur.SHOULD)
-        
-    if corpus_true:
-        corpus_query = QueryParser("corpus", analyzer).parse(expanded_terms)
-        query_builder.add(corpus_query, BooleanClause.Occur.SHOULD)
-        
-    return query_builder.build()
 
 # Percorsi base
 project_root = Path(__file__).parent.parent
@@ -427,8 +354,11 @@ json_file = str(project_root / "WebScraping/results/Docs_cleaned.json")
 index_file = str(project_root / "SearchEngine/index")
 
 def index_exists(index_path):
-    """
-    Check if a valid index exists at the specified path.
+    """!
+    @brief Check if a valid Lucene index exists at the specified path
+    @param index_path Path to the index directory
+    @return True if valid index exists, False otherwise
+    @details Verifies both directory existence and index validity using DirectoryReader
     """
     try:
         directory = FSDirectory.open(Paths.get(index_path))
@@ -437,8 +367,12 @@ def index_exists(index_path):
         return False
 
 def create_index():
-    """
-    Creates a new index only if it doesn't exist, otherwise opens the existing one.
+    """!
+    @brief Create or open PyLucene index for document searching
+    @return Tuple containing (directory, searcher) objects
+    @details Creates new index if none exists, otherwise opens existing index.
+             Processes documents from JSON file using incremental parsing for memory efficiency.
+    @throws Exception if indexing fails or JVM initialization problems occur
     """
     # Inizializziamo la JVM
     initialize_jvm()

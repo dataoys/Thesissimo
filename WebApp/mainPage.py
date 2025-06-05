@@ -1,3 +1,11 @@
+"""!
+@file mainPage.py
+@brief Main entry point for JuriScan web application
+@details Provides search engine selection interface and launches corresponding Streamlit apps
+@author Magni && Testoni
+@date 2025
+"""
+
 import streamlit as st
 import subprocess
 
@@ -9,13 +17,12 @@ scelta = st.selectbox("Scegli un motore di ricerca:", motori_di_ricerca)
 
 
 def esegui_streamlit(motore):
-    """
-    Multiple choice search engine UI function
-
-    This function takes the user's choice of search engine and runs the corresponding Streamlit application.
-
-    Arguments:
-        motore (str): The user's choice of search engine.
+    """!
+    @brief Launch specific search engine UI application
+    @param motore String identifier for the chosen search engine
+    @details Starts subprocess with appropriate Streamlit application based on user selection.
+             Supports PostgreSQL, Whoosh, and PyLucene search engines.
+    @return None
     """
     if motore == "Postgres":
         subprocess.Popen(["streamlit", "run", "./WebApp/PostgresUI.py"])  
