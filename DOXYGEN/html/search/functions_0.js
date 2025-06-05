@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['addtojson_0',['addToJson',['../namespaceDocManipualtion.html#ab1e0b18e0c05c91102509a57e8278ec9',1,'DocManipualtion.addToJson()'],['../namespaceDocManipulation.html#a0fd9a54a0a2c4f152fd7d63572ecb418',1,'DocManipulation.addToJson()']]]
+  ['create_5fplot_5fdirectories_0',['create_plot_directories',['../namespacebenchmark.html#a340ad747c3ddba1e27d167f8275878ca',1,'benchmark']]],
+  ['create_5frelevance_5fpool_1',['create_relevance_pool',['../namespacecreate__pool.html#a13f680e2515efd99e19469481f947ac6',1,'create_pool']]]
 ];

@@ -1,20 +1,6 @@
 var searchData=
 [
-  ['calculate_5fprecision_5frecall_0',['calculate_precision_recall',['../namespaceSearchEngine_1_1Pylucene.html#a661ac4621b2de4cfa32990159e3a77d7',1,'SearchEngine.Pylucene.calculate_precision_recall()'],['../namespaceWebApp_1_1WhooshUI.html#aff37e4a45c562c39d538f2ea044065c8',1,'WebApp.WhooshUI.calculate_precision_recall()']]],
-  ['checkconn_1',['CheckConn',['../namespaceUrlGenerator.html#af418a40661d35f5b7843174b78dc9cf3',1,'UrlGenerator']]],
-  ['clean_5fdocuments_5fin_5fbatches_2',['clean_documents_in_batches',['../namespaceWebScraping_1_1results_1_1CleanDocuments.html#a60232ebf51589458d502264a1869f0d5',1,'WebScraping::results::CleanDocuments']]],
-  ['clean_5fmathematical_5ftext_3',['clean_mathematical_text',['../namespaceWebScraping_1_1results_1_1CleanDocuments.html#a2a9a1c4c558cf8b06b382ad2cd1adda7',1,'WebScraping::results::CleanDocuments']]],
-  ['cleandocuments_2epy_4',['CleanDocuments.py',['../CleanDocuments_8py.html',1,'']]],
-  ['cleantext_5',['cleanText',['../namespaceDocManipualtion.html#aa87b3063195af14f5f312c162c0f8927',1,'DocManipualtion.cleanText()'],['../namespaceDocManipulation.html#a6bdb22f2324a6668655a567448b18bfd',1,'DocManipulation.cleanText()']]],
-  ['create_5findex_6',['create_index',['../namespaceSearchEngine_1_1Pylucene.html#a52bc027d18b16aae3e162458cba18d9b',1,'SearchEngine::Pylucene']]],
-  ['create_5for_5fget_5findex_7',['create_or_get_index',['../namespaceSearchEngine_1_1Whoosh.html#ac235bdd90c709aa66ef5b2931d6cf56c',1,'SearchEngine::Whoosh']]],
-  ['create_5fplot_5fdirectories_8',['create_plot_directories',['../namespacebenchmark.html#a340ad747c3ddba1e27d167f8275878ca',1,'benchmark']]],
-  ['create_5fpool_9',['create_pool',['../namespacecreate__pool.html',1,'']]],
-  ['create_5fpool_2epy_10',['create_pool.py',['../create__pool_8py.html',1,'']]],
-  ['create_5frelevance_5fpool_11',['create_relevance_pool',['../namespacecreate__pool.html#a13f680e2515efd99e19469481f947ac6',1,'create_pool']]],
-  ['create_5fschema_12',['create_schema',['../namespaceSearchEngine_1_1Whoosh.html#a6921413722748e5c81037e144ee86912',1,'SearchEngine::Whoosh']]],
-  ['create_5fwhoosh_5findex_5finternal_13',['create_whoosh_index_internal',['../namespaceSearchEngine_1_1Whoosh.html#a6afc92eebd7d7cb8313c804bdfe38735',1,'SearchEngine::Whoosh']]],
-  ['createindex_14',['createIndex',['../namespaceQueries_1_1PostgresQuery.html#ad49a3f22aa657c1e170d4ab4b7ec0e3f',1,'Queries::PostgresQuery']]],
-  ['createtable_15',['createTable',['../namespaceQueries_1_1PostgresQuery.html#afa28f4d7cb9758b7ef131f7a17671a0c',1,'Queries::PostgresQuery']]],
-  ['current_5fscript_5fpath_16',['current_script_path',['../namespaceSearchEngine_1_1Whoosh.html#a3ba69e9d37f81a463edd6b65e73deacc',1,'SearchEngine::Whoosh']]]
+  ['get_5fpostgres_5ftop_5fn_5fids_0',['get_postgres_top_n_ids',['../namespacecreate__pool.html#a76b0501994829108a750d165f7261020',1,'create_pool']]],
+  ['get_5fpylucene_5ftop_5fn_5fids_1',['get_pylucene_top_n_ids',['../namespacecreate__pool.html#a69f590e2d0bcc60a4216a8f73dca1e08',1,'create_pool']]],
+  ['get_5fwhoosh_5ftop_5fn_5fids_2',['get_whoosh_top_n_ids',['../namespacecreate__pool.html#a4d74b9466fea66734c94b240e2efedd9',1,'create_pool']]]
 ];

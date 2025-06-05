@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['base_5furl_0',['BASE_URL',['../namespaceUrlGenerator.html#a40ef31f700414f0e6e9719c604407c07',1,'UrlGenerator']]]
+  ['json_5fdocs_5ffile_0',['JSON_DOCS_FILE',['../namespacebenchmark.html#a1a9921168dd050dfe4f12f2c58b48e64',1,'benchmark']]]
 ];

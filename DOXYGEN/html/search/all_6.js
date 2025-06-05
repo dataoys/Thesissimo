@@ -1,5 +1,20 @@
 var searchData=
 [
-  ['file_5fpath_0',['FILE_PATH',['../namespaceQueries_1_1PostgresQuery.html#ac9e933de893770fc9cb57673e8ea4f96',1,'Queries::PostgresQuery']]],
-  ['file_5fpulito_1',['FILE_PULITO',['../namespaceScraper.html#a24115d9bfdfacbfcd06637bdef2430a9',1,'Scraper']]]
+  ['plot_5fcomparative_5fanalysis_0',['plot_comparative_analysis',['../namespacebenchmark.html#ab0e11565b53bab7de32917f4ad69f476',1,'benchmark']]],
+  ['plot_5fprecision_5frecall_5fmetrics_1',['plot_precision_recall_metrics',['../namespacebenchmark.html#a0fce438733cdf2a43de4ef5a47423996',1,'benchmark']]],
+  ['plots_5fdir_2',['PLOTS_DIR',['../namespacebenchmark.html#af7523f6e23687c3697e52e122d446c91',1,'benchmark']]],
+  ['pool_5fjson_5foutput_5ffile_3',['POOL_JSON_OUTPUT_FILE',['../namespacecreate__pool.html#a418c5f1add6724444190c21dbdbbad24',1,'create_pool']]],
+  ['pool_5foutput_5fdir_4',['POOL_OUTPUT_DIR',['../namespacecreate__pool.html#a23eb106c87ff470c85a9530b8cb15e18',1,'create_pool']]],
+  ['postgres_5fplots_5fdir_5',['POSTGRES_PLOTS_DIR',['../namespacebenchmark.html#a144f114e2b4664502c6d3e974d1ba4d8',1,'benchmark']]],
+  ['postgres_5franking_5ftypes_6',['POSTGRES_RANKING_TYPES',['../namespacecreate__pool.html#a6e4e41b1ce2ee989d4eb12a13ee24ca2',1,'create_pool']]],
+  ['postgres_5fsearch_7',['postgres_search',['../namespacebenchmark.html#a0c1a166d3c28fbacb24d34ce5dfe275a',1,'benchmark.postgres_search()'],['../namespacecreate__pool.html#a2019377beed91d240ea0426cf361d237',1,'create_pool.postgres_search()']]],
+  ['project_5froot_8',['PROJECT_ROOT',['../namespacebenchmark.html#ade5dd9f41308d6224b6d887be74eabbf',1,'benchmark.PROJECT_ROOT()'],['../namespacecreate__pool.html#add23085779480fb4a032d65902962f60',1,'create_pool.PROJECT_ROOT()']]],
+  ['project_5froot_9',['project_root',['../namespacecreate__pool.html#a7548ba778b0fda96f5bb99e66609e311',1,'create_pool']]],
+  ['pylucene_5fcreate_5findex_10',['pylucene_create_index',['../namespacebenchmark.html#af9aca4dc2880fdf28a104b7b0c83074a',1,'benchmark']]],
+  ['pylucene_5findex_5fdir_11',['PYLUCENE_INDEX_DIR',['../namespacecreate__pool.html#acbff462d7508ec2ab9140878b21e6a48',1,'create_pool']]],
+  ['pylucene_5findex_5fpath_12',['PYLUCENE_INDEX_PATH',['../namespacebenchmark.html#a727c73066939238c7e6ecc5e2308de3e',1,'benchmark']]],
+  ['pylucene_5finitialize_5fjvm_13',['pylucene_initialize_jvm',['../namespacebenchmark.html#a7c54123ae5a870522adf1193167780ee',1,'benchmark']]],
+  ['pylucene_5fplots_5fdir_14',['PYLUCENE_PLOTS_DIR',['../namespacebenchmark.html#a128073dcb9e2893e8386067738adb28c',1,'benchmark']]],
+  ['pylucene_5franking_5ftypes_15',['PYLUCENE_RANKING_TYPES',['../namespacecreate__pool.html#a27ae921d54bfe7f584e915b1f9a05fd5',1,'create_pool']]],
+  ['pylucene_5fsearch_5fdocuments_16',['pylucene_search_documents',['../namespacebenchmark.html#a1e310fb3a4b1c1c27f8c38655a9493c8',1,'benchmark.pylucene_search_documents()'],['../namespacecreate__pool.html#ab48cdbde678b3d1b310e62fbdfda985f',1,'create_pool.pylucene_search_documents()']]]
 ];
