@@ -908,6 +908,11 @@ WARN_LOGFILE           =
 
 # Indica le cartelle dove si trova il tuo codice sorgente
 INPUT                  = ../Benchmark \
+                        ../Queries \
+                        ../SearchEngine \
+                        ../WebApp \
+                        ../WebScraping \
+                        ../README.md
                          
 
 # This tag can be used to specify the character encoding of the source files

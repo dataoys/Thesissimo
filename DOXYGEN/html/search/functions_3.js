@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['plot_5fcomparative_5fanalysis_0',['plot_comparative_analysis',['../namespacebenchmark.html#ab0e11565b53bab7de32917f4ad69f476',1,'benchmark']]],
-  ['plot_5fprecision_5frecall_5fmetrics_1',['plot_precision_recall_metrics',['../namespacebenchmark.html#a0fce438733cdf2a43de4ef5a47423996',1,'benchmark']]]
+  ['dbconn_0',['dbConn',['../namespaceQueries_1_1PostgresQuery.html#a274578a8abb09d445e874a32e9aacb0c',1,'Queries::PostgresQuery']]],
+  ['docinsert_1',['docInsert',['../namespaceQueries_1_1PostgresQuery.html#ac71420b7e0af729c2188de2d935ce6f2',1,'Queries::PostgresQuery']]]
 ];
