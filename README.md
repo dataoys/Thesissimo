@@ -1,15 +1,15 @@
-# 🌐 **JuriScan** - Sistema Avanzato di Ricerca Documentale Scientifica
+# 🌐 **THESISSIMO** - Sistema Avanzato di Ricerca Documentale Scientifica
 
 [![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://python.org)
 [![Streamlit](https://img.shields.io/badge/Streamlit-1.28+-red.svg)](https://streamlit.io)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-13+-blue.svg)](https://postgresql.org)
 [![PyLucene](https://img.shields.io/badge/PyLucene-9.7+-orange.svg)](https://lucene.apache.org/pylucene/)
 [![Whoosh](https://img.shields.io/badge/Whoosh-2.7+-green.svg)](https://whoosh.readthedocs.io)
-[![Licenza MIT](https://img.shields.io/github/license/JuriScan/JuriScan)](https://github.com/JuriScan/JuriScan/blob/main/LICENSE)
+[![Licenza MIT](https://img.shields.io/github/license/dataoys/Thesissimo)](https://github.com/dataoys/Thesissimo/blob/main/LICENSE)
 
-![JuriScan Logo](forces-7427867e0c0aa40128b3f01dd26a1945c3c08359-doc-doxygen-awesome-css/doc/doxygen-awesome-css/Logo.png)
+![Thesissimo Logo](forces-7427867e0c0aa40128b3f01dd26a1945c3c08359-doc-doxygen-awesome-css/doc/doxygen-awesome-css/Logo.png)
 
-**JuriScan** è un sistema avanzato di ricerca documentale progettato per permettere agli studenti, ricercatori e professionisti di cercare tra decine di migliaia di documenti scientifici. Il sistema implementa tre motori di ricerca differenti (PostgreSQL, PyLucene, Whoosh) con algoritmi di ranking avanzati e tecniche di Natural Language Processing per garantire risultati precisi e rilevanti.
+**THESISSIMO** è un sistema avanzato di ricerca documentale progettato per permettere agli studenti, ricercatori e professionisti di cercare tra decine di migliaia di documenti scientifici. Il sistema implementa tre motori di ricerca differenti (PostgreSQL, PyLucene, Whoosh) con algoritmi di ranking avanzati e tecniche di Natural Language Processing per garantire risultati precisi e rilevanti.
 
 ## 🎯 **Caratteristiche Principali**
 
@@ -45,7 +45,7 @@
 ## 📁 **Struttura del Progetto**
 
 ```plaintext
-JuriScan/
+THESISSIMO/
 │
 ├── Benchmark/                          # Sistema di valutazione e benchmark
 │   ├── Results/                        # Risultati dei benchmark (es. benchmark_results.json) e grafici generati
@@ -88,7 +88,7 @@ JuriScan/
 
 ## ⚙️ **Flusso di Lavoro del Progetto**
 
-Il progetto JuriScan segue un flusso di lavoro strutturato, dalla raccolta dei dati alla loro valutazione.
+Il progetto THESISSIMO segue un flusso di lavoro strutturato, dalla raccolta dei dati alla loro valutazione.
 
 ### 1. 🕸️ **Web Scraping e Preparazione dei Dati (`WebScraping/`)**
 
@@ -216,8 +216,8 @@ L'applicazione web, costruita con Streamlit, permette agli utenti di interagire 
 
 ### **2. Clonazione Repository**
 ```bash
-git clone https://github.com/JuriScan/JuriScan.git # Sostituisci con il tuo URL effettivo
-cd JuriScan
+git clone https://github.com/dataoys/Thesissimo.git # Sostituisci con il tuo URL effettivo
+cd Thesissimo
 ```
 
 ### **3. Setup Ambiente Python**
@@ -232,7 +232,7 @@ pip install -r requirements.txt
 
 ### **4. Setup Database PostgreSQL (se si usa il motore PostgreSQL)**
 1.  Installa PostgreSQL (consulta la documentazione ufficiale per il tuo OS).
-2.  Crea un database e un utente per JuriScan:
+2.  Crea un database e un utente per THESISSIMO:
     ```sql
     CREATE DATABASE juriscan;
     CREATE USER juriscan_user WITH PASSWORD 'password'; -- Scegli una password sicura
@@ -308,9 +308,9 @@ Assicurati di seguire gli standard di codifica del progetto e di documentare ade
 
 ## 📜 **Licenza**
 
-Questo progetto è concesso in licenza sotto i termini della Licenza MIT. Vedi il file [LICENSE](https://github.com/JuriScan/JuriScan/blob/main/LICENSE) per ulteriori dettagli. (Assicurati che il link punti al tuo file LICENSE effettivo).
+Questo progetto è concesso in licenza sotto i termini della Licenza MIT. Vedi il file [LICENSE](https://github.com/dataoys/Thesissimo/blob/main/LICENSE) per ulteriori dettagli. (Assicurati che il link punti al tuo file LICENSE effettivo).
 
 ---
 
-**JuriScan** - *Rivoluzionando la ricerca documentale scientifica con AI e tecnologie avanzate* 🚀
+**THESISSIMO** - *Rivoluzionando la ricerca documentale scientifica con AI e tecnologie avanzate* 🚀
 
