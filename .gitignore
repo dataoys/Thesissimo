@@ -7,4 +7,4 @@ lib
 pyvenv.cfg
 share
 SearchEngine/index
-
+SearchEngine/__pycache__/*

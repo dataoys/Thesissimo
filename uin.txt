@@ -13,20 +13,20 @@ Questo risulta a scopo informativo.
     "What is the role of conformal symmetry in quantum field theory?"
 
 Query:
-    title:"conformal symmetry" AND abstract:"quantum field theory"
+    abstract:"symmetry" AND corpus:"field theory"
 
 
 2. Applied Mathematics
     "Are there recent advancements in spectral methods for solving partial differential equations?"
 
 Query:
-    abstract:"spectral method" AND abstract:"partial differential equations"
+    corpus:"spectral method" AND corpus:"partial differential equations"
 
 3. Astrophysics / Cosmology
     "How do supermassive black holes influence early galaxy formation?"
 
 Query:
-    title:"supermassive black holes" AND corpus:"galaxy formation"
+    title:"black holes" AND corpus:"galaxy formation"
 
 4. Mechanical Engineering
     "What are the latest methods for topology optimization in lightweight mechanical design?"
@@ -38,7 +38,7 @@ Query:
     "How is deep learning used to model chaotic physical systems?"
 
 Query:
-    title:"deep learning" AND abstract:"chaotic systems"
+    abstract:"chaotic systems" AND corpus:"deep learning"
 
 6. Electrical Engineering / Smart Grids
     "What neural network architectures are used for power estimation in smart grids?"
@@ -46,11 +46,11 @@ Query:
 Query:
     corpus:"neural networks" AND abstract:"smart grid"
 
-7. Pure Mathematics
-    "What are the recent developments in the study of prime gaps and their distribution?"
+7. Computer Science / Algorithms
+    "What are the most efficient algorithms for graph clustering in large-scale networks?"
 
 Query:
-    title:"prime gaps" AND abstract:"distribution"
+    corpus:"graph clustering" AND abstract:"algorithms"
 
 8. Astrobiology / Exoplanets
     "What methods are used to detect biosignatures on exoplanets?"
@@ -62,10 +62,10 @@ Query:
     "How is quantum error correction implemented in current quantum computing models?"
 
 Query:
-    title:"quantum error correction" AND corpus:"quantum computing"
+    corpus:"quantum error correction" AND corpus:"quantum computing"
 
-10. Astrology / Historical Science
-    "What are the historical links between astrology and early astronomy in scientific literature?"
+10. Computer Science / Databases
+    "What are the performance benefits of indexing strategies in relational databases?"
 
 Query:
-    corpus:"astrology" AND corpus:"early astronomy"
+    corpus:"indexing" AND abstract:"databases"
