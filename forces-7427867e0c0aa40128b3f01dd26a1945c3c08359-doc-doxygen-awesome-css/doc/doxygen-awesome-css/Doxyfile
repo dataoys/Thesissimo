@@ -41,7 +41,7 @@ DOXYFILE_ENCODING      = UTF-8
 # title of most generated pages and in a few other places.
 # The default value is: My Project.
 
-PROJECT_NAME           = "My Project"
+PROJECT_NAME           = "THESISSIMO"
 
 # The PROJECT_NUMBER tag can be used to enter a project or revision number. This
 # could be handy for archiving the generated documentation or if some version
@@ -1330,8 +1330,7 @@ HTML_STYLESHEET        =
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
 HTML_EXTRA_STYLESHEET  =    doxygen-awesome.css \
-                            doxygen-awesome-sidebar-only-darkmode-toggle.css \
-                            doxygen-awesome-sidebar-only.css
+        
 
 
 # The HTML_EXTRA_FILES tag can be used to specify one or more extra images or
@@ -2393,8 +2392,8 @@ ALLEXTERNALS           = NO
 EXTERNAL_GROUPS        = YES
 
 # If the EXTERNAL_PAGES tag is set to YES, all external pages will be listed in
-# the related pages index. If set to NO, only the current project's pages will
-# be listed.
+# the related pages index. If set to NO, only the current project's pages will be
+# listed.
 # The default value is: YES.
 
 EXTERNAL_PAGES         = YES
@@ -2523,7 +2522,7 @@ DOT_UML_DETAILS        = NO
 
 # The DOT_WRAP_THRESHOLD tag can be used to set the maximum number of characters
 # to display on a single line. If the actual line length exceeds this threshold
-# significantly it will wrapped across multiple lines. Some heuristics are apply
+# significantly it will be wrapped across multiple lines. Some heuristics are apply
 # to avoid ugly line breaks.
 # Minimum value: 0, maximum value: 1000, default value: 17.
 # This tag requires that the tag HAVE_DOT is set to YES.
