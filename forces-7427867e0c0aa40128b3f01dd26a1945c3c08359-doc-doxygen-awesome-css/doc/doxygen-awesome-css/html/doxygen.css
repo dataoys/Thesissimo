@@ -1413,6 +1413,15 @@ dl.section dd {
         text-align: center;
 }
 
+.image img {
+    max-width: 400px;
+    height: auto;
+}
+
+div.contents img {
+    max-width: 800px;
+    height: auto;
+}
 .dotgraph
 {
         text-align: center;
