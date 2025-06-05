@@ -1,0 +1,61 @@
+\hypertarget{DocManipualtion_8py_source}{}\doxysection{Doc\+Manipualtion.\+py}
+\label{DocManipualtion_8py_source}\index{/root/JuriScan/WebScraping/src/DocManipualtion.py@{/root/JuriScan/WebScraping/src/DocManipualtion.py}}
+\mbox{\hyperlink{DocManipualtion_8py}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{DocManipualtion_8py_source_l00001}\mbox{\hyperlink{namespaceDocManipualtion}{00001}} \textcolor{keyword}{import} json }
+\DoxyCodeLine{\Hypertarget{DocManipualtion_8py_source_l00002}00002 \textcolor{keyword}{import} re}
+\DoxyCodeLine{\Hypertarget{DocManipualtion_8py_source_l00003}00003 }
+\DoxyCodeLine{\Hypertarget{DocManipualtion_8py_source_l00004}\mbox{\hyperlink{namespaceDocManipualtion_a9c068cf3f1db3aec67896961d799ba66}{00004}} \textcolor{keyword}{def }\mbox{\hyperlink{namespaceDocManipualtion_a9c068cf3f1db3aec67896961d799ba66}{remove\_latex}}(text):}
+\DoxyCodeLine{\Hypertarget{DocManipualtion_8py_source_l00005}00005     \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{DocManipualtion_8py_source_l00006}00006 \textcolor{stringliteral}{    Clean a text containing LaTeX expressions (light cleaning).}}
+\DoxyCodeLine{\Hypertarget{DocManipualtion_8py_source_l00007}00007 \textcolor{stringliteral}{    "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{DocManipualtion_8py_source_l00008}00008 \textcolor{stringliteral}{    }\textcolor{comment}{\# Rimuove qualsiasi stringa che inizia con \(\backslash\) fino al primo spazio o fine stringa}}
+\DoxyCodeLine{\Hypertarget{DocManipualtion_8py_source_l00009}00009     text = re.sub(\textcolor{stringliteral}{r'\(\backslash\)\(\backslash\)[\string^\(\backslash\)s]*'}, \textcolor{stringliteral}{''}, text)}
+\DoxyCodeLine{\Hypertarget{DocManipualtion_8py_source_l00010}00010     }
+\DoxyCodeLine{\Hypertarget{DocManipualtion_8py_source_l00011}00011     \textcolor{comment}{\# Rimuove spazi multipli che potrebbero essere rimasti}}
+\DoxyCodeLine{\Hypertarget{DocManipualtion_8py_source_l00012}00012     text = re.sub(\textcolor{stringliteral}{r'\(\backslash\)s+'}, \textcolor{stringliteral}{' '}, text)}
+\DoxyCodeLine{\Hypertarget{DocManipualtion_8py_source_l00013}00013     }
+\DoxyCodeLine{\Hypertarget{DocManipualtion_8py_source_l00014}00014     \textcolor{keywordflow}{return} text.strip()}
+\DoxyCodeLine{\Hypertarget{DocManipualtion_8py_source_l00015}00015 }
+\DoxyCodeLine{\Hypertarget{DocManipualtion_8py_source_l00016}\mbox{\hyperlink{namespaceDocManipualtion_aa87b3063195af14f5f312c162c0f8927}{00016}} \textcolor{keyword}{def }\mbox{\hyperlink{namespaceDocManipualtion_aa87b3063195af14f5f312c162c0f8927}{cleanText}}(text):}
+\DoxyCodeLine{\Hypertarget{DocManipualtion_8py_source_l00017}00017     \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{DocManipualtion_8py_source_l00018}00018 \textcolor{stringliteral}{    Clean a text document (light cleaning).}}
+\DoxyCodeLine{\Hypertarget{DocManipualtion_8py_source_l00019}00019 \textcolor{stringliteral}{    "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{DocManipualtion_8py_source_l00020}00020 \textcolor{stringliteral}{    }\textcolor{comment}{\# Prima rimuovi il LaTeX}}
+\DoxyCodeLine{\Hypertarget{DocManipualtion_8py_source_l00021}00021     text = \mbox{\hyperlink{namespaceDocManipualtion_a9c068cf3f1db3aec67896961d799ba66}{remove\_latex}}(text)}
+\DoxyCodeLine{\Hypertarget{DocManipualtion_8py_source_l00022}00022     }
+\DoxyCodeLine{\Hypertarget{DocManipualtion_8py_source_l00023}00023     \textcolor{comment}{\# Pulizia base}}
+\DoxyCodeLine{\Hypertarget{DocManipualtion_8py_source_l00024}00024     text = re.sub(\textcolor{stringliteral}{r'\(\backslash\)s+'}, \textcolor{stringliteral}{' '}, text)}
+\DoxyCodeLine{\Hypertarget{DocManipualtion_8py_source_l00025}00025     text = \textcolor{stringliteral}{''}.join(char \textcolor{keywordflow}{for} char \textcolor{keywordflow}{in} text \textcolor{keywordflow}{if} char.isprintable())}
+\DoxyCodeLine{\Hypertarget{DocManipualtion_8py_source_l00026}00026     }
+\DoxyCodeLine{\Hypertarget{DocManipualtion_8py_source_l00027}00027     \textcolor{comment}{\# Pulizie aggiuntive}}
+\DoxyCodeLine{\Hypertarget{DocManipualtion_8py_source_l00028}00028     text = re.sub(\textcolor{stringliteral}{r'\(\backslash\)n+'}, \textcolor{stringliteral}{'\(\backslash\)n'}, text)  \textcolor{comment}{\# Rimuove linee vuote multiple}}
+\DoxyCodeLine{\Hypertarget{DocManipualtion_8py_source_l00029}00029     text = re.sub(\textcolor{stringliteral}{r'[\(\backslash\)t\(\backslash\)r\(\backslash\)f\(\backslash\)v]'}, \textcolor{stringliteral}{''}, text)  \textcolor{comment}{\# Rimuove altri caratteri di spaziatura}}
+\DoxyCodeLine{\Hypertarget{DocManipualtion_8py_source_l00030}00030     text = re.sub(\textcolor{stringliteral}{r'\(\backslash\)s*\(\backslash\)n\(\backslash\)s*'}, \textcolor{stringliteral}{'\(\backslash\)n'}, text)  \textcolor{comment}{\# Pulisce gli spazi intorno ai newline}}
+\DoxyCodeLine{\Hypertarget{DocManipualtion_8py_source_l00031}00031     text = re.sub(\textcolor{stringliteral}{r' +'}, \textcolor{stringliteral}{' '}, text)  \textcolor{comment}{\# Rimuove spazi multipli}}
+\DoxyCodeLine{\Hypertarget{DocManipualtion_8py_source_l00032}00032     }
+\DoxyCodeLine{\Hypertarget{DocManipualtion_8py_source_l00033}00033     \textcolor{keywordflow}{return} text.strip()}
+\DoxyCodeLine{\Hypertarget{DocManipualtion_8py_source_l00034}00034 }
+\DoxyCodeLine{\Hypertarget{DocManipualtion_8py_source_l00035}\mbox{\hyperlink{namespaceDocManipualtion_ab1e0b18e0c05c91102509a57e8278ec9}{00035}} \textcolor{keyword}{def }\mbox{\hyperlink{namespaceDocManipualtion_ab1e0b18e0c05c91102509a57e8278ec9}{addToJson}}(results, NOME\_FILE):}
+\DoxyCodeLine{\Hypertarget{DocManipualtion_8py_source_l00036}00036     \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{DocManipualtion_8py_source_l00037}00037 \textcolor{stringliteral}{    Add new documents to the JSON file.}}
+\DoxyCodeLine{\Hypertarget{DocManipualtion_8py_source_l00038}00038 \textcolor{stringliteral}{    "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{DocManipualtion_8py_source_l00039}00039 \textcolor{stringliteral}{    data = []}}
+\DoxyCodeLine{\Hypertarget{DocManipualtion_8py_source_l00040}00040 \textcolor{stringliteral}{    }}
+\DoxyCodeLine{\Hypertarget{DocManipualtion_8py_source_l00041}00041 \textcolor{stringliteral}{    }\textcolor{comment}{\# Aggiungi tutti i nuovi documenti con ID incrementale}}
+\DoxyCodeLine{\Hypertarget{DocManipualtion_8py_source_l00042}00042     start\_id = 1}
+\DoxyCodeLine{\Hypertarget{DocManipualtion_8py_source_l00043}00043     \textcolor{keywordflow}{for} i, result \textcolor{keywordflow}{in} enumerate(results):}
+\DoxyCodeLine{\Hypertarget{DocManipualtion_8py_source_l00044}00044         new\_document = \{}
+\DoxyCodeLine{\Hypertarget{DocManipualtion_8py_source_l00045}00045             \textcolor{stringliteral}{"{}id"{}}: start\_id + i,}
+\DoxyCodeLine{\Hypertarget{DocManipualtion_8py_source_l00046}00046             \textcolor{stringliteral}{"{}title"{}}: result[\textcolor{stringliteral}{'title'}],}
+\DoxyCodeLine{\Hypertarget{DocManipualtion_8py_source_l00047}00047             \textcolor{stringliteral}{"{}abstract"{}}: result[\textcolor{stringliteral}{'abstract'}],}
+\DoxyCodeLine{\Hypertarget{DocManipualtion_8py_source_l00048}00048             \textcolor{stringliteral}{"{}corpus"{}}: result[\textcolor{stringliteral}{'corpus'}],}
+\DoxyCodeLine{\Hypertarget{DocManipualtion_8py_source_l00049}00049             \textcolor{stringliteral}{"{}keywords"{}}: result[\textcolor{stringliteral}{'keywords'}],}
+\DoxyCodeLine{\Hypertarget{DocManipualtion_8py_source_l00050}00050             \textcolor{stringliteral}{"{}url"{}}: result[\textcolor{stringliteral}{'url'}]}
+\DoxyCodeLine{\Hypertarget{DocManipualtion_8py_source_l00051}00051         \}}
+\DoxyCodeLine{\Hypertarget{DocManipualtion_8py_source_l00052}00052         data.append(new\_document)}
+\DoxyCodeLine{\Hypertarget{DocManipualtion_8py_source_l00053}00053     }
+\DoxyCodeLine{\Hypertarget{DocManipualtion_8py_source_l00054}00054     \textcolor{keyword}{with} open(NOME\_FILE, \textcolor{stringliteral}{'w'}) \textcolor{keyword}{as} file:}
+\DoxyCodeLine{\Hypertarget{DocManipualtion_8py_source_l00055}00055         json.dump(data, file, indent=4)}
+
+\end{DoxyCode}

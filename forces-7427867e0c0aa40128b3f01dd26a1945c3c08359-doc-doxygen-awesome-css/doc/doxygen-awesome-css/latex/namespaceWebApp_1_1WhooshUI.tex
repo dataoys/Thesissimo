@@ -1,0 +1,100 @@
+\hypertarget{namespaceWebApp_1_1WhooshUI}{}\doxysection{Web\+App.\+Whoosh\+UI Namespace Reference}
+\label{namespaceWebApp_1_1WhooshUI}\index{WebApp.WhooshUI@{WebApp.WhooshUI}}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \mbox{\hyperlink{namespaceWebApp_1_1WhooshUI_aff37e4a45c562c39d538f2ea044065c8}{calculate\+\_\+precision\+\_\+recall}} (results, relevant\+\_\+docs)
+\begin{DoxyCompactList}\small\item\em Calculate precision and recall metrics for search results. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceWebApp_1_1WhooshUI_a62f150eb9cc8471073f27a023addd4dd}{plot\+\_\+precision\+\_\+recall}} (precision, recall)
+\begin{DoxyCompactList}\small\item\em Generate and display precision-\/recall curve plot. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceWebApp_1_1WhooshUI_a7fbf1e78f5de3805fb6cd28b78553df4}{search\+UI}} ()
+\begin{DoxyCompactList}\small\item\em Main Streamlit UI function for Whoosh search interface. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{namespaceWebApp_1_1WhooshUI_a1411fec0aef4d5c76125dd04f50b2085}{project\+\_\+root}} = Path(\+\_\+\+\_\+file\+\_\+\+\_\+).parent.\+parent
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{namespaceWebApp_1_1WhooshUI_aff37e4a45c562c39d538f2ea044065c8}\label{namespaceWebApp_1_1WhooshUI_aff37e4a45c562c39d538f2ea044065c8}} 
+\index{WebApp.WhooshUI@{WebApp.WhooshUI}!calculate\_precision\_recall@{calculate\_precision\_recall}}
+\index{calculate\_precision\_recall@{calculate\_precision\_recall}!WebApp.WhooshUI@{WebApp.WhooshUI}}
+\doxysubsubsection{\texorpdfstring{calculate\_precision\_recall()}{calculate\_precision\_recall()}}
+{\footnotesize\ttfamily def Web\+App.\+Whoosh\+UI.\+calculate\+\_\+precision\+\_\+recall (\begin{DoxyParamCaption}\item[{}]{results,  }\item[{}]{relevant\+\_\+docs }\end{DoxyParamCaption})}
+
+
+
+Calculate precision and recall metrics for search results. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em results} & List of search results from Whoosh engine \\
+\hline
+{\em relevant\+\_\+docs} & List of relevant document IDs for evaluation \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Tuple containing (precision, recall) values
+\end{DoxyReturn}
+Computes precision as true positives / retrieved documents and recall as true positives / total relevant documents 
+
+Definition at line \mbox{\hyperlink{WhooshUI_8py_source_l00019}{19}} of file \mbox{\hyperlink{WhooshUI_8py_source}{Whoosh\+UI.\+py}}.
+
+\mbox{\Hypertarget{namespaceWebApp_1_1WhooshUI_a62f150eb9cc8471073f27a023addd4dd}\label{namespaceWebApp_1_1WhooshUI_a62f150eb9cc8471073f27a023addd4dd}} 
+\index{WebApp.WhooshUI@{WebApp.WhooshUI}!plot\_precision\_recall@{plot\_precision\_recall}}
+\index{plot\_precision\_recall@{plot\_precision\_recall}!WebApp.WhooshUI@{WebApp.WhooshUI}}
+\doxysubsubsection{\texorpdfstring{plot\_precision\_recall()}{plot\_precision\_recall()}}
+{\footnotesize\ttfamily def Web\+App.\+Whoosh\+UI.\+plot\+\_\+precision\+\_\+recall (\begin{DoxyParamCaption}\item[{}]{precision,  }\item[{}]{recall }\end{DoxyParamCaption})}
+
+
+
+Generate and display precision-\/recall curve plot. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em precision} & List of precision values to plot \\
+\hline
+{\em recall} & List of recall values to plot\\
+\hline
+\end{DoxyParams}
+Creates matplotlib figure with precision-\/recall curve, displays grid and proper axis limits, integrates with Streamlit 
+
+Definition at line \mbox{\hyperlink{WhooshUI_8py_source_l00036}{36}} of file \mbox{\hyperlink{WhooshUI_8py_source}{Whoosh\+UI.\+py}}.
+
+\mbox{\Hypertarget{namespaceWebApp_1_1WhooshUI_a7fbf1e78f5de3805fb6cd28b78553df4}\label{namespaceWebApp_1_1WhooshUI_a7fbf1e78f5de3805fb6cd28b78553df4}} 
+\index{WebApp.WhooshUI@{WebApp.WhooshUI}!searchUI@{searchUI}}
+\index{searchUI@{searchUI}!WebApp.WhooshUI@{WebApp.WhooshUI}}
+\doxysubsubsection{\texorpdfstring{searchUI()}{searchUI()}}
+{\footnotesize\ttfamily def Web\+App.\+Whoosh\+UI.\+search\+UI (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Main Streamlit UI function for Whoosh search interface. 
+
+Creates complete web interface including\+:
+\begin{DoxyItemize}
+\item Search field configuration and filters
+\item Document ranking type selection
+\item Results display with expandable document details
+\item Precision-\/recall visualization in sidebar \begin{DoxyReturn}{Returns}
+None 
+\end{DoxyReturn}
+
+\end{DoxyItemize}
+
+Definition at line \mbox{\hyperlink{WhooshUI_8py_source_l00055}{55}} of file \mbox{\hyperlink{WhooshUI_8py_source}{Whoosh\+UI.\+py}}.
+
+
+
+\doxysubsection{Variable Documentation}
+\mbox{\Hypertarget{namespaceWebApp_1_1WhooshUI_a1411fec0aef4d5c76125dd04f50b2085}\label{namespaceWebApp_1_1WhooshUI_a1411fec0aef4d5c76125dd04f50b2085}} 
+\index{WebApp.WhooshUI@{WebApp.WhooshUI}!project\_root@{project\_root}}
+\index{project\_root@{project\_root}!WebApp.WhooshUI@{WebApp.WhooshUI}}
+\doxysubsubsection{\texorpdfstring{project\_root}{project\_root}}
+{\footnotesize\ttfamily Web\+App.\+Whoosh\+UI.\+project\+\_\+root = Path(\+\_\+\+\_\+file\+\_\+\+\_\+).parent.\+parent}
+
+
+
+Definition at line \mbox{\hyperlink{WhooshUI_8py_source_l00014}{14}} of file \mbox{\hyperlink{WhooshUI_8py_source}{Whoosh\+UI.\+py}}.
+

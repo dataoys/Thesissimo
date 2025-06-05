@@ -1,0 +1,120 @@
+\hypertarget{UrlGenerator_8py_source}{}\doxysection{Url\+Generator.\+py}
+\label{UrlGenerator_8py_source}\index{/root/JuriScan/WebScraping/src/UrlGenerator.py@{/root/JuriScan/WebScraping/src/UrlGenerator.py}}
+\mbox{\hyperlink{UrlGenerator_8py}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00001}\mbox{\hyperlink{namespaceUrlGenerator}{00001}} \textcolor{keyword}{import} time}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00002}00002 \textcolor{keyword}{from} bs4 \textcolor{keyword}{import} BeautifulSoup}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00003}00003 \textcolor{keyword}{from} concurrent.futures \textcolor{keyword}{import} ThreadPoolExecutor}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00004}00004 \textcolor{keyword}{from} tqdm \textcolor{keyword}{import} tqdm }
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00005}00005 }
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00006}\mbox{\hyperlink{namespaceUrlGenerator_a40ef31f700414f0e6e9719c604407c07}{00006}} BASE\_URL = \textcolor{stringliteral}{"{}https://arxiv.org/html/24"{}}}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00007}00007 \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00008}00008 \textcolor{stringliteral}{@var BASE\_URL}}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00009}00009 \textcolor{stringliteral}{Base URL structure for the Arxiv website.}}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00010}00010 \textcolor{stringliteral}{This URL is used as the base for generating specific article URLs.}}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00011}00011 \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00012}00012 }
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00013}00013 \textcolor{comment}{\# List of links to scrape.}}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00014}\mbox{\hyperlink{namespaceUrlGenerator_a46ce80e34b32f9597126258fa6299c73}{00014}} urls = []}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00015}00015 \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00016}00016 \textcolor{stringliteral}{@var urls}}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00017}00017 \textcolor{stringliteral}{List of links to scrape.}}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00018}00018 \textcolor{stringliteral}{This list will hold all the URLs that need to be scraped from the website.}}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00019}00019 \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00020}00020 }
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00021}00021 \textcolor{comment}{\# List of months to scrape.}}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00022}\mbox{\hyperlink{namespaceUrlGenerator_a73d51fecedeaa9933f85fe7433bb2c07}{00022}} MONTH\_LIST = [i \textcolor{keywordflow}{for} i \textcolor{keywordflow}{in} range(1, 13)]}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00023}00023 \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00024}00024 \textcolor{stringliteral}{@var MONTH\_LIST}}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00025}00025 \textcolor{stringliteral}{List of months to scrape.}}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00026}00026 \textcolor{stringliteral}{This list contains the months (1-\/12) that we want to scrape data for.}}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00027}00027 \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00028}00028 }
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00029}00029 \textcolor{comment}{\# List of articles to scrape.}}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00030}\mbox{\hyperlink{namespaceUrlGenerator_ac023b10e53011afa2c7aea842110409e}{00030}} ARTICLE\_LIST = [i \textcolor{keywordflow}{for} i \textcolor{keywordflow}{in} range(1, 2)]}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00031}00031 \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00032}00032 \textcolor{stringliteral}{@var ARTICLE\_LIST}}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00033}00033 \textcolor{stringliteral}{List of articles to scrape.}}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00034}00034 \textcolor{stringliteral}{This list contains article numbers that will be used in URL generation.}}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00035}00035 \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00036}00036 }
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00037}00037 \textcolor{comment}{\# Using threads to generate URLs.}}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00038}\mbox{\hyperlink{namespaceUrlGenerator_aeece0837e39a0e024e26f3b4292990f0}{00038}} MAX\_THREADS = 30}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00039}00039 \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00040}00040 \textcolor{stringliteral}{@var MAX\_THREADS}}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00041}00041 \textcolor{stringliteral}{Maximum number of threads to use when generating URLs.}}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00042}00042 \textcolor{stringliteral}{This is used to speed up the URL generation process.}}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00043}00043 \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00044}00044 }
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00045}00045 \textcolor{comment}{\# Example function}}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00046}\mbox{\hyperlink{namespaceUrlGenerator_a85ab939096917684d5fc37a374e1b9e3}{00046}} \textcolor{keyword}{def }\mbox{\hyperlink{namespaceUrlGenerator_a85ab939096917684d5fc37a374e1b9e3}{generate\_url}}(m, a):}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00047}00047     \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00048}00048 \textcolor{stringliteral}{    Url generator function.}}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00049}00049 \textcolor{stringliteral}{}}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00050}00050 \textcolor{stringliteral}{    This function generates a URL }\textcolor{keywordflow}{for} a given month \textcolor{keywordflow}{and} article number.}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00051}00051 }
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00052}00052     Arguments:}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00053}00053         m (int): The month number.}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00054}00054         a (int): The article number.}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00055}00055 }
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00056}00056     Returns:}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00057}00057         str: The generated URL.}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00058}00058     \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00059}00059 \textcolor{stringliteral}{    url = BASE\_URL + str(m).zfill(2) + "{}."{}} + str(a).zfill(5) + \textcolor{stringliteral}{"{}v1"{}}}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00060}00060     \textcolor{keywordflow}{return} url}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00061}00061 }
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00062}\mbox{\hyperlink{namespaceUrlGenerator_a934e1ee0a3013d5fb29f25f089d60d0e}{00062}} \textcolor{keyword}{def }\mbox{\hyperlink{namespaceUrlGenerator_a934e1ee0a3013d5fb29f25f089d60d0e}{UrlGenerators}}():}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00063}00063     \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00064}00064 \textcolor{stringliteral}{    Url collapse function.}}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00065}00065 \textcolor{stringliteral}{}}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00066}00066 \textcolor{stringliteral}{    This function generates all the URLs }\textcolor{keywordflow}{for} the articles \textcolor{keywordflow}{and} months specified \textcolor{keywordflow}{in} the MONTH\_LIST \textcolor{keywordflow}{and} ARTICLE\_LIST lists using}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00067}00067     the previous function to generate the URLs, then it collapses all the URLs into a single list.}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00068}00068 }
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00069}00069     Returns:}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00070}00070         list: The list of all generated URLs.}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00071}00071     \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00072}00072 \textcolor{stringliteral}{    urls = []}}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00073}00073 \textcolor{stringliteral}{    }\textcolor{keyword}{with} ThreadPoolExecutor(max\_workers=MAX\_THREADS) \textcolor{keyword}{as} executor:}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00074}00074         \textcolor{comment}{\# Crea una lista di task per ogni combinazione di mese e articolo}}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00075}00075         tasks = [(m, a) \textcolor{keywordflow}{for} m \textcolor{keywordflow}{in} MONTH\_LIST \textcolor{keywordflow}{for} a \textcolor{keywordflow}{in} ARTICLE\_LIST]}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00076}00076         }
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00077}00077         \textcolor{comment}{\# Usa tqdm per mostrare la progress bar}}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00078}00078         \textcolor{keywordflow}{for} result \textcolor{keywordflow}{in} tqdm(executor.map(\textcolor{keyword}{lambda} x: \mbox{\hyperlink{namespaceUrlGenerator_a85ab939096917684d5fc37a374e1b9e3}{generate\_url}}(*x), tasks), total=len(tasks)):}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00079}00079             \textcolor{keywordflow}{if} result:}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00080}00080                 urls.append(result)}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00081}00081     }
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00082}00082     \textcolor{keywordflow}{return} urls}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00083}00083 }
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00084}00084 }
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00085}00085 }
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00086}\mbox{\hyperlink{namespaceUrlGenerator_af418a40661d35f5b7843174b78dc9cf3}{00086}} \textcolor{keyword}{def }\mbox{\hyperlink{namespaceUrlGenerator_af418a40661d35f5b7843174b78dc9cf3}{CheckConn}}(response):}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00087}00087     \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00088}00088 \textcolor{stringliteral}{    Connection check function.}}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00089}00089 \textcolor{stringliteral}{}}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00090}00090 \textcolor{stringliteral}{    This function checks }\textcolor{keywordflow}{if} the connection to the URL was successful \textcolor{keywordflow}{and} \textcolor{keywordflow}{if} the HTML contains the \textcolor{stringliteral}{"{}No HTML"{}} string.}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00091}00091 }
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00092}00092     Arguments:}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00093}00093         response (requests.models.Response): The response object \textcolor{keyword}{from} the request.}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00094}00094         }
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00095}00095     Returns:}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00096}00096         bool: \textcolor{keyword}{True} \textcolor{keywordflow}{if} the connection was successful \textcolor{keywordflow}{and} the HTML does \textcolor{keywordflow}{not} contain the \textcolor{stringliteral}{"{}No HTML"{}} string, \textcolor{keyword}{False} otherwise.}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00097}00097     \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00098}00098 \textcolor{stringliteral}{    time.sleep(1)}}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00099}00099 \textcolor{stringliteral}{        }\textcolor{comment}{\#controllo che la connessione avvenga correttamente}}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00100}00100     \textcolor{keywordflow}{if} response.status\_code == 200:}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00101}00101         soup = BeautifulSoup(response.text, \textcolor{stringliteral}{'html.parser'})}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00102}00102         h1\_tag = soup.find(\textcolor{stringliteral}{'h1'})}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00103}00103         \textcolor{keywordflow}{if} h1\_tag \textcolor{keywordflow}{is} \textcolor{keywordtype}{None}:}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00104}00104             \textcolor{comment}{\#debug}}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00105}00105             \textcolor{comment}{\#print(f"{}Nessun tag h1 trovato per \{url\}"{})}}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00106}00106             \textcolor{keywordflow}{return} \textcolor{keyword}{False} }
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00107}00107         titolo = h1\_tag.text.strip()}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00108}00108         \textcolor{keywordflow}{if} \textcolor{keywordflow}{not} titolo:}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00109}00109             \textcolor{comment}{\#debug}}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00110}00110             \textcolor{comment}{\#print(f"{}Titolo vuoto trovato per \{url\}"{})}}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00111}00111             \textcolor{keywordflow}{return} \textcolor{keyword}{False}}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00112}00112         \textcolor{keywordflow}{return} \textcolor{stringliteral}{"{}No HTML"{}} \textcolor{keywordflow}{not} \textcolor{keywordflow}{in} titolo}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00113}00113     \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{UrlGenerator_8py_source_l00114}00114         \textcolor{keywordflow}{return} \textcolor{keyword}{False}}
+
+\end{DoxyCode}

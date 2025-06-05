@@ -1,0 +1,69 @@
+\hypertarget{benchmark_8py}{}\doxysection{/root/\+Juri\+Scan/\+Benchmark/benchmark.py File Reference}
+\label{benchmark_8py}\index{/root/JuriScan/Benchmark/benchmark.py@{/root/JuriScan/Benchmark/benchmark.py}}
+
+
+Main benchmarking script for evaluating search engine performance.  
+
+
+\doxysubsection*{Namespaces}
+\begin{DoxyCompactItemize}
+\item 
+namespace \mbox{\hyperlink{namespacebenchmark}{benchmark}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \mbox{\hyperlink{namespacebenchmark_a340ad747c3ddba1e27d167f8275878ca}{benchmark.\+create\+\_\+plot\+\_\+directories}} ()
+\begin{DoxyCompactList}\small\item\em Create plot directories if they don\textquotesingle{}t exist. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespacebenchmark_a0fce438733cdf2a43de4ef5a47423996}{benchmark.\+plot\+\_\+precision\+\_\+recall\+\_\+metrics}} (engine\+\_\+metrics, engine\+\_\+name, k\+\_\+values)
+\begin{DoxyCompactList}\small\item\em Generate and save precision-\/recall plots for an engine using Seaborn. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespacebenchmark_ab0e11565b53bab7de32917f4ad69f476}{benchmark.\+plot\+\_\+comparative\+\_\+analysis}} (all\+\_\+results, k\+\_\+values)
+\begin{DoxyCompactList}\small\item\em Generate comparative plots across all search engines. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{namespacebenchmark_ade5dd9f41308d6224b6d887be74eabbf}{benchmark.\+PROJECT\+\_\+\+ROOT}} = Path(\+\_\+\+\_\+file\+\_\+\+\_\+).parent.\+parent
+\item 
+\mbox{\hyperlink{namespacebenchmark_ae27e8e984f06b5474f603098252d2fd6}{benchmark.\+ENGINES\+\_\+\+AVAILABLE}}
+\item 
+\mbox{\hyperlink{namespacebenchmark_a1e310fb3a4b1c1c27f8c38655a9493c8}{benchmark.\+pylucene\+\_\+search\+\_\+documents}}
+\item 
+\mbox{\hyperlink{namespacebenchmark_af9aca4dc2880fdf28a104b7b0c83074a}{benchmark.\+pylucene\+\_\+create\+\_\+index}}
+\item 
+\mbox{\hyperlink{namespacebenchmark_a7c54123ae5a870522adf1193167780ee}{benchmark.\+pylucene\+\_\+initialize\+\_\+jvm}}
+\item 
+\mbox{\hyperlink{namespacebenchmark_a4b2e344e3a88a98ed34ecc7a387b7b86}{benchmark.\+whoosh\+\_\+search\+\_\+documents}}
+\item 
+\mbox{\hyperlink{namespacebenchmark_ac24c73e32a41ee680a070578f6e7b69c}{benchmark.\+whoosh\+\_\+create\+\_\+or\+\_\+get\+\_\+index}}
+\item 
+\mbox{\hyperlink{namespacebenchmark_a0c1a166d3c28fbacb24d34ce5dfe275a}{benchmark.\+postgres\+\_\+search}}
+\item 
+\mbox{\hyperlink{namespacebenchmark_a727c73066939238c7e6ecc5e2308de3e}{benchmark.\+PYLUCENE\+\_\+\+INDEX\+\_\+\+PATH}}
+\item 
+\mbox{\hyperlink{namespacebenchmark_ada01010615f171bd633ddcf061b47e28}{benchmark.\+WHOOSH\+\_\+\+INDEX\+\_\+\+PATH}}
+\item 
+\mbox{\hyperlink{namespacebenchmark_a1a9921168dd050dfe4f12f2c58b48e64}{benchmark.\+JSON\+\_\+\+DOCS\+\_\+\+FILE}}
+\item 
+\mbox{\hyperlink{namespacebenchmark_af7523f6e23687c3697e52e122d446c91}{benchmark.\+PLOTS\+\_\+\+DIR}}
+\item 
+\mbox{\hyperlink{namespacebenchmark_a128073dcb9e2893e8386067738adb28c}{benchmark.\+PYLUCENE\+\_\+\+PLOTS\+\_\+\+DIR}}
+\item 
+\mbox{\hyperlink{namespacebenchmark_a06b666565439f085769e7202f349583c}{benchmark.\+WHOOSH\+\_\+\+PLOTS\+\_\+\+DIR}}
+\item 
+\mbox{\hyperlink{namespacebenchmark_a144f114e2b4664502c6d3e974d1ba4d8}{benchmark.\+POSTGRES\+\_\+\+PLOTS\+\_\+\+DIR}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Main benchmarking script for evaluating search engine performance. 
+
+Implements comprehensive evaluation of Py\+Lucene, Whoosh, and Postgre\+SQL engines using precision, recall, MAP metrics and generates visualization plots \begin{DoxyAuthor}{Author}
+Magni \&\& Testoni 
+\end{DoxyAuthor}
+\begin{DoxyDate}{Date}
+2025 
+\end{DoxyDate}
+
+
+Definition in file \mbox{\hyperlink{benchmark_8py_source}{benchmark.\+py}}.
+

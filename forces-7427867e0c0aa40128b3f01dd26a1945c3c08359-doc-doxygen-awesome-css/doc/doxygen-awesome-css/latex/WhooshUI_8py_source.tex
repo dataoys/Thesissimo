@@ -1,0 +1,134 @@
+\hypertarget{WhooshUI_8py_source}{}\doxysection{Whoosh\+UI.\+py}
+\label{WhooshUI_8py_source}\index{/root/JuriScan/WebApp/WhooshUI.py@{/root/JuriScan/WebApp/WhooshUI.py}}
+\mbox{\hyperlink{WhooshUI_8py}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00001}\mbox{\hyperlink{namespaceWebApp_1_1WhooshUI}{00001}} \textcolor{stringliteral}{"{}"{}"{}!}}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00002}00002 \textcolor{stringliteral}{@file WhooshUI.py}}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00003}00003 \textcolor{stringliteral}{@brief Streamlit web interface for Whoosh search engine}}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00004}00004 \textcolor{stringliteral}{@details Provides interactive web UI for document search using Whoosh with precision-\/recall visualization}}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00005}00005 \textcolor{stringliteral}{@author Magni \&\& Testoni}}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00006}00006 \textcolor{stringliteral}{@date 2025}}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00007}00007 \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00008}00008 }
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00009}00009 \textcolor{keyword}{import} streamlit \textcolor{keyword}{as} st}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00010}00010 \textcolor{keyword}{from} pathlib \textcolor{keyword}{import} Path}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00011}00011 \textcolor{keyword}{import} sys}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00012}00012 \textcolor{keyword}{import} matplotlib.pyplot \textcolor{keyword}{as} plt}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00013}00013 }
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00014}\mbox{\hyperlink{namespaceWebApp_1_1WhooshUI_a1411fec0aef4d5c76125dd04f50b2085}{00014}} project\_root = Path(\_\_file\_\_).parent.parent}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00015}00015 sys.path.append(str(project\_root))}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00016}00016 }
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00017}00017 \textcolor{keyword}{from} \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh}{SearchEngine.Whoosh}} \textcolor{keyword}{import} create\_or\_get\_index, search\_documents}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00018}00018 }
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00019}\mbox{\hyperlink{namespaceWebApp_1_1WhooshUI_aff37e4a45c562c39d538f2ea044065c8}{00019}} \textcolor{keyword}{def }\mbox{\hyperlink{namespaceWebApp_1_1WhooshUI_aff37e4a45c562c39d538f2ea044065c8}{calculate\_precision\_recall}}(results, relevant\_docs):}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00020}00020     \textcolor{stringliteral}{"{}"{}"{}!}}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00021}00021 \textcolor{stringliteral}{    }\textcolor{preprocessor}{@brief} Calculate precision \textcolor{keywordflow}{and} recall metrics \textcolor{keywordflow}{for} search results}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00022}00022     \textcolor{preprocessor}{@param} results List of search results \textcolor{keyword}{from} Whoosh engine}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00023}00023     \textcolor{preprocessor}{@param} relevant\_docs List of relevant document IDs \textcolor{keywordflow}{for} evaluation}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00024}00024     \textcolor{preprocessor}{@return} Tuple containing (precision, recall) values}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00025}00025     \textcolor{preprocessor}{@details} Computes precision \textcolor{keyword}{as} true positives / retrieved documents}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00026}00026              \textcolor{keywordflow}{and} recall \textcolor{keyword}{as} true positives / total relevant documents}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00027}00027     \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00028}00028 \textcolor{stringliteral}{    retrieved\_docs = len(results)}}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00029}00029 \textcolor{stringliteral}{    true\_positives = sum(1 }\textcolor{keywordflow}{for} doc \textcolor{keywordflow}{in} results \textcolor{keywordflow}{if} doc[0] \textcolor{keywordflow}{in} relevant\_docs)}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00030}00030     }
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00031}00031     precision = true\_positives / retrieved\_docs \textcolor{keywordflow}{if} retrieved\_docs > 0 \textcolor{keywordflow}{else} 0}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00032}00032     recall = true\_positives / len(relevant\_docs) \textcolor{keywordflow}{if} relevant\_docs \textcolor{keywordflow}{else} 0}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00033}00033     }
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00034}00034     \textcolor{keywordflow}{return} precision, recall}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00035}00035 }
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00036}\mbox{\hyperlink{namespaceWebApp_1_1WhooshUI_a62f150eb9cc8471073f27a023addd4dd}{00036}} \textcolor{keyword}{def }\mbox{\hyperlink{namespaceWebApp_1_1WhooshUI_a62f150eb9cc8471073f27a023addd4dd}{plot\_precision\_recall}}(precision, recall):}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00037}00037     \textcolor{stringliteral}{"{}"{}"{}!}}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00038}00038 \textcolor{stringliteral}{    }\textcolor{preprocessor}{@brief} Generate \textcolor{keywordflow}{and} display precision-\/recall curve plot}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00039}00039     \textcolor{preprocessor}{@param} precision List of precision values to plot}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00040}00040     \textcolor{preprocessor}{@param} recall List of recall values to plot}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00041}00041     \textcolor{preprocessor}{@details} Creates matplotlib figure \textcolor{keyword}{with} precision-\/recall curve,}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00042}00042              displays grid \textcolor{keywordflow}{and} proper axis limits, integrates \textcolor{keyword}{with} Streamlit}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00043}00043     \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00044}00044 \textcolor{stringliteral}{    plt.figure()}}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00045}00045 \textcolor{stringliteral}{    plt.plot(recall, precision, marker='o'})}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00046}00046     plt.title(\textcolor{stringliteral}{'Precision-\/Recall Curve'})}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00047}00047     plt.xlabel(\textcolor{stringliteral}{'Recall'})}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00048}00048     plt.ylabel(\textcolor{stringliteral}{'Precision'})}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00049}00049     plt.xlim([0.0, 1.0])}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00050}00050     plt.ylim([0.0, 1.0])}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00051}00051     plt.grid()}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00052}00052     st.pyplot(plt)}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00053}00053 }
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00054}00054 \textcolor{comment}{\# Funzione principale per indicizzare e cercare}}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00055}\mbox{\hyperlink{namespaceWebApp_1_1WhooshUI_a7fbf1e78f5de3805fb6cd28b78553df4}{00055}} \textcolor{keyword}{def }\mbox{\hyperlink{namespaceWebApp_1_1WhooshUI_a7fbf1e78f5de3805fb6cd28b78553df4}{searchUI}}():}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00056}00056     \textcolor{stringliteral}{"{}"{}"{}!}}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00057}00057 \textcolor{stringliteral}{    }\textcolor{preprocessor}{@brief} Main Streamlit UI function \textcolor{keywordflow}{for} Whoosh search interface}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00058}00058     \textcolor{preprocessor}{@details} Creates complete web interface including:}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00059}00059              -\/ Search field configuration \textcolor{keywordflow}{and} filters}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00060}00060              -\/ Document ranking type selection}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00061}00061              -\/ Results display \textcolor{keyword}{with} expandable document details}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00062}00062              -\/ Precision-\/recall visualization \textcolor{keywordflow}{in} sidebar}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00063}00063     \textcolor{preprocessor}{@return} \textcolor{keywordtype}{None}}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00064}00064     \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00065}00065 \textcolor{stringliteral}{    project\_root = Path(\_\_file\_\_).parent.parent}}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00066}00066 \textcolor{stringliteral}{    index\_dir = str(project\_root / "{}WhooshIndex"{}})  }
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00067}00067     json\_file = str(project\_root / \textcolor{stringliteral}{"{}WebScraping/results/Docs\_cleaned.json"{}}) }
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00068}00068 }
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00069}00069     \textcolor{comment}{\# Inizializza l'indice solo se necessario}}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00070}00070     ix = \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_ac235bdd90c709aa66ef5b2931d6cf56c}{create\_or\_get\_index}}(index\_dir, json\_file)}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00071}00071     \textcolor{keywordflow}{if} \textcolor{keywordflow}{not} ix:}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00072}00072         st.error(\textcolor{stringliteral}{"{}Impossibile inizializzare l'indice. Riprova."{}})}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00073}00073         \textcolor{keywordflow}{return}}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00074}00074 }
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00075}00075     st.sidebar.image(\textcolor{stringliteral}{'/root/JuriScan/forces-\/7427867e0c0aa40128b3f01dd26a1945c3c08359-\/doc-\/doxygen-\/awesome-\/css/doc/doxygen-\/awesome-\/css/Logo.png'}, width=150)}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00076}00076     st.sidebar.write(\textcolor{stringliteral}{"{}Thesissimo è un motore di ricerca innovativo progettato per permettere agli studenti, ricercatori e professionisti di cercare tra decine di  migliaia di tesi universitarie relative a materie scientifiche. Che si tratti di scienze, astrofisica, o ingegneria noi abbiamo la risposta. Con una ricerca precisa, rapida e facile da usare, Thesissimo rende più facile l'accesso a risorse accademiche."{}})}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00077}00077     st.title(\textcolor{stringliteral}{"{}📚 Ricerca Documenti"{}})}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00078}00078     ranking\_type = st.radio(\textcolor{stringliteral}{"{}🔍 Seleziona il tipo di ranking"{}}, [\textcolor{stringliteral}{"{}TF\_IDF"{}}, \textcolor{stringliteral}{"{}BM25"{}}])}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00079}00079 }
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00080}00080     \textcolor{keyword}{with} st.expander(\textcolor{stringliteral}{'🔧Filtra la tua ricerca!'}):}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00081}00081         col1, col2, col3 = st.columns(3)}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00082}00082         \textcolor{keyword}{with} col1:}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00083}00083             title\_true = st.checkbox(\textcolor{stringliteral}{"{}Titolo"{}})}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00084}00084 }
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00085}00085             }
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00086}00086         \textcolor{keyword}{with} col2:}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00087}00087             abstract\_true = st.checkbox(\textcolor{stringliteral}{"{}Abstract"{}})}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00088}00088         \textcolor{keyword}{with} col3:}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00089}00089             corpus\_true = st.checkbox(\textcolor{stringliteral}{"{}Corpus"{}})}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00090}00090 }
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00091}00091     st.info(\textcolor{stringliteral}{"{}"{}"{}Lil Tip: Do a query with natural language. The output will include synonyms, so the more term you use, the better the search!\(\backslash\)n\(\backslash\)nFor example:\(\backslash\)n\(\backslash\)n}}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00092}00092 \textcolor{stringliteral}{         Document about radioactivity\(\backslash\)n\(\backslash\)n}}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00093}00093 \textcolor{stringliteral}{        "{}"{}"{}, icon="{}💡"{}) }}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00094}00094 \textcolor{stringliteral}{}}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00095}00095 \textcolor{stringliteral}{    }}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00096}00096 \textcolor{stringliteral}{    query\_string = st.text\_input("{}🔍 Inserisci il testo da cercare"{}}, \textcolor{stringliteral}{"{}"{}})}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00097}00097     results = \mbox{\hyperlink{namespaceSearchEngine_1_1Pylucene_a263c48dafaf0fdcbe0da28b1e3635c7d}{search\_documents}}(index\_dir, query\_string,title\_true, abstract\_true, corpus\_true, ranking\_type)}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00098}00098 }
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00099}00099     \textcolor{keywordflow}{if} results:}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00100}00100         st.success(f\textcolor{stringliteral}{"{}Trovati \{len(results)\} documenti"{}})}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00101}00101         }
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00102}00102         \textcolor{keywordflow}{for} doc \textcolor{keywordflow}{in} results:}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00103}00103             \textcolor{comment}{\# Creiamo un link cliccabile con il titolo}}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00104}00104             title\_html = f\textcolor{stringliteral}{'📄 \{doc[1]\}'}}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00105}00105             \textcolor{keyword}{with} st.expander(title\_html, expanded=\textcolor{keyword}{False}):}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00106}00106                 st.write(\textcolor{stringliteral}{"{}**ID:** "{}}, doc[0])}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00107}00107                 st.write(\textcolor{stringliteral}{"{}**Abstract:**"{}}, doc[2])}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00108}00108                 \textcolor{keywordflow}{if} doc[4] != \textcolor{stringliteral}{"{}No keywords available"{}}:}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00109}00109                     st.write(\textcolor{stringliteral}{"{}**Keywords:**"{}}, doc[4])}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00110}00110                 \textcolor{comment}{\# Aggiungiamo il ranking score}}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00111}00111                 st.write(\textcolor{stringliteral}{"{}**Relevance Score:** \{:.2f\}"{}}.format(doc[5]))}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00112}00112                 \textcolor{comment}{\# Aggiungiamo il link diretto}}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00113}00113                 st.markdown(f\textcolor{stringliteral}{"{}[🔗 Vai al documento originale](\{doc[6]\})"{}})}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00114}00114                 st.markdown(\textcolor{stringliteral}{"{}-\/-\/-\/"{}})}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00115}00115 }
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00116}00116         relevant\_docs = [...]  \textcolor{comment}{\# Definisci qui i documenti rilevanti per il tuo caso d'uso}}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00117}00117         precision, recall = \mbox{\hyperlink{namespaceWebApp_1_1WhooshUI_aff37e4a45c562c39d538f2ea044065c8}{calculate\_precision\_recall}}(results, relevant\_docs)}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00118}00118         }
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00119}00119         \textcolor{comment}{\# Mostra il grafico nella barra laterale}}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00120}00120         st.sidebar.header(\textcolor{stringliteral}{"{}Precision e Recall"{}})}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00121}00121         \mbox{\hyperlink{namespaceWebApp_1_1WhooshUI_a62f150eb9cc8471073f27a023addd4dd}{plot\_precision\_recall}}(precision, recall)}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00122}00122     \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00123}00123         st.warning(\textcolor{stringliteral}{"{}Nessun documento trovato per la ricerca effettuata."{}})}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00124}00124 }
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00125}00125 \textcolor{keywordflow}{if} \_\_name\_\_ == \textcolor{stringliteral}{'\_\_main\_\_'}:}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00126}00126     \mbox{\hyperlink{namespaceWebApp_1_1WhooshUI_a7fbf1e78f5de3805fb6cd28b78553df4}{searchUI}}()}
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00127}00127 }
+\DoxyCodeLine{\Hypertarget{WhooshUI_8py_source_l00128}00128 }
+
+\end{DoxyCode}

@@ -1,0 +1,280 @@
+\hypertarget{namespacebenchmark}{}\doxysection{benchmark Namespace Reference}
+\label{namespacebenchmark}\index{benchmark@{benchmark}}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \mbox{\hyperlink{namespacebenchmark_a340ad747c3ddba1e27d167f8275878ca}{create\+\_\+plot\+\_\+directories}} ()
+\begin{DoxyCompactList}\small\item\em Create plot directories if they don\textquotesingle{}t exist. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespacebenchmark_a0fce438733cdf2a43de4ef5a47423996}{plot\+\_\+precision\+\_\+recall\+\_\+metrics}} (engine\+\_\+metrics, engine\+\_\+name, k\+\_\+values)
+\begin{DoxyCompactList}\small\item\em Generate and save precision-\/recall plots for an engine using Seaborn. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespacebenchmark_ab0e11565b53bab7de32917f4ad69f476}{plot\+\_\+comparative\+\_\+analysis}} (all\+\_\+results, k\+\_\+values)
+\begin{DoxyCompactList}\small\item\em Generate comparative plots across all search engines. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{namespacebenchmark_ade5dd9f41308d6224b6d887be74eabbf}{PROJECT\+\_\+\+ROOT}} = Path(\+\_\+\+\_\+file\+\_\+\+\_\+).parent.\+parent
+\item 
+\mbox{\hyperlink{namespacebenchmark_ae27e8e984f06b5474f603098252d2fd6}{ENGINES\+\_\+\+AVAILABLE}}
+\item 
+\mbox{\hyperlink{namespacebenchmark_a1e310fb3a4b1c1c27f8c38655a9493c8}{pylucene\+\_\+search\+\_\+documents}}
+\item 
+\mbox{\hyperlink{namespacebenchmark_af9aca4dc2880fdf28a104b7b0c83074a}{pylucene\+\_\+create\+\_\+index}}
+\item 
+\mbox{\hyperlink{namespacebenchmark_a7c54123ae5a870522adf1193167780ee}{pylucene\+\_\+initialize\+\_\+jvm}}
+\item 
+\mbox{\hyperlink{namespacebenchmark_a4b2e344e3a88a98ed34ecc7a387b7b86}{whoosh\+\_\+search\+\_\+documents}}
+\item 
+\mbox{\hyperlink{namespacebenchmark_ac24c73e32a41ee680a070578f6e7b69c}{whoosh\+\_\+create\+\_\+or\+\_\+get\+\_\+index}}
+\item 
+\mbox{\hyperlink{namespacebenchmark_a0c1a166d3c28fbacb24d34ce5dfe275a}{postgres\+\_\+search}}
+\item 
+\mbox{\hyperlink{namespacebenchmark_a727c73066939238c7e6ecc5e2308de3e}{PYLUCENE\+\_\+\+INDEX\+\_\+\+PATH}}
+\item 
+\mbox{\hyperlink{namespacebenchmark_ada01010615f171bd633ddcf061b47e28}{WHOOSH\+\_\+\+INDEX\+\_\+\+PATH}}
+\item 
+\mbox{\hyperlink{namespacebenchmark_a1a9921168dd050dfe4f12f2c58b48e64}{JSON\+\_\+\+DOCS\+\_\+\+FILE}}
+\item 
+\mbox{\hyperlink{namespacebenchmark_af7523f6e23687c3697e52e122d446c91}{PLOTS\+\_\+\+DIR}}
+\item 
+\mbox{\hyperlink{namespacebenchmark_a128073dcb9e2893e8386067738adb28c}{PYLUCENE\+\_\+\+PLOTS\+\_\+\+DIR}}
+\item 
+\mbox{\hyperlink{namespacebenchmark_a06b666565439f085769e7202f349583c}{WHOOSH\+\_\+\+PLOTS\+\_\+\+DIR}}
+\item 
+\mbox{\hyperlink{namespacebenchmark_a144f114e2b4664502c6d3e974d1ba4d8}{POSTGRES\+\_\+\+PLOTS\+\_\+\+DIR}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{namespacebenchmark_a340ad747c3ddba1e27d167f8275878ca}\label{namespacebenchmark_a340ad747c3ddba1e27d167f8275878ca}} 
+\index{benchmark@{benchmark}!create\_plot\_directories@{create\_plot\_directories}}
+\index{create\_plot\_directories@{create\_plot\_directories}!benchmark@{benchmark}}
+\doxysubsubsection{\texorpdfstring{create\_plot\_directories()}{create\_plot\_directories()}}
+{\footnotesize\ttfamily def benchmark.\+create\+\_\+plot\+\_\+directories (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Create plot directories if they don\textquotesingle{}t exist. 
+
+Creates directory structure for storing engine-\/specific and comparative plots \begin{DoxyReturn}{Returns}
+None 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{benchmark_8py_source_l00057}{57}} of file \mbox{\hyperlink{benchmark_8py_source}{benchmark.\+py}}.
+
+\mbox{\Hypertarget{namespacebenchmark_ab0e11565b53bab7de32917f4ad69f476}\label{namespacebenchmark_ab0e11565b53bab7de32917f4ad69f476}} 
+\index{benchmark@{benchmark}!plot\_comparative\_analysis@{plot\_comparative\_analysis}}
+\index{plot\_comparative\_analysis@{plot\_comparative\_analysis}!benchmark@{benchmark}}
+\doxysubsubsection{\texorpdfstring{plot\_comparative\_analysis()}{plot\_comparative\_analysis()}}
+{\footnotesize\ttfamily def benchmark.\+plot\+\_\+comparative\+\_\+analysis (\begin{DoxyParamCaption}\item[{}]{all\+\_\+results,  }\item[{}]{k\+\_\+values }\end{DoxyParamCaption})}
+
+
+
+Generate comparative plots across all search engines. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em all\+\_\+results} & Dictionary containing aggregated results for all engines \\
+\hline
+{\em k\+\_\+values} & List of k values used for evaluation\\
+\hline
+\end{DoxyParams}
+Creates comparative visualizations including\+:
+\begin{DoxyItemize}
+\item Precision and recall comparison bar charts
+\item MAP comparison across engines
+\item Response time comparison
+\item Performance heatmap \begin{DoxyReturn}{Returns}
+None 
+\end{DoxyReturn}
+
+\end{DoxyItemize}
+
+Definition at line \mbox{\hyperlink{benchmark_8py_source_l00204}{204}} of file \mbox{\hyperlink{benchmark_8py_source}{benchmark.\+py}}.
+
+\mbox{\Hypertarget{namespacebenchmark_a0fce438733cdf2a43de4ef5a47423996}\label{namespacebenchmark_a0fce438733cdf2a43de4ef5a47423996}} 
+\index{benchmark@{benchmark}!plot\_precision\_recall\_metrics@{plot\_precision\_recall\_metrics}}
+\index{plot\_precision\_recall\_metrics@{plot\_precision\_recall\_metrics}!benchmark@{benchmark}}
+\doxysubsubsection{\texorpdfstring{plot\_precision\_recall\_metrics()}{plot\_precision\_recall\_metrics()}}
+{\footnotesize\ttfamily def benchmark.\+plot\+\_\+precision\+\_\+recall\+\_\+metrics (\begin{DoxyParamCaption}\item[{}]{engine\+\_\+metrics,  }\item[{}]{engine\+\_\+name,  }\item[{}]{k\+\_\+values }\end{DoxyParamCaption})}
+
+
+
+Generate and save precision-\/recall plots for an engine using Seaborn. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em engine\+\_\+metrics} & Dictionary containing metrics data for the engine \\
+\hline
+{\em engine\+\_\+name} & Name of the search engine (Py\+Lucene, Whoosh, Postgre\+SQL) \\
+\hline
+{\em k\+\_\+values} & List of k values used for P@k and R@k calculations\\
+\hline
+\end{DoxyParams}
+Creates box plots, bar plots, histograms and scatter plots for\+:
+\begin{DoxyItemize}
+\item Precision@k distribution and means
+\item Recall@k distribution and means ~\newline
+
+\item Average Precision distribution
+\item Response time analysis \begin{DoxyReturn}{Returns}
+None 
+\end{DoxyReturn}
+
+\end{DoxyItemize}
+
+Definition at line \mbox{\hyperlink{benchmark_8py_source_l00067}{67}} of file \mbox{\hyperlink{benchmark_8py_source}{benchmark.\+py}}.
+
+
+
+\doxysubsection{Variable Documentation}
+\mbox{\Hypertarget{namespacebenchmark_ae27e8e984f06b5474f603098252d2fd6}\label{namespacebenchmark_ae27e8e984f06b5474f603098252d2fd6}} 
+\index{benchmark@{benchmark}!ENGINES\_AVAILABLE@{ENGINES\_AVAILABLE}}
+\index{ENGINES\_AVAILABLE@{ENGINES\_AVAILABLE}!benchmark@{benchmark}}
+\doxysubsubsection{\texorpdfstring{ENGINES\_AVAILABLE}{ENGINES\_AVAILABLE}}
+{\footnotesize\ttfamily benchmark.\+ENGINES\+\_\+\+AVAILABLE}
+
+
+
+Definition at line \mbox{\hyperlink{benchmark_8py_source_l00033}{33}} of file \mbox{\hyperlink{benchmark_8py_source}{benchmark.\+py}}.
+
+\mbox{\Hypertarget{namespacebenchmark_a1a9921168dd050dfe4f12f2c58b48e64}\label{namespacebenchmark_a1a9921168dd050dfe4f12f2c58b48e64}} 
+\index{benchmark@{benchmark}!JSON\_DOCS\_FILE@{JSON\_DOCS\_FILE}}
+\index{JSON\_DOCS\_FILE@{JSON\_DOCS\_FILE}!benchmark@{benchmark}}
+\doxysubsubsection{\texorpdfstring{JSON\_DOCS\_FILE}{JSON\_DOCS\_FILE}}
+{\footnotesize\ttfamily benchmark.\+JSON\+\_\+\+DOCS\+\_\+\+FILE}
+
+
+
+Definition at line \mbox{\hyperlink{benchmark_8py_source_l00049}{49}} of file \mbox{\hyperlink{benchmark_8py_source}{benchmark.\+py}}.
+
+\mbox{\Hypertarget{namespacebenchmark_af7523f6e23687c3697e52e122d446c91}\label{namespacebenchmark_af7523f6e23687c3697e52e122d446c91}} 
+\index{benchmark@{benchmark}!PLOTS\_DIR@{PLOTS\_DIR}}
+\index{PLOTS\_DIR@{PLOTS\_DIR}!benchmark@{benchmark}}
+\doxysubsubsection{\texorpdfstring{PLOTS\_DIR}{PLOTS\_DIR}}
+{\footnotesize\ttfamily benchmark.\+PLOTS\+\_\+\+DIR}
+
+
+
+Definition at line \mbox{\hyperlink{benchmark_8py_source_l00052}{52}} of file \mbox{\hyperlink{benchmark_8py_source}{benchmark.\+py}}.
+
+\mbox{\Hypertarget{namespacebenchmark_a144f114e2b4664502c6d3e974d1ba4d8}\label{namespacebenchmark_a144f114e2b4664502c6d3e974d1ba4d8}} 
+\index{benchmark@{benchmark}!POSTGRES\_PLOTS\_DIR@{POSTGRES\_PLOTS\_DIR}}
+\index{POSTGRES\_PLOTS\_DIR@{POSTGRES\_PLOTS\_DIR}!benchmark@{benchmark}}
+\doxysubsubsection{\texorpdfstring{POSTGRES\_PLOTS\_DIR}{POSTGRES\_PLOTS\_DIR}}
+{\footnotesize\ttfamily benchmark.\+POSTGRES\+\_\+\+PLOTS\+\_\+\+DIR}
+
+
+
+Definition at line \mbox{\hyperlink{benchmark_8py_source_l00055}{55}} of file \mbox{\hyperlink{benchmark_8py_source}{benchmark.\+py}}.
+
+\mbox{\Hypertarget{namespacebenchmark_a0c1a166d3c28fbacb24d34ce5dfe275a}\label{namespacebenchmark_a0c1a166d3c28fbacb24d34ce5dfe275a}} 
+\index{benchmark@{benchmark}!postgres\_search@{postgres\_search}}
+\index{postgres\_search@{postgres\_search}!benchmark@{benchmark}}
+\doxysubsubsection{\texorpdfstring{postgres\_search}{postgres\_search}}
+{\footnotesize\ttfamily benchmark.\+postgres\+\_\+search}
+
+
+
+Definition at line \mbox{\hyperlink{benchmark_8py_source_l00041}{41}} of file \mbox{\hyperlink{benchmark_8py_source}{benchmark.\+py}}.
+
+\mbox{\Hypertarget{namespacebenchmark_ade5dd9f41308d6224b6d887be74eabbf}\label{namespacebenchmark_ade5dd9f41308d6224b6d887be74eabbf}} 
+\index{benchmark@{benchmark}!PROJECT\_ROOT@{PROJECT\_ROOT}}
+\index{PROJECT\_ROOT@{PROJECT\_ROOT}!benchmark@{benchmark}}
+\doxysubsubsection{\texorpdfstring{PROJECT\_ROOT}{PROJECT\_ROOT}}
+{\footnotesize\ttfamily benchmark.\+PROJECT\+\_\+\+ROOT = Path(\+\_\+\+\_\+file\+\_\+\+\_\+).parent.\+parent}
+
+
+
+Definition at line \mbox{\hyperlink{benchmark_8py_source_l00017}{17}} of file \mbox{\hyperlink{benchmark_8py_source}{benchmark.\+py}}.
+
+\mbox{\Hypertarget{namespacebenchmark_af9aca4dc2880fdf28a104b7b0c83074a}\label{namespacebenchmark_af9aca4dc2880fdf28a104b7b0c83074a}} 
+\index{benchmark@{benchmark}!pylucene\_create\_index@{pylucene\_create\_index}}
+\index{pylucene\_create\_index@{pylucene\_create\_index}!benchmark@{benchmark}}
+\doxysubsubsection{\texorpdfstring{pylucene\_create\_index}{pylucene\_create\_index}}
+{\footnotesize\ttfamily benchmark.\+pylucene\+\_\+create\+\_\+index}
+
+
+
+Definition at line \mbox{\hyperlink{benchmark_8py_source_l00039}{39}} of file \mbox{\hyperlink{benchmark_8py_source}{benchmark.\+py}}.
+
+\mbox{\Hypertarget{namespacebenchmark_a727c73066939238c7e6ecc5e2308de3e}\label{namespacebenchmark_a727c73066939238c7e6ecc5e2308de3e}} 
+\index{benchmark@{benchmark}!PYLUCENE\_INDEX\_PATH@{PYLUCENE\_INDEX\_PATH}}
+\index{PYLUCENE\_INDEX\_PATH@{PYLUCENE\_INDEX\_PATH}!benchmark@{benchmark}}
+\doxysubsubsection{\texorpdfstring{PYLUCENE\_INDEX\_PATH}{PYLUCENE\_INDEX\_PATH}}
+{\footnotesize\ttfamily benchmark.\+PYLUCENE\+\_\+\+INDEX\+\_\+\+PATH}
+
+
+
+Definition at line \mbox{\hyperlink{benchmark_8py_source_l00047}{47}} of file \mbox{\hyperlink{benchmark_8py_source}{benchmark.\+py}}.
+
+\mbox{\Hypertarget{namespacebenchmark_a7c54123ae5a870522adf1193167780ee}\label{namespacebenchmark_a7c54123ae5a870522adf1193167780ee}} 
+\index{benchmark@{benchmark}!pylucene\_initialize\_jvm@{pylucene\_initialize\_jvm}}
+\index{pylucene\_initialize\_jvm@{pylucene\_initialize\_jvm}!benchmark@{benchmark}}
+\doxysubsubsection{\texorpdfstring{pylucene\_initialize\_jvm}{pylucene\_initialize\_jvm}}
+{\footnotesize\ttfamily benchmark.\+pylucene\+\_\+initialize\+\_\+jvm}
+
+
+
+Definition at line \mbox{\hyperlink{benchmark_8py_source_l00039}{39}} of file \mbox{\hyperlink{benchmark_8py_source}{benchmark.\+py}}.
+
+\mbox{\Hypertarget{namespacebenchmark_a128073dcb9e2893e8386067738adb28c}\label{namespacebenchmark_a128073dcb9e2893e8386067738adb28c}} 
+\index{benchmark@{benchmark}!PYLUCENE\_PLOTS\_DIR@{PYLUCENE\_PLOTS\_DIR}}
+\index{PYLUCENE\_PLOTS\_DIR@{PYLUCENE\_PLOTS\_DIR}!benchmark@{benchmark}}
+\doxysubsubsection{\texorpdfstring{PYLUCENE\_PLOTS\_DIR}{PYLUCENE\_PLOTS\_DIR}}
+{\footnotesize\ttfamily benchmark.\+PYLUCENE\+\_\+\+PLOTS\+\_\+\+DIR}
+
+
+
+Definition at line \mbox{\hyperlink{benchmark_8py_source_l00053}{53}} of file \mbox{\hyperlink{benchmark_8py_source}{benchmark.\+py}}.
+
+\mbox{\Hypertarget{namespacebenchmark_a1e310fb3a4b1c1c27f8c38655a9493c8}\label{namespacebenchmark_a1e310fb3a4b1c1c27f8c38655a9493c8}} 
+\index{benchmark@{benchmark}!pylucene\_search\_documents@{pylucene\_search\_documents}}
+\index{pylucene\_search\_documents@{pylucene\_search\_documents}!benchmark@{benchmark}}
+\doxysubsubsection{\texorpdfstring{pylucene\_search\_documents}{pylucene\_search\_documents}}
+{\footnotesize\ttfamily benchmark.\+pylucene\+\_\+search\+\_\+documents}
+
+
+
+Definition at line \mbox{\hyperlink{benchmark_8py_source_l00039}{39}} of file \mbox{\hyperlink{benchmark_8py_source}{benchmark.\+py}}.
+
+\mbox{\Hypertarget{namespacebenchmark_ac24c73e32a41ee680a070578f6e7b69c}\label{namespacebenchmark_ac24c73e32a41ee680a070578f6e7b69c}} 
+\index{benchmark@{benchmark}!whoosh\_create\_or\_get\_index@{whoosh\_create\_or\_get\_index}}
+\index{whoosh\_create\_or\_get\_index@{whoosh\_create\_or\_get\_index}!benchmark@{benchmark}}
+\doxysubsubsection{\texorpdfstring{whoosh\_create\_or\_get\_index}{whoosh\_create\_or\_get\_index}}
+{\footnotesize\ttfamily benchmark.\+whoosh\+\_\+create\+\_\+or\+\_\+get\+\_\+index}
+
+
+
+Definition at line \mbox{\hyperlink{benchmark_8py_source_l00040}{40}} of file \mbox{\hyperlink{benchmark_8py_source}{benchmark.\+py}}.
+
+\mbox{\Hypertarget{namespacebenchmark_ada01010615f171bd633ddcf061b47e28}\label{namespacebenchmark_ada01010615f171bd633ddcf061b47e28}} 
+\index{benchmark@{benchmark}!WHOOSH\_INDEX\_PATH@{WHOOSH\_INDEX\_PATH}}
+\index{WHOOSH\_INDEX\_PATH@{WHOOSH\_INDEX\_PATH}!benchmark@{benchmark}}
+\doxysubsubsection{\texorpdfstring{WHOOSH\_INDEX\_PATH}{WHOOSH\_INDEX\_PATH}}
+{\footnotesize\ttfamily benchmark.\+WHOOSH\+\_\+\+INDEX\+\_\+\+PATH}
+
+
+
+Definition at line \mbox{\hyperlink{benchmark_8py_source_l00048}{48}} of file \mbox{\hyperlink{benchmark_8py_source}{benchmark.\+py}}.
+
+\mbox{\Hypertarget{namespacebenchmark_a06b666565439f085769e7202f349583c}\label{namespacebenchmark_a06b666565439f085769e7202f349583c}} 
+\index{benchmark@{benchmark}!WHOOSH\_PLOTS\_DIR@{WHOOSH\_PLOTS\_DIR}}
+\index{WHOOSH\_PLOTS\_DIR@{WHOOSH\_PLOTS\_DIR}!benchmark@{benchmark}}
+\doxysubsubsection{\texorpdfstring{WHOOSH\_PLOTS\_DIR}{WHOOSH\_PLOTS\_DIR}}
+{\footnotesize\ttfamily benchmark.\+WHOOSH\+\_\+\+PLOTS\+\_\+\+DIR}
+
+
+
+Definition at line \mbox{\hyperlink{benchmark_8py_source_l00054}{54}} of file \mbox{\hyperlink{benchmark_8py_source}{benchmark.\+py}}.
+
+\mbox{\Hypertarget{namespacebenchmark_a4b2e344e3a88a98ed34ecc7a387b7b86}\label{namespacebenchmark_a4b2e344e3a88a98ed34ecc7a387b7b86}} 
+\index{benchmark@{benchmark}!whoosh\_search\_documents@{whoosh\_search\_documents}}
+\index{whoosh\_search\_documents@{whoosh\_search\_documents}!benchmark@{benchmark}}
+\doxysubsubsection{\texorpdfstring{whoosh\_search\_documents}{whoosh\_search\_documents}}
+{\footnotesize\ttfamily benchmark.\+whoosh\+\_\+search\+\_\+documents}
+
+
+
+Definition at line \mbox{\hyperlink{benchmark_8py_source_l00040}{40}} of file \mbox{\hyperlink{benchmark_8py_source}{benchmark.\+py}}.
+

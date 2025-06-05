@@ -1,0 +1,88 @@
+\hypertarget{namespaceWebApp_1_1PyLuceneUI}{}\doxysection{Web\+App.\+Py\+Lucene\+UI Namespace Reference}
+\label{namespaceWebApp_1_1PyLuceneUI}\index{WebApp.PyLuceneUI@{WebApp.PyLuceneUI}}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \mbox{\hyperlink{namespaceWebApp_1_1PyLuceneUI_a7788df12bea190a9874c60ef14a9ba92}{search\+UI}} ()
+\begin{DoxyCompactList}\small\item\em Main Streamlit UI function for Py\+Lucene search interface. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{namespaceWebApp_1_1PyLuceneUI_ab016681c134b508ade60f044828cd7d5}{project\+\_\+root}} = Path(\+\_\+\+\_\+file\+\_\+\+\_\+).parent.\+parent
+\item 
+\mbox{\hyperlink{namespaceWebApp_1_1PyLuceneUI_aef277dbf6d8fa0b42b14fe21998e5f3b}{json\+\_\+file}} = str(\mbox{\hyperlink{namespaceWebApp_1_1PyLuceneUI_ab016681c134b508ade60f044828cd7d5}{project\+\_\+root}} / \char`\"{}Web\+Scraping/results/Docs\+\_\+cleaned.\+json\char`\"{})
+\item 
+\mbox{\hyperlink{namespaceWebApp_1_1PyLuceneUI_ad6614b9695eee7b6635c978d93ddd4ac}{directory}}
+\item 
+\mbox{\hyperlink{namespaceWebApp_1_1PyLuceneUI_a87d9ebedfc935e4610c85f0e70f599f7}{searcher}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{namespaceWebApp_1_1PyLuceneUI_a7788df12bea190a9874c60ef14a9ba92}\label{namespaceWebApp_1_1PyLuceneUI_a7788df12bea190a9874c60ef14a9ba92}} 
+\index{WebApp.PyLuceneUI@{WebApp.PyLuceneUI}!searchUI@{searchUI}}
+\index{searchUI@{searchUI}!WebApp.PyLuceneUI@{WebApp.PyLuceneUI}}
+\doxysubsubsection{\texorpdfstring{searchUI()}{searchUI()}}
+{\footnotesize\ttfamily def Web\+App.\+Py\+Lucene\+UI.\+search\+UI (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Main Streamlit UI function for Py\+Lucene search interface. 
+
+Creates complete web interface including\+:
+\begin{DoxyItemize}
+\item JVM initialization and index management
+\item Search field configuration and filters
+\item Document ranking type selection (TF\+\_\+\+IDF, BM25)
+\item Results display with document scores and links
+\item Integration with Py\+Lucene precision-\/recall metrics \begin{DoxyReturn}{Returns}
+None 
+\end{DoxyReturn}
+
+\end{DoxyItemize}
+
+Definition at line \mbox{\hyperlink{PyLuceneUI_8py_source_l00027}{27}} of file \mbox{\hyperlink{PyLuceneUI_8py_source}{Py\+Lucene\+UI.\+py}}.
+
+
+
+\doxysubsection{Variable Documentation}
+\mbox{\Hypertarget{namespaceWebApp_1_1PyLuceneUI_ad6614b9695eee7b6635c978d93ddd4ac}\label{namespaceWebApp_1_1PyLuceneUI_ad6614b9695eee7b6635c978d93ddd4ac}} 
+\index{WebApp.PyLuceneUI@{WebApp.PyLuceneUI}!directory@{directory}}
+\index{directory@{directory}!WebApp.PyLuceneUI@{WebApp.PyLuceneUI}}
+\doxysubsubsection{\texorpdfstring{directory}{directory}}
+{\footnotesize\ttfamily Web\+App.\+Py\+Lucene\+UI.\+directory}
+
+
+
+Definition at line \mbox{\hyperlink{PyLuceneUI_8py_source_l00025}{25}} of file \mbox{\hyperlink{PyLuceneUI_8py_source}{Py\+Lucene\+UI.\+py}}.
+
+\mbox{\Hypertarget{namespaceWebApp_1_1PyLuceneUI_aef277dbf6d8fa0b42b14fe21998e5f3b}\label{namespaceWebApp_1_1PyLuceneUI_aef277dbf6d8fa0b42b14fe21998e5f3b}} 
+\index{WebApp.PyLuceneUI@{WebApp.PyLuceneUI}!json\_file@{json\_file}}
+\index{json\_file@{json\_file}!WebApp.PyLuceneUI@{WebApp.PyLuceneUI}}
+\doxysubsubsection{\texorpdfstring{json\_file}{json\_file}}
+{\footnotesize\ttfamily Web\+App.\+Py\+Lucene\+UI.\+json\+\_\+file = str(\mbox{\hyperlink{namespaceWebApp_1_1PyLuceneUI_ab016681c134b508ade60f044828cd7d5}{project\+\_\+root}} / \char`\"{}Web\+Scraping/results/Docs\+\_\+cleaned.\+json\char`\"{})}
+
+
+
+Definition at line \mbox{\hyperlink{PyLuceneUI_8py_source_l00020}{20}} of file \mbox{\hyperlink{PyLuceneUI_8py_source}{Py\+Lucene\+UI.\+py}}.
+
+\mbox{\Hypertarget{namespaceWebApp_1_1PyLuceneUI_ab016681c134b508ade60f044828cd7d5}\label{namespaceWebApp_1_1PyLuceneUI_ab016681c134b508ade60f044828cd7d5}} 
+\index{WebApp.PyLuceneUI@{WebApp.PyLuceneUI}!project\_root@{project\_root}}
+\index{project\_root@{project\_root}!WebApp.PyLuceneUI@{WebApp.PyLuceneUI}}
+\doxysubsubsection{\texorpdfstring{project\_root}{project\_root}}
+{\footnotesize\ttfamily Web\+App.\+Py\+Lucene\+UI.\+project\+\_\+root = Path(\+\_\+\+\_\+file\+\_\+\+\_\+).parent.\+parent}
+
+
+
+Definition at line \mbox{\hyperlink{PyLuceneUI_8py_source_l00019}{19}} of file \mbox{\hyperlink{PyLuceneUI_8py_source}{Py\+Lucene\+UI.\+py}}.
+
+\mbox{\Hypertarget{namespaceWebApp_1_1PyLuceneUI_a87d9ebedfc935e4610c85f0e70f599f7}\label{namespaceWebApp_1_1PyLuceneUI_a87d9ebedfc935e4610c85f0e70f599f7}} 
+\index{WebApp.PyLuceneUI@{WebApp.PyLuceneUI}!searcher@{searcher}}
+\index{searcher@{searcher}!WebApp.PyLuceneUI@{WebApp.PyLuceneUI}}
+\doxysubsubsection{\texorpdfstring{searcher}{searcher}}
+{\footnotesize\ttfamily Web\+App.\+Py\+Lucene\+UI.\+searcher}
+
+
+
+Definition at line \mbox{\hyperlink{PyLuceneUI_8py_source_l00025}{25}} of file \mbox{\hyperlink{PyLuceneUI_8py_source}{Py\+Lucene\+UI.\+py}}.
+

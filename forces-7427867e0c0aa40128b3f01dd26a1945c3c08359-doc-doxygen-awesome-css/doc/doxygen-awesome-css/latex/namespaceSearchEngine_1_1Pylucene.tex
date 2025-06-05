@@ -1,0 +1,235 @@
+\hypertarget{namespaceSearchEngine_1_1Pylucene}{}\doxysection{Search\+Engine.\+Pylucene Namespace Reference}
+\label{namespaceSearchEngine_1_1Pylucene}\index{SearchEngine.Pylucene@{SearchEngine.Pylucene}}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \mbox{\hyperlink{namespaceSearchEngine_1_1Pylucene_a40df39a61a5f582072b7e1867b736617}{initialize\+\_\+jvm}} ()
+\begin{DoxyCompactList}\small\item\em Initialize the Java Virtual Machine for Py\+Lucene. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceSearchEngine_1_1Pylucene_a661ac4621b2de4cfa32990159e3a77d7}{calculate\+\_\+precision\+\_\+recall}} (searcher, query\+\_\+string, ranking\+\_\+type=\char`\"{}BM25\char`\"{}, threshold=0.\+5)
+\begin{DoxyCompactList}\small\item\em Calculate precision and recall metrics for a given query. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceSearchEngine_1_1Pylucene_a263c48dafaf0fdcbe0da28b1e3635c7d}{search\+\_\+documents}} (searcher, title\+\_\+true, abstract\+\_\+true, corpus\+\_\+true, query\+\_\+string, ranking\+\_\+type)
+\begin{DoxyCompactList}\small\item\em Main search function for Py\+Lucene engine. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceSearchEngine_1_1Pylucene_aea6b440cb2dd44592a85c83acbf453a0}{get\+\_\+wordnet\+\_\+pos}} (tag)
+\begin{DoxyCompactList}\small\item\em Map NLTK POS tags to Word\+Net POS tags for lemmatization. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceSearchEngine_1_1Pylucene_aa4a163372602a4ec80f08858147c04e8}{expand\+\_\+query}} (query\+\_\+string)
+\begin{DoxyCompactList}\small\item\em Expand natural language query using NLP techniques. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceSearchEngine_1_1Pylucene_a7c5adb0f272abc3b26e9deace817a315}{index\+\_\+exists}} (index\+\_\+path)
+\begin{DoxyCompactList}\small\item\em Check if a valid Lucene index exists at the specified path. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceSearchEngine_1_1Pylucene_a52bc027d18b16aae3e162458cba18d9b}{create\+\_\+index}} ()
+\begin{DoxyCompactList}\small\item\em Create or open Py\+Lucene index for document searching. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{namespaceSearchEngine_1_1Pylucene_a108fb1faf2e6b1d1d8682556784f1059}{project\+\_\+root}} = Path(\+\_\+\+\_\+file\+\_\+\+\_\+).parent.\+parent
+\item 
+\mbox{\hyperlink{namespaceSearchEngine_1_1Pylucene_a1ad96eff54613e8ac01082220661f3f8}{json\+\_\+file}} = str(\mbox{\hyperlink{namespaceSearchEngine_1_1Pylucene_a108fb1faf2e6b1d1d8682556784f1059}{project\+\_\+root}} / \char`\"{}Web\+Scraping/results/Docs\+\_\+cleaned.\+json\char`\"{})
+\item 
+\mbox{\hyperlink{namespaceSearchEngine_1_1Pylucene_abc39da85d7d43abcab6b4f22e7c4e316}{index\+\_\+file}} = str(\mbox{\hyperlink{namespaceSearchEngine_1_1Pylucene_a108fb1faf2e6b1d1d8682556784f1059}{project\+\_\+root}} / \char`\"{}Search\+Engine/index\char`\"{})
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{namespaceSearchEngine_1_1Pylucene_a661ac4621b2de4cfa32990159e3a77d7}\label{namespaceSearchEngine_1_1Pylucene_a661ac4621b2de4cfa32990159e3a77d7}} 
+\index{SearchEngine.Pylucene@{SearchEngine.Pylucene}!calculate\_precision\_recall@{calculate\_precision\_recall}}
+\index{calculate\_precision\_recall@{calculate\_precision\_recall}!SearchEngine.Pylucene@{SearchEngine.Pylucene}}
+\doxysubsubsection{\texorpdfstring{calculate\_precision\_recall()}{calculate\_precision\_recall()}}
+{\footnotesize\ttfamily def Search\+Engine.\+Pylucene.\+calculate\+\_\+precision\+\_\+recall (\begin{DoxyParamCaption}\item[{}]{searcher,  }\item[{}]{query\+\_\+string,  }\item[{}]{ranking\+\_\+type = {\ttfamily \char`\"{}BM25\char`\"{}},  }\item[{}]{threshold = {\ttfamily 0.5} }\end{DoxyParamCaption})}
+
+
+
+Calculate precision and recall metrics for a given query. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em searcher} & The Lucene Index\+Searcher object \\
+\hline
+{\em query\+\_\+string} & The search query string \\
+\hline
+{\em ranking\+\_\+type} & Ranking algorithm to use (\char`\"{}\+BM25\char`\"{} or \char`\"{}\+Classic\char`\"{}) \\
+\hline
+{\em threshold} & Score threshold for relevance determination (default\+: 0.\+5) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Tuple containing (precision\+\_\+values, recall\+\_\+values, normalized\+\_\+scores)
+\end{DoxyReturn}
+Executes search across all fields and calculates precision-\/recall metrics using adaptive threshold based on score distribution 
+
+Definition at line \mbox{\hyperlink{Pylucene_8py_source_l00062}{62}} of file \mbox{\hyperlink{Pylucene_8py_source}{Pylucene.\+py}}.
+
+\mbox{\Hypertarget{namespaceSearchEngine_1_1Pylucene_a52bc027d18b16aae3e162458cba18d9b}\label{namespaceSearchEngine_1_1Pylucene_a52bc027d18b16aae3e162458cba18d9b}} 
+\index{SearchEngine.Pylucene@{SearchEngine.Pylucene}!create\_index@{create\_index}}
+\index{create\_index@{create\_index}!SearchEngine.Pylucene@{SearchEngine.Pylucene}}
+\doxysubsubsection{\texorpdfstring{create\_index()}{create\_index()}}
+{\footnotesize\ttfamily def Search\+Engine.\+Pylucene.\+create\+\_\+index (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Create or open Py\+Lucene index for document searching. 
+
+\begin{DoxyReturn}{Returns}
+Tuple containing (directory, searcher) objects
+\end{DoxyReturn}
+Creates new index if none exists, otherwise opens existing index. Processes documents from JSON file using incremental parsing for memory efficiency. 
+\begin{DoxyExceptions}{Exceptions}
+{\em Exception} & if indexing fails or JVM initialization problems occur \\
+\hline
+\end{DoxyExceptions}
+
+
+Definition at line \mbox{\hyperlink{Pylucene_8py_source_l00369}{369}} of file \mbox{\hyperlink{Pylucene_8py_source}{Pylucene.\+py}}.
+
+\mbox{\Hypertarget{namespaceSearchEngine_1_1Pylucene_aa4a163372602a4ec80f08858147c04e8}\label{namespaceSearchEngine_1_1Pylucene_aa4a163372602a4ec80f08858147c04e8}} 
+\index{SearchEngine.Pylucene@{SearchEngine.Pylucene}!expand\_query@{expand\_query}}
+\index{expand\_query@{expand\_query}!SearchEngine.Pylucene@{SearchEngine.Pylucene}}
+\doxysubsubsection{\texorpdfstring{expand\_query()}{expand\_query()}}
+{\footnotesize\ttfamily def Search\+Engine.\+Pylucene.\+expand\+\_\+query (\begin{DoxyParamCaption}\item[{}]{query\+\_\+string }\end{DoxyParamCaption})}
+
+
+
+Expand natural language query using NLP techniques. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em query\+\_\+string} & The natural language query to expand \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Expanded query string formatted for Lucene
+\end{DoxyReturn}
+Uses YAKE for keyword extraction, NLTK for NLP processing, and Word\+Net for semantic expansion with synonyms, hypernyms, and hyponyms 
+
+Definition at line \mbox{\hyperlink{Pylucene_8py_source_l00256}{256}} of file \mbox{\hyperlink{Pylucene_8py_source}{Pylucene.\+py}}.
+
+\mbox{\Hypertarget{namespaceSearchEngine_1_1Pylucene_aea6b440cb2dd44592a85c83acbf453a0}\label{namespaceSearchEngine_1_1Pylucene_aea6b440cb2dd44592a85c83acbf453a0}} 
+\index{SearchEngine.Pylucene@{SearchEngine.Pylucene}!get\_wordnet\_pos@{get\_wordnet\_pos}}
+\index{get\_wordnet\_pos@{get\_wordnet\_pos}!SearchEngine.Pylucene@{SearchEngine.Pylucene}}
+\doxysubsubsection{\texorpdfstring{get\_wordnet\_pos()}{get\_wordnet\_pos()}}
+{\footnotesize\ttfamily def Search\+Engine.\+Pylucene.\+get\+\_\+wordnet\+\_\+pos (\begin{DoxyParamCaption}\item[{}]{tag }\end{DoxyParamCaption})}
+
+
+
+Map NLTK POS tags to Word\+Net POS tags for lemmatization. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em tag} & NLTK POS tag string \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Word\+Net POS tag constant
+\end{DoxyReturn}
+Converts NLTK part-\/of-\/speech tags to Word\+Net format for accurate lemmatization 
+
+Definition at line \mbox{\hyperlink{Pylucene_8py_source_l00241}{241}} of file \mbox{\hyperlink{Pylucene_8py_source}{Pylucene.\+py}}.
+
+\mbox{\Hypertarget{namespaceSearchEngine_1_1Pylucene_a7c5adb0f272abc3b26e9deace817a315}\label{namespaceSearchEngine_1_1Pylucene_a7c5adb0f272abc3b26e9deace817a315}} 
+\index{SearchEngine.Pylucene@{SearchEngine.Pylucene}!index\_exists@{index\_exists}}
+\index{index\_exists@{index\_exists}!SearchEngine.Pylucene@{SearchEngine.Pylucene}}
+\doxysubsubsection{\texorpdfstring{index\_exists()}{index\_exists()}}
+{\footnotesize\ttfamily def Search\+Engine.\+Pylucene.\+index\+\_\+exists (\begin{DoxyParamCaption}\item[{}]{index\+\_\+path }\end{DoxyParamCaption})}
+
+
+
+Check if a valid Lucene index exists at the specified path. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em index\+\_\+path} & Path to the index directory \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+True if valid index exists, False otherwise
+\end{DoxyReturn}
+Verifies both directory existence and index validity using Directory\+Reader 
+
+Definition at line \mbox{\hyperlink{Pylucene_8py_source_l00356}{356}} of file \mbox{\hyperlink{Pylucene_8py_source}{Pylucene.\+py}}.
+
+\mbox{\Hypertarget{namespaceSearchEngine_1_1Pylucene_a40df39a61a5f582072b7e1867b736617}\label{namespaceSearchEngine_1_1Pylucene_a40df39a61a5f582072b7e1867b736617}} 
+\index{SearchEngine.Pylucene@{SearchEngine.Pylucene}!initialize\_jvm@{initialize\_jvm}}
+\index{initialize\_jvm@{initialize\_jvm}!SearchEngine.Pylucene@{SearchEngine.Pylucene}}
+\doxysubsubsection{\texorpdfstring{initialize\_jvm()}{initialize\_jvm()}}
+{\footnotesize\ttfamily def Search\+Engine.\+Pylucene.\+initialize\+\_\+jvm (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Initialize the Java Virtual Machine for Py\+Lucene. 
+
+Sets up the JVM with headless configuration for server environments. Attaches the current thread to the JVM if it\textquotesingle{}s already initialized. \begin{DoxyReturn}{Returns}
+None 
+\end{DoxyReturn}
+
+\begin{DoxyExceptions}{Exceptions}
+{\em Exception} & if JVM initialization fails \\
+\hline
+\end{DoxyExceptions}
+
+
+Definition at line \mbox{\hyperlink{Pylucene_8py_source_l00048}{48}} of file \mbox{\hyperlink{Pylucene_8py_source}{Pylucene.\+py}}.
+
+\mbox{\Hypertarget{namespaceSearchEngine_1_1Pylucene_a263c48dafaf0fdcbe0da28b1e3635c7d}\label{namespaceSearchEngine_1_1Pylucene_a263c48dafaf0fdcbe0da28b1e3635c7d}} 
+\index{SearchEngine.Pylucene@{SearchEngine.Pylucene}!search\_documents@{search\_documents}}
+\index{search\_documents@{search\_documents}!SearchEngine.Pylucene@{SearchEngine.Pylucene}}
+\doxysubsubsection{\texorpdfstring{search\_documents()}{search\_documents()}}
+{\footnotesize\ttfamily def Search\+Engine.\+Pylucene.\+search\+\_\+documents (\begin{DoxyParamCaption}\item[{}]{searcher,  }\item[{}]{title\+\_\+true,  }\item[{}]{abstract\+\_\+true,  }\item[{}]{corpus\+\_\+true,  }\item[{}]{query\+\_\+string,  }\item[{}]{ranking\+\_\+type }\end{DoxyParamCaption})}
+
+
+
+Main search function for Py\+Lucene engine. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em searcher} & The Lucene Index\+Searcher object \\
+\hline
+{\em title\+\_\+true} & Boolean flag to search in title field \\
+\hline
+{\em abstract\+\_\+true} & Boolean flag to search in abstract field ~\newline
+ \\
+\hline
+{\em corpus\+\_\+true} & Boolean flag to search in corpus field \\
+\hline
+{\em query\+\_\+string} & The search query string \\
+\hline
+{\em ranking\+\_\+type} & Ranking algorithm to use (\char`\"{}\+BM25\char`\"{} or \char`\"{}\+TFIDF\char`\"{}) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Tuple containing (results, precision\+\_\+recall\+\_\+data, plot\+\_\+path)
+\end{DoxyReturn}
+Supports both field-\/specific and checkbox-\/based searches with logical operators (AND/\+OR) across all fields. Includes precision-\/recall analysis. 
+
+Definition at line \mbox{\hyperlink{Pylucene_8py_source_l00182}{182}} of file \mbox{\hyperlink{Pylucene_8py_source}{Pylucene.\+py}}.
+
+
+
+\doxysubsection{Variable Documentation}
+\mbox{\Hypertarget{namespaceSearchEngine_1_1Pylucene_abc39da85d7d43abcab6b4f22e7c4e316}\label{namespaceSearchEngine_1_1Pylucene_abc39da85d7d43abcab6b4f22e7c4e316}} 
+\index{SearchEngine.Pylucene@{SearchEngine.Pylucene}!index\_file@{index\_file}}
+\index{index\_file@{index\_file}!SearchEngine.Pylucene@{SearchEngine.Pylucene}}
+\doxysubsubsection{\texorpdfstring{index\_file}{index\_file}}
+{\footnotesize\ttfamily Search\+Engine.\+Pylucene.\+index\+\_\+file = str(\mbox{\hyperlink{namespaceSearchEngine_1_1Pylucene_a108fb1faf2e6b1d1d8682556784f1059}{project\+\_\+root}} / \char`\"{}Search\+Engine/index\char`\"{})}
+
+
+
+Definition at line \mbox{\hyperlink{Pylucene_8py_source_l00025}{25}} of file \mbox{\hyperlink{Pylucene_8py_source}{Pylucene.\+py}}.
+
+\mbox{\Hypertarget{namespaceSearchEngine_1_1Pylucene_a1ad96eff54613e8ac01082220661f3f8}\label{namespaceSearchEngine_1_1Pylucene_a1ad96eff54613e8ac01082220661f3f8}} 
+\index{SearchEngine.Pylucene@{SearchEngine.Pylucene}!json\_file@{json\_file}}
+\index{json\_file@{json\_file}!SearchEngine.Pylucene@{SearchEngine.Pylucene}}
+\doxysubsubsection{\texorpdfstring{json\_file}{json\_file}}
+{\footnotesize\ttfamily Search\+Engine.\+Pylucene.\+json\+\_\+file = str(\mbox{\hyperlink{namespaceSearchEngine_1_1Pylucene_a108fb1faf2e6b1d1d8682556784f1059}{project\+\_\+root}} / \char`\"{}Web\+Scraping/results/Docs\+\_\+cleaned.\+json\char`\"{})}
+
+
+
+Definition at line \mbox{\hyperlink{Pylucene_8py_source_l00024}{24}} of file \mbox{\hyperlink{Pylucene_8py_source}{Pylucene.\+py}}.
+
+\mbox{\Hypertarget{namespaceSearchEngine_1_1Pylucene_a108fb1faf2e6b1d1d8682556784f1059}\label{namespaceSearchEngine_1_1Pylucene_a108fb1faf2e6b1d1d8682556784f1059}} 
+\index{SearchEngine.Pylucene@{SearchEngine.Pylucene}!project\_root@{project\_root}}
+\index{project\_root@{project\_root}!SearchEngine.Pylucene@{SearchEngine.Pylucene}}
+\doxysubsubsection{\texorpdfstring{project\_root}{project\_root}}
+{\footnotesize\ttfamily Search\+Engine.\+Pylucene.\+project\+\_\+root = Path(\+\_\+\+\_\+file\+\_\+\+\_\+).parent.\+parent}
+
+
+
+Definition at line \mbox{\hyperlink{Pylucene_8py_source_l00023}{23}} of file \mbox{\hyperlink{Pylucene_8py_source}{Pylucene.\+py}}.
+

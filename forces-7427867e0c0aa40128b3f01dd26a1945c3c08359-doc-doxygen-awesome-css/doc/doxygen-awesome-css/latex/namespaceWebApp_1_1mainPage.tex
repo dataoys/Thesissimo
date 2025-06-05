@@ -1,0 +1,62 @@
+\hypertarget{namespaceWebApp_1_1mainPage}{}\doxysection{Web\+App.\+main\+Page Namespace Reference}
+\label{namespaceWebApp_1_1mainPage}\index{WebApp.mainPage@{WebApp.mainPage}}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \mbox{\hyperlink{namespaceWebApp_1_1mainPage_aee29a82f64112df9f7f586cd6852a97a}{esegui\+\_\+streamlit}} (motore)
+\begin{DoxyCompactList}\small\item\em Launch specific search engine UI application. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+list \mbox{\hyperlink{namespaceWebApp_1_1mainPage_ac8d74291bf9e71538191cb9605ee89d5}{motori\+\_\+di\+\_\+ricerca}} = \mbox{[}\char`\"{}Postgres\char`\"{}, \char`\"{}Whoosh\char`\"{}, \char`\"{}Py\+Lucene\char`\"{}\mbox{]}
+\item 
+\mbox{\hyperlink{namespaceWebApp_1_1mainPage_ae3a8df3d9960d0ac8010f31993bd3b9f}{scelta}} = st.\+selectbox(\char`\"{}Scegli un motore di ricerca\+:\char`\"{}, motori\+\_\+di\+\_\+ricerca)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{namespaceWebApp_1_1mainPage_aee29a82f64112df9f7f586cd6852a97a}\label{namespaceWebApp_1_1mainPage_aee29a82f64112df9f7f586cd6852a97a}} 
+\index{WebApp.mainPage@{WebApp.mainPage}!esegui\_streamlit@{esegui\_streamlit}}
+\index{esegui\_streamlit@{esegui\_streamlit}!WebApp.mainPage@{WebApp.mainPage}}
+\doxysubsubsection{\texorpdfstring{esegui\_streamlit()}{esegui\_streamlit()}}
+{\footnotesize\ttfamily def Web\+App.\+main\+Page.\+esegui\+\_\+streamlit (\begin{DoxyParamCaption}\item[{}]{motore }\end{DoxyParamCaption})}
+
+
+
+Launch specific search engine UI application. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em motore} & String identifier for the chosen search engine\\
+\hline
+\end{DoxyParams}
+Starts subprocess with appropriate Streamlit application based on user selection. Supports Postgre\+SQL, Whoosh, and Py\+Lucene search engines. \begin{DoxyReturn}{Returns}
+None 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{mainPage_8py_source_l00019}{19}} of file \mbox{\hyperlink{mainPage_8py_source}{main\+Page.\+py}}.
+
+
+
+\doxysubsection{Variable Documentation}
+\mbox{\Hypertarget{namespaceWebApp_1_1mainPage_ac8d74291bf9e71538191cb9605ee89d5}\label{namespaceWebApp_1_1mainPage_ac8d74291bf9e71538191cb9605ee89d5}} 
+\index{WebApp.mainPage@{WebApp.mainPage}!motori\_di\_ricerca@{motori\_di\_ricerca}}
+\index{motori\_di\_ricerca@{motori\_di\_ricerca}!WebApp.mainPage@{WebApp.mainPage}}
+\doxysubsubsection{\texorpdfstring{motori\_di\_ricerca}{motori\_di\_ricerca}}
+{\footnotesize\ttfamily list Web\+App.\+main\+Page.\+motori\+\_\+di\+\_\+ricerca = \mbox{[}\char`\"{}Postgres\char`\"{}, \char`\"{}Whoosh\char`\"{}, \char`\"{}Py\+Lucene\char`\"{}\mbox{]}}
+
+
+
+Definition at line \mbox{\hyperlink{mainPage_8py_source_l00014}{14}} of file \mbox{\hyperlink{mainPage_8py_source}{main\+Page.\+py}}.
+
+\mbox{\Hypertarget{namespaceWebApp_1_1mainPage_ae3a8df3d9960d0ac8010f31993bd3b9f}\label{namespaceWebApp_1_1mainPage_ae3a8df3d9960d0ac8010f31993bd3b9f}} 
+\index{WebApp.mainPage@{WebApp.mainPage}!scelta@{scelta}}
+\index{scelta@{scelta}!WebApp.mainPage@{WebApp.mainPage}}
+\doxysubsubsection{\texorpdfstring{scelta}{scelta}}
+{\footnotesize\ttfamily Web\+App.\+main\+Page.\+scelta = st.\+selectbox(\char`\"{}Scegli un motore di ricerca\+:\char`\"{}, motori\+\_\+di\+\_\+ricerca)}
+
+
+
+Definition at line \mbox{\hyperlink{mainPage_8py_source_l00016}{16}} of file \mbox{\hyperlink{mainPage_8py_source}{main\+Page.\+py}}.
+

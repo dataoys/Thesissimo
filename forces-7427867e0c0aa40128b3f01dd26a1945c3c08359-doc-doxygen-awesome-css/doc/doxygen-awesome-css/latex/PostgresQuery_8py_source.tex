@@ -1,0 +1,259 @@
+\hypertarget{PostgresQuery_8py_source}{}\doxysection{Postgres\+Query.\+py}
+\label{PostgresQuery_8py_source}\index{/root/JuriScan/Queries/PostgresQuery.py@{/root/JuriScan/Queries/PostgresQuery.py}}
+\mbox{\hyperlink{PostgresQuery_8py}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00001}\mbox{\hyperlink{namespaceQueries_1_1PostgresQuery}{00001}} \textcolor{keyword}{import} psycopg2 \textcolor{keyword}{as} ps}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00002}00002 \textcolor{keyword}{from} pathlib \textcolor{keyword}{import} Path}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00003}00003 \textcolor{keyword}{import} ijson}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00004}00004 }
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00005}00005 \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00006}00006 \textcolor{stringliteral}{Path to the project root directory variable.}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00007}00007 \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00008}\mbox{\hyperlink{namespaceQueries_1_1PostgresQuery_a40453fb53dee546f54636dc9bf12e143}{00008}} project\_root = Path(\_\_file\_\_).parent.parent}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00009}00009 }
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00010}00010 \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00011}00011 \textcolor{stringliteral}{Path to the JSON file containing the documents.}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00012}00012 \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00013}\mbox{\hyperlink{namespaceQueries_1_1PostgresQuery_ac9e933de893770fc9cb57673e8ea4f96}{00013}} FILE\_PATH = str(project\_root / \textcolor{stringliteral}{"{}WebScraping/results/Docs\_cleaned.json"{}})  }
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00014}00014 }
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00015}\mbox{\hyperlink{namespaceQueries_1_1PostgresQuery_a274578a8abb09d445e874a32e9aacb0c}{00015}} \textcolor{keyword}{def }\mbox{\hyperlink{namespaceQueries_1_1PostgresQuery_a274578a8abb09d445e874a32e9aacb0c}{dbConn}}():}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00016}00016     \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00017}00017 \textcolor{stringliteral}{    Database connection function.}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00018}00018 \textcolor{stringliteral}{    "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00019}00019 \textcolor{stringliteral}{    }}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00020}00020 \textcolor{stringliteral}{    }\textcolor{comment}{\#Recuperiamo in modo sicuro la password dal file .env}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00021}00021     \textcolor{comment}{\#password = os.getenv('MY\_SECRET\_PASSWORD')}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00022}00022 }
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00023}00023     \textcolor{comment}{\#connection\_string = f"{}postgres://avnadmin:\{password\}@th-\/eso-\/thesissimo.i.aivencloud.com:15597/defaultdb?sslmode=require"{}}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00024}00024 }
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00025}00025     \textcolor{comment}{\# Connetti al database}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00026}00026     \textcolor{comment}{\#connection = ps.connect(connection\_string)}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00027}00027     \textcolor{comment}{\#return connection}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00028}00028 }
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00029}00029     \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00030}00030         conn = ps.connect(}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00031}00031             dbname=\textcolor{stringliteral}{"{}thesissimo"{}},}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00032}00032             user=\textcolor{stringliteral}{"{}postgres"{}},}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00033}00033             password=\textcolor{stringliteral}{"{}postgres"{}},}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00034}00034             host=\textcolor{stringliteral}{"{}host.docker.internal"{}},}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00035}00035             port=\textcolor{stringliteral}{"{}5432"{}}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00036}00036         )}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00037}00037         print(\textcolor{stringliteral}{"{}Connessione al database riuscita!"{}})}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00038}00038         \textcolor{keywordflow}{return} conn}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00039}00039     \textcolor{keywordflow}{except} ps.Error \textcolor{keyword}{as} e:}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00040}00040         print(\textcolor{stringliteral}{"{}Errore durante la connessione al database:"{}}, e)}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00041}00041         \textcolor{keywordflow}{return} \textcolor{keywordtype}{None}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00042}00042 }
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00043}\mbox{\hyperlink{namespaceQueries_1_1PostgresQuery_afa28f4d7cb9758b7ef131f7a17671a0c}{00043}} \textcolor{keyword}{def }\mbox{\hyperlink{namespaceQueries_1_1PostgresQuery_afa28f4d7cb9758b7ef131f7a17671a0c}{createTable}}():}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00044}00044     \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00045}00045 \textcolor{stringliteral}{    Database table creation funtction.}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00046}00046 \textcolor{stringliteral}{    "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00047}00047 \textcolor{stringliteral}{    }}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00048}00048 \textcolor{stringliteral}{    conn = \mbox{\hyperlink{namespaceQueries_1_1PostgresQuery_a274578a8abb09d445e874a32e9aacb0c}{dbConn}}()}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00049}00049 \textcolor{stringliteral}{    cur = conn.cursor()}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00050}00050 \textcolor{stringliteral}{}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00051}00051 \textcolor{stringliteral}{    q = ''' }}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00052}00052 \textcolor{stringliteral}{    CREATE TABLE IF NOT EXISTS DOCS (}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00053}00053 \textcolor{stringliteral}{        id INTEGER PRIMARY KEY,}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00054}00054 \textcolor{stringliteral}{        title TEXT,}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00055}00055 \textcolor{stringliteral}{        abstract TEXT,}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00056}00056 \textcolor{stringliteral}{        corpus TEXT,}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00057}00057 \textcolor{stringliteral}{        keywords TEXT DEFAULT 'No keywords available'},}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00058}00058         url TEXT,}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00059}00059         title\_tsv tsvector GENERATED ALWAYS AS (to\_tsvector(\textcolor{stringliteral}{'english'}, coalesce(title,\textcolor{stringliteral}{''}))) STORED,}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00060}00060         abstract\_tsv tsvector GENERATED ALWAYS AS (to\_tsvector(\textcolor{stringliteral}{'english'}, coalesce(abstract,\textcolor{stringliteral}{''}))) STORED,}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00061}00061         corpus\_tsv tsvector GENERATED ALWAYS AS (to\_tsvector(\textcolor{stringliteral}{'english'}, coalesce(corpus,\textcolor{stringliteral}{''}))) STORED}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00062}00062     );}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00063}00063     \textcolor{stringliteral}{'''}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00064}00064 \textcolor{stringliteral}{}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00065}00065 \textcolor{stringliteral}{    cur.execute(q)}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00066}00066 \textcolor{stringliteral}{    conn.commit()}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00067}00067 \textcolor{stringliteral}{    cur.close()}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00068}00068 \textcolor{stringliteral}{    conn.close()}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00069}00069 \textcolor{stringliteral}{}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00070}\mbox{\hyperlink{namespaceQueries_1_1PostgresQuery_ad49a3f22aa657c1e170d4ab4b7ec0e3f}{00070}} \textcolor{stringliteral}{}\textcolor{keyword}{def }\mbox{\hyperlink{namespaceQueries_1_1PostgresQuery_ad49a3f22aa657c1e170d4ab4b7ec0e3f}{createIndex}}():}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00071}00071     conn = \mbox{\hyperlink{namespaceQueries_1_1PostgresQuery_a274578a8abb09d445e874a32e9aacb0c}{dbConn}}()}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00072}00072     cur = conn.cursor()}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00073}00073     q = \textcolor{stringliteral}{'''}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00074}00074 \textcolor{stringliteral}{    CREATE INDEX idx\_docs\_title\_tsv ON docs USING GiST (to\_tsvector('english'}, title));}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00075}00075     CREATE INDEX idx\_docs\_abstract\_tsv ON docs USING GiST (to\_tsvector(\textcolor{stringliteral}{'english'}, abstract));}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00076}00076     CREATE INDEX idx\_docs\_corpus\_tsv ON docs USING GiST (to\_tsvector(\textcolor{stringliteral}{'english'}, corpus));}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00077}00077     CREATE INDEX IF NOT EXISTS idx\_docs\_title\_tsv ON docs USING GIN (title\_tsv);}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00078}00078     CREATE INDEX IF NOT EXISTS idx\_docs\_abstract\_tsv ON docs USING GIN (abstract\_tsv);}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00079}00079     CREATE INDEX IF NOT EXISTS idx\_docs\_corpus\_tsv ON docs USING GIN (corpus\_tsv);}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00080}00080     \textcolor{stringliteral}{'''}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00081}00081 \textcolor{stringliteral}{    cur.execute(q)}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00082}00082 \textcolor{stringliteral}{    conn.commit()}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00083}00083 \textcolor{stringliteral}{    cur.close()}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00084}00084 \textcolor{stringliteral}{    conn.close()}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00085}00085 \textcolor{stringliteral}{}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00086}00086 \textcolor{stringliteral}{}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00087}00087 \textcolor{stringliteral}{}\textcolor{comment}{\#questo perchè alcuni documenti potrebbero non avere delle keywords }}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00088}\mbox{\hyperlink{namespaceQueries_1_1PostgresQuery_ac71420b7e0af729c2188de2d935ce6f2}{00088}} \textcolor{keyword}{def }\mbox{\hyperlink{namespaceQueries_1_1PostgresQuery_ac71420b7e0af729c2188de2d935ce6f2}{docInsert}}(id, title, abstract, corpus, url, keywords=None):}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00089}00089     \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00090}00090 \textcolor{stringliteral}{    Field extraction }\textcolor{keywordflow}{and} insertion function.}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00091}00091 }
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00092}00092     Args:}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00093}00093         id (int): Document primary key.}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00094}00094         title (str): Document title.}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00095}00095         abstract (str): Document abstract.}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00096}00096         corpus (str): Document text.}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00097}00097         url (str): Document url.}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00098}00098         keywords (str, optional): Document keywords. Defaults to \textcolor{keywordtype}{None}.}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00099}00099     \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00100}00100 \textcolor{stringliteral}{    conn = \mbox{\hyperlink{namespaceQueries_1_1PostgresQuery_a274578a8abb09d445e874a32e9aacb0c}{dbConn}}()}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00101}00101 \textcolor{stringliteral}{    cur = conn.cursor()}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00102}00102 \textcolor{stringliteral}{}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00103}00103 \textcolor{stringliteral}{    }\textcolor{keywordflow}{if} keywords \textcolor{keywordflow}{is} \textcolor{keywordtype}{None}:}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00104}00104         q = \textcolor{stringliteral}{''' }}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00105}00105 \textcolor{stringliteral}{        INSERT INTO DOCS (id, title, abstract, corpus, url)}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00106}00106 \textcolor{stringliteral}{        VALUES (\%s, \%s, \%s, \%s, \%s)}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00107}00107 \textcolor{stringliteral}{        '''}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00108}00108 \textcolor{stringliteral}{        cur.execute(q, (id, title, abstract, corpus, url))}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00109}00109 \textcolor{stringliteral}{    }\textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00110}00110         q = \textcolor{stringliteral}{''' }}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00111}00111 \textcolor{stringliteral}{        INSERT INTO DOCS (id, title, abstract, corpus, keywords, url)}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00112}00112 \textcolor{stringliteral}{        VALUES (\%s, \%s, \%s, \%s, \%s, \%s)}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00113}00113 \textcolor{stringliteral}{        '''}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00114}00114 \textcolor{stringliteral}{        cur.execute(q, (id, title, abstract, corpus, keywords, url))}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00115}00115 \textcolor{stringliteral}{}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00116}00116 \textcolor{stringliteral}{    conn.commit()}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00117}00117 \textcolor{stringliteral}{    cur.close()}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00118}00118 \textcolor{stringliteral}{    conn.close()}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00119}00119 \textcolor{stringliteral}{}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00120}\mbox{\hyperlink{namespaceQueries_1_1PostgresQuery_a420989d59ff3bb6f230a68fd5abdf3c6}{00120}} \textcolor{stringliteral}{}\textcolor{keyword}{def }\mbox{\hyperlink{namespaceQueries_1_1PostgresQuery_a420989d59ff3bb6f230a68fd5abdf3c6}{insertBatch}}(cur, batch):}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00121}00121     \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00122}00122 \textcolor{stringliteral}{    Helper function to insert a batch of documents into the database.}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00123}00123 \textcolor{stringliteral}{    }}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00124}00124 \textcolor{stringliteral}{    Args:}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00125}00125 \textcolor{stringliteral}{        cur: Database cursor}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00126}00126 \textcolor{stringliteral}{        batch: List of document tuples to insert}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00127}00127 \textcolor{stringliteral}{    }}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00128}00128 \textcolor{stringliteral}{    Returns:}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00129}00129 \textcolor{stringliteral}{        int: Number of documents successfully inserted}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00130}00130 \textcolor{stringliteral}{    "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00131}00131 \textcolor{stringliteral}{    }\textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00132}00132         \textcolor{keywordflow}{if} len(batch[0]) == 5:  \textcolor{comment}{\# Senza keywords}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00133}00133             q = \textcolor{stringliteral}{''' }}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00134}00134 \textcolor{stringliteral}{            INSERT INTO DOCS (id, title, abstract, corpus, url)}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00135}00135 \textcolor{stringliteral}{            VALUES (\%s, \%s, \%s, \%s, \%s)}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00136}00136 \textcolor{stringliteral}{            ON CONFLICT (id) DO NOTHING}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00137}00137 \textcolor{stringliteral}{            RETURNING id;}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00138}00138 \textcolor{stringliteral}{            '''}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00139}00139 \textcolor{stringliteral}{        }\textcolor{keywordflow}{else}:  \textcolor{comment}{\# Con keywords}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00140}00140             q = \textcolor{stringliteral}{''' }}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00141}00141 \textcolor{stringliteral}{            INSERT INTO DOCS (id, title, abstract, corpus, keywords, url)}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00142}00142 \textcolor{stringliteral}{            VALUES (\%s, \%s, \%s, \%s, \%s, \%s)}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00143}00143 \textcolor{stringliteral}{            ON CONFLICT (id) DO NOTHING}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00144}00144 \textcolor{stringliteral}{            RETURNING id;}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00145}00145 \textcolor{stringliteral}{            '''}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00146}00146 \textcolor{stringliteral}{        cur.executemany(q, batch)}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00147}00147 \textcolor{stringliteral}{        }\textcolor{keywordflow}{return} cur.rowcount}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00148}00148     \textcolor{keywordflow}{except} Exception \textcolor{keyword}{as} e:}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00149}00149         print(f\textcolor{stringliteral}{"{}Errore durante l'inserimento del batch: \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00150}00150         \textcolor{keywordflow}{return} 0}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00151}00151 }
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00152}\mbox{\hyperlink{namespaceQueries_1_1PostgresQuery_a0d2cd4efa8b9bc59f52dd6632c28437e}{00152}} \textcolor{keyword}{def }\mbox{\hyperlink{namespaceQueries_1_1PostgresQuery_a0d2cd4efa8b9bc59f52dd6632c28437e}{jsonToPG}}(file):}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00153}00153     \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00154}00154 \textcolor{stringliteral}{    JSON field extraction }\textcolor{keywordflow}{and} batch insertion into postgres remote database function.}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00155}00155     \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00156}00156 \textcolor{stringliteral}{    conn = }\textcolor{keywordtype}{None}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00157}00157     cur = \textcolor{keywordtype}{None}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00158}00158     total\_inserted = 0}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00159}00159     }
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00160}00160     \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00161}00161         conn = \mbox{\hyperlink{namespaceQueries_1_1PostgresQuery_a274578a8abb09d445e874a32e9aacb0c}{dbConn}}()}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00162}00162         cur = conn.cursor()}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00163}00163         }
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00164}00164         batch\_size = 10}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00165}00165         batch = []}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00166}00166 }
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00167}00167         \textcolor{keyword}{with} open(file, \textcolor{stringliteral}{'r'}, encoding=\textcolor{stringliteral}{'utf-\/8'}, errors=\textcolor{stringliteral}{'ignore'}) \textcolor{keyword}{as} f:}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00168}00168             parser = ijson.parse(f)}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00169}00169             current\_doc = \{\}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00170}00170             }
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00171}00171             \textcolor{keywordflow}{for} prefix, event, value \textcolor{keywordflow}{in} parser:}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00172}00172                 \textcolor{keywordflow}{if} prefix.endswith(\textcolor{stringliteral}{'.id'}):}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00173}00173                     current\_doc[\textcolor{stringliteral}{'id'}] = value}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00174}00174                 \textcolor{keywordflow}{elif} prefix.endswith(\textcolor{stringliteral}{'.title'}):}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00175}00175                     current\_doc[\textcolor{stringliteral}{'title'}] = value}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00176}00176                 \textcolor{keywordflow}{elif} prefix.endswith(\textcolor{stringliteral}{'.abstract'}):}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00177}00177                     current\_doc[\textcolor{stringliteral}{'abstract'}] = value}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00178}00178                 \textcolor{keywordflow}{elif} prefix.endswith(\textcolor{stringliteral}{'.corpus'}):}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00179}00179                     current\_doc[\textcolor{stringliteral}{'corpus'}] = value}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00180}00180                 \textcolor{keywordflow}{elif} prefix.endswith(\textcolor{stringliteral}{'.keywords'}):}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00181}00181                     current\_doc[\textcolor{stringliteral}{'keywords'}] = value}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00182}00182                 \textcolor{keywordflow}{elif} prefix.endswith(\textcolor{stringliteral}{'.url'}):}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00183}00183                     current\_doc[\textcolor{stringliteral}{'url'}] = value}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00184}00184                     \textcolor{comment}{\# Quando abbiamo l'URL, il documento è completo}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00185}00185                     }
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00186}00186                     \textcolor{comment}{\# Prepara il batch}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00187}00187                     id = int(current\_doc[\textcolor{stringliteral}{'id'}])}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00188}00188                     title = current\_doc[\textcolor{stringliteral}{'title'}]}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00189}00189                     abstract = current\_doc[\textcolor{stringliteral}{'abstract'}]}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00190}00190                     corpus = current\_doc[\textcolor{stringliteral}{'corpus'}]}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00191}00191                     keywords = current\_doc.get(\textcolor{stringliteral}{'keywords'}, \textcolor{keywordtype}{None})}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00192}00192                     url = current\_doc.get(\textcolor{stringliteral}{'url'}, \textcolor{stringliteral}{''})}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00193}00193 }
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00194}00194                     \textcolor{keywordflow}{if} keywords \textcolor{keywordflow}{is} \textcolor{keywordtype}{None}:}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00195}00195                         batch.append((id, title, abstract, corpus, url))}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00196}00196                     \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00197}00197                         batch.append((id, title, abstract, corpus, keywords, url))}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00198}00198 }
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00199}00199                     \textcolor{comment}{\# Reset del documento corrente}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00200}00200                     current\_doc = \{\}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00201}00201 }
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00202}00202                     \textcolor{comment}{\# Se il batch è pieno, inseriscilo nel database}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00203}00203                     \textcolor{keywordflow}{if} len(batch) >= batch\_size:}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00204}00204                         inserted = \mbox{\hyperlink{namespaceQueries_1_1PostgresQuery_a420989d59ff3bb6f230a68fd5abdf3c6}{insertBatch}}(cur, batch)}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00205}00205                         total\_inserted += inserted}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00206}00206                         print(f\textcolor{stringliteral}{"{}Inseriti \{inserted\} documenti nel database. Totale: \{total\_inserted\}"{}})}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00207}00207                         conn.commit()  \textcolor{comment}{\# Commit dopo ogni batch}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00208}00208                         batch = []}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00209}00209 }
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00210}00210         \textcolor{comment}{\# Inserisci eventuali documenti rimanenti}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00211}00211         \textcolor{keywordflow}{if} batch:}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00212}00212             inserted = \mbox{\hyperlink{namespaceQueries_1_1PostgresQuery_a420989d59ff3bb6f230a68fd5abdf3c6}{insertBatch}}(cur, batch)}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00213}00213             total\_inserted += inserted}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00214}00214             print(f\textcolor{stringliteral}{"{}Inseriti \{inserted\} documenti rimanenti. Totale finale: \{total\_inserted\}"{}})}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00215}00215             conn.commit()}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00216}00216 }
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00217}00217     \textcolor{keywordflow}{except} Exception \textcolor{keyword}{as} e:}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00218}00218         print(f\textcolor{stringliteral}{"{}Errore durante l'elaborazione del file: \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00219}00219         \textcolor{keywordflow}{if} conn:}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00220}00220             conn.rollback()}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00221}00221     \textcolor{keywordflow}{finally}:}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00222}00222         \textcolor{keywordflow}{if} cur:}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00223}00223             cur.close()}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00224}00224         \textcolor{keywordflow}{if} conn:}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00225}00225             conn.close()}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00226}00226 }
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00227}\mbox{\hyperlink{namespaceQueries_1_1PostgresQuery_a52b896a8b361b289c9309e18171bb3e7}{00227}} \textcolor{keyword}{def }\mbox{\hyperlink{namespaceQueries_1_1PostgresQuery_a52b896a8b361b289c9309e18171bb3e7}{resetTable}}():}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00228}00228     \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00229}00229 \textcolor{stringliteral}{    Database reset function to be aware of copies.}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00230}00230 \textcolor{stringliteral}{    "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00231}00231 \textcolor{stringliteral}{    conn = \mbox{\hyperlink{namespaceQueries_1_1PostgresQuery_a274578a8abb09d445e874a32e9aacb0c}{dbConn}}()}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00232}00232 \textcolor{stringliteral}{    cur = conn.cursor()}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00233}00233 \textcolor{stringliteral}{    cur.execute("{}DROP TABLE IF EXISTS DOCS;"{}})}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00234}00234     conn.commit()}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00235}00235     cur.close()}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00236}00236     conn.close()}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00237}00237     \mbox{\hyperlink{namespaceQueries_1_1PostgresQuery_afa28f4d7cb9758b7ef131f7a17671a0c}{createTable}}()}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00238}00238 }
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00239}\mbox{\hyperlink{namespaceQueries_1_1PostgresQuery_a04fec4d53af4272ee51fe49ec67b7333}{00239}} \textcolor{keyword}{def }\mbox{\hyperlink{namespaceQueries_1_1PostgresQuery_a04fec4d53af4272ee51fe49ec67b7333}{main}}():}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00240}00240     \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00241}00241 \textcolor{stringliteral}{    Main routine called when the script }\textcolor{keywordflow}{is} run.}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00242}00242     \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00243}00243 \textcolor{stringliteral}{    }\textcolor{keywordflow}{if} \textcolor{keywordflow}{not} Path(FILE\_PATH).exists():}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00244}00244         print(f\textcolor{stringliteral}{"{}Errore: Il file \{FILE\_PATH\} non esiste!"{}})}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00245}00245         \textcolor{keywordflow}{return}}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00246}00246         }
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00247}00247     \mbox{\hyperlink{namespaceQueries_1_1PostgresQuery_a52b896a8b361b289c9309e18171bb3e7}{resetTable}}()}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00248}00248     \mbox{\hyperlink{namespaceQueries_1_1PostgresQuery_a0d2cd4efa8b9bc59f52dd6632c28437e}{jsonToPG}}(FILE\_PATH)}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00249}00249     \mbox{\hyperlink{namespaceQueries_1_1PostgresQuery_ad49a3f22aa657c1e170d4ab4b7ec0e3f}{createIndex}}()}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00250}00250 }
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00251}00251 \textcolor{keywordflow}{if} \_\_name\_\_ == \textcolor{stringliteral}{'\_\_main\_\_'}:}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00252}00252     \mbox{\hyperlink{namespaceQueries_1_1PostgresQuery_a04fec4d53af4272ee51fe49ec67b7333}{main}}()}
+\DoxyCodeLine{\Hypertarget{PostgresQuery_8py_source_l00253}00253 }
+
+\end{DoxyCode}

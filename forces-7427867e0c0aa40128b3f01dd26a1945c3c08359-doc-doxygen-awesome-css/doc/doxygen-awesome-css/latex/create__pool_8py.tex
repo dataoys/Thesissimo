@@ -1,0 +1,81 @@
+\hypertarget{create__pool_8py}{}\doxysection{/root/\+Juri\+Scan/\+Benchmark/create\+\_\+pool.py File Reference}
+\label{create__pool_8py}\index{/root/JuriScan/Benchmark/create\_pool.py@{/root/JuriScan/Benchmark/create\_pool.py}}
+
+
+Creates relevance pools by aggregating results from multiple search engines.  
+
+
+\doxysubsection*{Namespaces}
+\begin{DoxyCompactItemize}
+\item 
+namespace \mbox{\hyperlink{namespacecreate__pool}{create\+\_\+pool}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \mbox{\hyperlink{namespacecreate__pool_a3cb0162d333eb6672acb6d4bf3cbf7f1}{create\+\_\+pool.\+load\+\_\+queries\+\_\+from\+\_\+uin}} (uin\+\_\+file\+\_\+path)
+\begin{DoxyCompactList}\small\item\em Load queries from the UIN (User Information Need) file. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespacecreate__pool_a69f590e2d0bcc60a4216a8f73dca1e08}{create\+\_\+pool.\+get\+\_\+pylucene\+\_\+top\+\_\+n\+\_\+ids}} (query\+\_\+string, searcher, n=TOP\+\_\+\+N\+\_\+\+FOR\+\_\+\+POOLING, ranking\+\_\+type=\char`\"{}BM25\char`\"{})
+\begin{DoxyCompactList}\small\item\em Retrieve top N document IDs from Py\+Lucene search engine. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespacecreate__pool_a4d74b9466fea66734c94b240e2efedd9}{create\+\_\+pool.\+get\+\_\+whoosh\+\_\+top\+\_\+n\+\_\+ids}} (query\+\_\+string, ix\+\_\+path\+\_\+str, n=TOP\+\_\+\+N\+\_\+\+FOR\+\_\+\+POOLING, ranking\+\_\+type=\char`\"{}BM25F\char`\"{})
+\begin{DoxyCompactList}\small\item\em Retrieve top N document IDs from Whoosh search engine. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespacecreate__pool_a76b0501994829108a750d165f7261020}{create\+\_\+pool.\+get\+\_\+postgres\+\_\+top\+\_\+n\+\_\+ids}} (query\+\_\+string, n=TOP\+\_\+\+N\+\_\+\+FOR\+\_\+\+POOLING, ranking\+\_\+type=\char`\"{}ts\+\_\+rank\+\_\+cd\char`\"{})
+\begin{DoxyCompactList}\small\item\em Retrieve top N document IDs from Postgre\+SQL search engine. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespacecreate__pool_a13f680e2515efd99e19469481f947ac6}{create\+\_\+pool.\+create\+\_\+relevance\+\_\+pool}} ()
+\begin{DoxyCompactList}\small\item\em Main function to create relevance pools for benchmark evaluation. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{namespacecreate__pool_a7548ba778b0fda96f5bb99e66609e311}{create\+\_\+pool.\+project\+\_\+root}} = \+\_\+current\+\_\+file\+\_\+path.\+parent.\+parent
+\item 
+bool \mbox{\hyperlink{namespacecreate__pool_a7d80d2d2d2f35d1d7bd93e1f8e60b0d0}{create\+\_\+pool.\+WHOOSH\+\_\+\+LIB\+\_\+\+AVAILABLE}} = True
+\item 
+\mbox{\hyperlink{namespacecreate__pool_a6b56e1304d6afb08764e5340ab767341}{create\+\_\+pool.\+whoosh\+\_\+open\+\_\+dir\+\_\+lib}} = None
+\item 
+\mbox{\hyperlink{namespacecreate__pool_a3d93a111670d41c9d07e6219adaff84c}{create\+\_\+pool.\+Whoosh\+Empty\+Index\+Error\+\_\+lib}} = None
+\item 
+bool \mbox{\hyperlink{namespacecreate__pool_abe2d2a91f8a84d1d200dcc93f20ebc52}{create\+\_\+pool.\+ENGINES\+\_\+\+MODULES\+\_\+\+AVAILABLE}} = True
+\item 
+\mbox{\hyperlink{namespacecreate__pool_ab48cdbde678b3d1b310e62fbdfda985f}{create\+\_\+pool.\+pylucene\+\_\+search\+\_\+documents}} = None
+\item 
+\mbox{\hyperlink{namespacecreate__pool_abfb3d3fa1fb4672361a9323d870d7561}{create\+\_\+pool.\+whoosh\+\_\+search\+\_\+documents}} = None
+\item 
+\mbox{\hyperlink{namespacecreate__pool_a2019377beed91d240ea0426cf361d237}{create\+\_\+pool.\+postgres\+\_\+search}} = None
+\item 
+\mbox{\hyperlink{namespacecreate__pool_add23085779480fb4a032d65902962f60}{create\+\_\+pool.\+PROJECT\+\_\+\+ROOT}} = project\+\_\+root
+\item 
+string \mbox{\hyperlink{namespacecreate__pool_acbff462d7508ec2ab9140878b21e6a48}{create\+\_\+pool.\+PYLUCENE\+\_\+\+INDEX\+\_\+\+DIR}} = PROJECT\+\_\+\+ROOT / \char`\"{}Search\+Engine\char`\"{} / \char`\"{}index\char`\"{}
+\item 
+string \mbox{\hyperlink{namespacecreate__pool_a620d1a414472d482b097e4e7f153d83b}{create\+\_\+pool.\+WHOOSH\+\_\+\+INDEX\+\_\+\+DIR}} = PROJECT\+\_\+\+ROOT / \char`\"{}Search\+Engine\char`\"{} / \char`\"{}Whoosh\+Index\char`\"{}
+\item 
+string \mbox{\hyperlink{namespacecreate__pool_ae834795ae9815d127804278d16579f9a}{create\+\_\+pool.\+UIN\+\_\+\+FILE\+\_\+\+PATH}} = PROJECT\+\_\+\+ROOT / \char`\"{}uin.\+txt\char`\"{}
+\item 
+string \mbox{\hyperlink{namespacecreate__pool_a23eb106c87ff470c85a9530b8cb15e18}{create\+\_\+pool.\+POOL\+\_\+\+OUTPUT\+\_\+\+DIR}} = PROJECT\+\_\+\+ROOT / \char`\"{}Ground\+Truth\char`\"{}
+\item 
+string \mbox{\hyperlink{namespacecreate__pool_a418c5f1add6724444190c21dbdbbad24}{create\+\_\+pool.\+POOL\+\_\+\+JSON\+\_\+\+OUTPUT\+\_\+\+FILE}} = POOL\+\_\+\+OUTPUT\+\_\+\+DIR / \char`\"{}Pool.\+json\char`\"{}
+\item 
+int \mbox{\hyperlink{namespacecreate__pool_a48c606b043febb96ac3b0f5e9cd5e953}{create\+\_\+pool.\+TOP\+\_\+\+N\+\_\+\+FOR\+\_\+\+POOLING}} = 20
+\item 
+list \mbox{\hyperlink{namespacecreate__pool_a27ae921d54bfe7f584e915b1f9a05fd5}{create\+\_\+pool.\+PYLUCENE\+\_\+\+RANKING\+\_\+\+TYPES}} = \mbox{[}\char`\"{}BM25\char`\"{}, \char`\"{}TFIDF\char`\"{}\mbox{]}
+\item 
+list \mbox{\hyperlink{namespacecreate__pool_a899f91dd9cbea21660219a40d321fcb6}{create\+\_\+pool.\+WHOOSH\+\_\+\+RANKING\+\_\+\+TYPES}} = \mbox{[}\char`\"{}BM25F\char`\"{}, \char`\"{}TF\+\_\+\+IDF\char`\"{}\mbox{]}
+\item 
+list \mbox{\hyperlink{namespacecreate__pool_a6e4e41b1ce2ee989d4eb12a13ee24ca2}{create\+\_\+pool.\+POSTGRES\+\_\+\+RANKING\+\_\+\+TYPES}} = \mbox{[}\char`\"{}ts\+\_\+rank\char`\"{}, \char`\"{}ts\+\_\+rank\+\_\+cd\char`\"{}\mbox{]}
+\item 
+\mbox{\hyperlink{namespacecreate__pool_a93ee000758abb822906d78b9b1f59c25}{create\+\_\+pool.\+env}} = lucene.\+get\+VMEnv()
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Creates relevance pools by aggregating results from multiple search engines. 
+
+This module implements the pooling method for information retrieval evaluation, collecting top results from Py\+Lucene, Whoosh, and Postgre\+SQL engines for manual relevance assessment \begin{DoxyAuthor}{Authors}
+Magni \&\& Testoni 
+\end{DoxyAuthor}
+\begin{DoxyDate}{Date}
+2024 
+\end{DoxyDate}
+
+
+Definition in file \mbox{\hyperlink{create__pool_8py_source}{create\+\_\+pool.\+py}}.
+

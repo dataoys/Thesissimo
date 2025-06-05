@@ -1,0 +1,55 @@
+\hypertarget{Pylucene_8py}{}\doxysection{/root/\+Juri\+Scan/\+Search\+Engine/\+Pylucene.py File Reference}
+\label{Pylucene_8py}\index{/root/JuriScan/SearchEngine/Pylucene.py@{/root/JuriScan/SearchEngine/Pylucene.py}}
+
+
+Py\+Lucene search engine implementation for Juri\+Scan.  
+
+
+\doxysubsection*{Namespaces}
+\begin{DoxyCompactItemize}
+\item 
+namespace \mbox{\hyperlink{namespaceSearchEngine}{Search\+Engine}}
+\item 
+namespace \mbox{\hyperlink{namespaceSearchEngine_1_1Pylucene}{Search\+Engine.\+Pylucene}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \mbox{\hyperlink{namespaceSearchEngine_1_1Pylucene_a40df39a61a5f582072b7e1867b736617}{Search\+Engine.\+Pylucene.\+initialize\+\_\+jvm}} ()
+\begin{DoxyCompactList}\small\item\em Initialize the Java Virtual Machine for Py\+Lucene. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceSearchEngine_1_1Pylucene_a661ac4621b2de4cfa32990159e3a77d7}{Search\+Engine.\+Pylucene.\+calculate\+\_\+precision\+\_\+recall}} (searcher, query\+\_\+string, ranking\+\_\+type=\char`\"{}BM25\char`\"{}, threshold=0.\+5)
+\begin{DoxyCompactList}\small\item\em Calculate precision and recall metrics for a given query. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceSearchEngine_1_1Pylucene_a263c48dafaf0fdcbe0da28b1e3635c7d}{Search\+Engine.\+Pylucene.\+search\+\_\+documents}} (searcher, title\+\_\+true, abstract\+\_\+true, corpus\+\_\+true, query\+\_\+string, ranking\+\_\+type)
+\begin{DoxyCompactList}\small\item\em Main search function for Py\+Lucene engine. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceSearchEngine_1_1Pylucene_aea6b440cb2dd44592a85c83acbf453a0}{Search\+Engine.\+Pylucene.\+get\+\_\+wordnet\+\_\+pos}} (tag)
+\begin{DoxyCompactList}\small\item\em Map NLTK POS tags to Word\+Net POS tags for lemmatization. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceSearchEngine_1_1Pylucene_aa4a163372602a4ec80f08858147c04e8}{Search\+Engine.\+Pylucene.\+expand\+\_\+query}} (query\+\_\+string)
+\begin{DoxyCompactList}\small\item\em Expand natural language query using NLP techniques. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceSearchEngine_1_1Pylucene_a7c5adb0f272abc3b26e9deace817a315}{Search\+Engine.\+Pylucene.\+index\+\_\+exists}} (index\+\_\+path)
+\begin{DoxyCompactList}\small\item\em Check if a valid Lucene index exists at the specified path. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceSearchEngine_1_1Pylucene_a52bc027d18b16aae3e162458cba18d9b}{Search\+Engine.\+Pylucene.\+create\+\_\+index}} ()
+\begin{DoxyCompactList}\small\item\em Create or open Py\+Lucene index for document searching. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{namespaceSearchEngine_1_1Pylucene_a108fb1faf2e6b1d1d8682556784f1059}{Search\+Engine.\+Pylucene.\+project\+\_\+root}} = Path(\+\_\+\+\_\+file\+\_\+\+\_\+).parent.\+parent
+\item 
+\mbox{\hyperlink{namespaceSearchEngine_1_1Pylucene_a1ad96eff54613e8ac01082220661f3f8}{Search\+Engine.\+Pylucene.\+json\+\_\+file}} = str(project\+\_\+root / \char`\"{}Web\+Scraping/results/Docs\+\_\+cleaned.\+json\char`\"{})
+\item 
+\mbox{\hyperlink{namespaceSearchEngine_1_1Pylucene_abc39da85d7d43abcab6b4f22e7c4e316}{Search\+Engine.\+Pylucene.\+index\+\_\+file}} = str(project\+\_\+root / \char`\"{}Search\+Engine/index\char`\"{})
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Py\+Lucene search engine implementation for Juri\+Scan. 
+
+This module provides Py\+Lucene-\/based document indexing and searching capabilities with support for BM25 and Classic similarity algorithms. \begin{DoxyAuthor}{Author}
+Magni \&\& Testoni 
+\end{DoxyAuthor}
+\begin{DoxyDate}{Date}
+2025 
+\end{DoxyDate}
+
+
+Definition in file \mbox{\hyperlink{Pylucene_8py_source}{Pylucene.\+py}}.
+

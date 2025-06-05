@@ -1,0 +1,231 @@
+\hypertarget{Postgres_8py_source}{}\doxysection{Postgres.\+py}
+\label{Postgres_8py_source}\index{/root/JuriScan/SearchEngine/Postgres.py@{/root/JuriScan/SearchEngine/Postgres.py}}
+\mbox{\hyperlink{Postgres_8py}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00001}\mbox{\hyperlink{namespaceSearchEngine_1_1Postgres}{00001}} \textcolor{stringliteral}{"{}"{}"{}!}}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00002}00002 \textcolor{stringliteral}{@file Postgres.py}}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00003}00003 \textcolor{stringliteral}{@brief PostgreSQL full-\/text search engine implementation for JuriScan}}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00004}00004 \textcolor{stringliteral}{@details Provides PostgreSQL-\/based document searching with ts\_rank algorithms}}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00005}00005 \textcolor{stringliteral}{@author Magni \&\& Testoni}}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00006}00006 \textcolor{stringliteral}{@date 2025}}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00007}00007 \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00008}00008 }
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00009}00009 \textcolor{keyword}{import} nltk}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00010}00010 \textcolor{keyword}{from} nltk.tokenize \textcolor{keyword}{import} word\_tokenize}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00011}00011 \textcolor{keyword}{from} nltk.tag \textcolor{keyword}{import} pos\_tag}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00012}00012 \textcolor{keyword}{from} nltk.corpus \textcolor{keyword}{import} stopwords}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00013}00013 \textcolor{keyword}{from} Queries \textcolor{keyword}{import} dbConn}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00014}00014 }
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00015}00015 \textcolor{comment}{\# Scarica le risorse necessarie di NLTK (se non sono già scaricate)}}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00016}00016 nltk.download(\textcolor{stringliteral}{'punkt'})}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00017}00017 nltk.download(\textcolor{stringliteral}{'averaged\_perceptron\_tagger\_eng'})}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00018}00018 nltk.download(\textcolor{stringliteral}{'stopwords'})}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00019}00019 }
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00020}\mbox{\hyperlink{namespaceSearchEngine_1_1Postgres_ac429afb987d9a291bb21cbe1df5f378c}{00020}} \textcolor{keyword}{def }\mbox{\hyperlink{namespaceSearchEngine_1_1Postgres_ac429afb987d9a291bb21cbe1df5f378c}{extract\_keywords}}(uin):}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00021}00021     \textcolor{stringliteral}{"{}"{}"{}!}}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00022}00022 \textcolor{stringliteral}{    }\textcolor{preprocessor}{@brief} Extract keywords \textcolor{keyword}{from} user input using NLTK POS tagging}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00023}00023     \textcolor{preprocessor}{@param} uin Search bar input string}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00024}00024     \textcolor{preprocessor}{@return} List of keywords filtered \textcolor{keyword}{from} nouns \textcolor{keywordflow}{and} verbs}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00025}00025     \textcolor{preprocessor}{@details} Tokenizes input, performs POS tagging, \textcolor{keywordflow}{and} filters \textcolor{keywordflow}{for} meaningful}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00026}00026              parts of speech \textcolor{keywordflow}{while} removing English stopwords}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00027}00027     \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00028}00028 \textcolor{stringliteral}{}}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00029}00029 \textcolor{stringliteral}{    }\textcolor{comment}{\# Tokenizza la stringa di input}}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00030}00030     tokens = word\_tokenize(uin)}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00031}00031     }
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00032}00032     \textcolor{comment}{\# Esegui il POS tagging per identificare il tipo di parola (sostantivo, verbo, ecc.)}}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00033}00033     tagged = pos\_tag(tokens)}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00034}00034     }
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00035}00035     \textcolor{comment}{\# Estrai solo sostantivi e verbi (per ora ignoriamo le stopwords)}}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00036}00036     keywords = [word \textcolor{keywordflow}{for} word, tag \textcolor{keywordflow}{in} tagged \textcolor{keywordflow}{if} tag \textcolor{keywordflow}{in} [\textcolor{stringliteral}{'NN'}, \textcolor{stringliteral}{'VB'}, \textcolor{stringliteral}{'NNS'}, \textcolor{stringliteral}{'VBD'}, \textcolor{stringliteral}{'VBG'}, \textcolor{stringliteral}{'VBN'}, \textcolor{stringliteral}{'VBZ'}]]}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00037}00037     }
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00038}00038     \textcolor{comment}{\# Filtra le parole chiave rimuovendo le stopwords}}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00039}00039     stop\_words = set(stopwords.words(\textcolor{stringliteral}{'english'}))}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00040}00040     filtered\_keywords = [word \textcolor{keywordflow}{for} word \textcolor{keywordflow}{in} keywords \textcolor{keywordflow}{if} word.lower() \textcolor{keywordflow}{not} \textcolor{keywordflow}{in} stop\_words]}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00041}00041     }
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00042}00042     \textcolor{keywordflow}{return} filtered\_keywords}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00043}00043 }
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00044}\mbox{\hyperlink{namespaceSearchEngine_1_1Postgres_ac36cebc858257e6c674c291410ff2d27}{00044}} \textcolor{keyword}{def }\mbox{\hyperlink{namespaceSearchEngine_1_1Postgres_ac36cebc858257e6c674c291410ff2d27}{parse\_advanced\_query}}(query\_string):}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00045}00045     \textcolor{stringliteral}{"{}"{}"{}!}}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00046}00046 \textcolor{stringliteral}{    }\textcolor{preprocessor}{@brief} Parse field-\/specific query strings \textcolor{keyword}{with} AND/OR operators}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00047}00047     \textcolor{preprocessor}{@param} query\_string Query string \textcolor{keyword}{with} field specifications (e.g., \textcolor{stringliteral}{"{}title:space AND corpus:python"{}})}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00048}00048     \textcolor{preprocessor}{@return} Tuple of (where\_clause, params, fields\_used)}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00049}00049     \textcolor{preprocessor}{@details} Supports multi-\/word searches \textcolor{keywordflow}{in} quotes \textcolor{keywordflow}{and} logical operators.}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00050}00050              Returns SQL WHERE clause, parameters, \textcolor{keywordflow}{and} field usage tracking.}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00051}00051     \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00052}00052 \textcolor{stringliteral}{    parts = query\_string.split(' AND '})}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00053}00053     query\_parts = []}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00054}00054     params = []}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00055}00055     fields\_used = \{\textcolor{stringliteral}{'title'}: \textcolor{keyword}{False}, \textcolor{stringliteral}{'abstract'}: \textcolor{keyword}{False}, \textcolor{stringliteral}{'corpus'}: \textcolor{keyword}{False}\}}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00056}00056     }
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00057}00057     \textcolor{keywordflow}{for} part \textcolor{keywordflow}{in} parts:}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00058}00058         \textcolor{keywordflow}{if} \textcolor{stringliteral}{' OR '} \textcolor{keywordflow}{in} part:}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00059}00059             or\_parts = part.split(\textcolor{stringliteral}{' OR '})}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00060}00060             or\_query\_parts = []}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00061}00061             }
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00062}00062             \textcolor{keywordflow}{for} or\_part \textcolor{keywordflow}{in} or\_parts:}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00063}00063                 \textcolor{keywordflow}{if} \textcolor{stringliteral}{':'} \textcolor{keywordflow}{in} or\_part:}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00064}00064                     field, term = or\_part.split(\textcolor{stringliteral}{':'}, 1)}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00065}00065                     field = field.lower().strip()}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00066}00066                     term = term.strip().strip(\textcolor{stringliteral}{'"{}'}).strip(\textcolor{stringliteral}{"{}'"{}}).strip()}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00067}00067                     }
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00068}00068                     \textcolor{keywordflow}{if} field \textcolor{keywordflow}{in} fields\_used:}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00069}00069                         fields\_used[field] = \textcolor{keyword}{True}}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00070}00070                         or\_query\_parts.append(f\textcolor{stringliteral}{"{}\{field\}\_tsv @@ phraseto\_tsquery('english', \%s)"{}})}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00071}00071                         params.append(term)}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00072}00072             }
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00073}00073             \textcolor{keywordflow}{if} or\_query\_parts:}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00074}00074                 query\_parts.append(\textcolor{stringliteral}{'('} + \textcolor{stringliteral}{' OR '}.join(or\_query\_parts) + \textcolor{stringliteral}{')'})}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00075}00075         \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00076}00076             \textcolor{comment}{\# Gestione diretta dei termini AND senza OR}}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00077}00077             \textcolor{keywordflow}{if} \textcolor{stringliteral}{':'} \textcolor{keywordflow}{in} part:}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00078}00078                 field, term = part.split(\textcolor{stringliteral}{':'}, 1)}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00079}00079                 field = field.lower().strip()}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00080}00080                 term = term.strip().strip(\textcolor{stringliteral}{'"{}'}).strip(\textcolor{stringliteral}{"{}'"{}}).strip()}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00081}00081                 }
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00082}00082                 \textcolor{keywordflow}{if} field \textcolor{keywordflow}{in} fields\_used:}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00083}00083                     fields\_used[field] = \textcolor{keyword}{True}}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00084}00084                     query\_parts.append(f\textcolor{stringliteral}{"{}\{field\}\_tsv @@ phraseto\_tsquery('english', \%s)"{}})}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00085}00085                     params.append(term)}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00086}00086             \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00087}00087                 \textcolor{comment}{\# Se nessun campo è specificato, cerca in tutti i campi usando phraseto\_tsquery}}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00088}00088                 part = part.strip().strip(\textcolor{stringliteral}{'"{}'}).strip(\textcolor{stringliteral}{"{}'"{}}).strip()}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00089}00089                 all\_fields\_query = []}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00090}00090                 \textcolor{keywordflow}{for} field \textcolor{keywordflow}{in} fields\_used:}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00091}00091                     fields\_used[field] = \textcolor{keyword}{True}}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00092}00092                     all\_fields\_query.append(f\textcolor{stringliteral}{"{}\{field\}\_tsv @@ phraseto\_tsquery('english', \%s)"{}})}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00093}00093                     params.append(part)}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00094}00094                 \textcolor{keywordflow}{if} all\_fields\_query:}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00095}00095                     query\_parts.append(\textcolor{stringliteral}{'('} + \textcolor{stringliteral}{' OR '}.join(all\_fields\_query) + \textcolor{stringliteral}{')'})}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00096}00096 }
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00097}00097     }
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00098}00098     \textcolor{keywordflow}{if} query\_parts:}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00099}00099         \textcolor{comment}{\# Combina tutte le parti con AND}}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00100}00100         \textcolor{keywordflow}{return} \textcolor{stringliteral}{' AND '}.join(query\_parts), params, fields\_used}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00101}00101     \textcolor{keywordflow}{return} \textcolor{keywordtype}{None}, [], fields\_used}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00102}00102 }
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00103}\mbox{\hyperlink{namespaceSearchEngine_1_1Postgres_a97b46e7f635ed1c5bcb4fff68c498178}{00103}} \textcolor{keyword}{def }\mbox{\hyperlink{namespaceSearchEngine_1_1Postgres_a97b46e7f635ed1c5bcb4fff68c498178}{build\_search\_query}}(search\_terms, title\_true, abstract\_true, corpus\_true, ranking\_type='ts\_rank\_cd'):}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00104}00104     \textcolor{stringliteral}{"{}"{}"{}!}}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00105}00105 \textcolor{stringliteral}{    }\textcolor{preprocessor}{@brief} Build PostgreSQL full-\/text search query \textcolor{keyword}{with} ranking}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00106}00106     \textcolor{preprocessor}{@param} search\_terms The search terms to look \textcolor{keywordflow}{for}}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00107}00107     \textcolor{preprocessor}{@param} title\_true Boolean flag to search \textcolor{keywordflow}{in} title field}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00108}00108     \textcolor{preprocessor}{@param} abstract\_true Boolean flag to search \textcolor{keywordflow}{in} abstract field}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00109}00109     \textcolor{preprocessor}{@param} corpus\_true Boolean flag to search \textcolor{keywordflow}{in} corpus field}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00110}00110     \textcolor{preprocessor}{@param} ranking\_type The ranking function to use (\textcolor{stringliteral}{'ts\_rank'} \textcolor{keywordflow}{or} \textcolor{stringliteral}{'ts\_rank\_cd'})}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00111}00111     \textcolor{preprocessor}{@return} Tuple of (query\_string, params) \textcolor{keywordflow}{for} PostgreSQL execution}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00112}00112     \textcolor{preprocessor}{@details} Constructs SQL query \textcolor{keyword}{with} tsvector matching \textcolor{keywordflow}{and} relevance ranking}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00113}00113     \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00114}00114 \textcolor{stringliteral}{    }\textcolor{comment}{\# Build the ranking expression based on selected fields}}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00115}00115     rank\_fields = []}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00116}00116     where\_conditions = []}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00117}00117     \textcolor{keywordflow}{if} title\_true:}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00118}00118         rank\_fields.append(\textcolor{stringliteral}{'title\_tsv'})}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00119}00119         where\_conditions.append(\textcolor{stringliteral}{'title\_tsv @@ to\_tsquery(\(\backslash\)'english\(\backslash\)', \%s)'})}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00120}00120     \textcolor{keywordflow}{if} abstract\_true:}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00121}00121         rank\_fields.append(\textcolor{stringliteral}{'abstract\_tsv'})}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00122}00122         where\_conditions.append(\textcolor{stringliteral}{'abstract\_tsv @@ to\_tsquery(\(\backslash\)'english\(\backslash\)', \%s)'})}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00123}00123     \textcolor{keywordflow}{if} corpus\_true:}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00124}00124         rank\_fields.append(\textcolor{stringliteral}{'corpus\_tsv'})}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00125}00125         where\_conditions.append(\textcolor{stringliteral}{'corpus\_tsv @@ to\_tsquery(\(\backslash\)'english\(\backslash\)', \%s)'})}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00126}00126     }
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00127}00127     \textcolor{keywordflow}{if} \textcolor{keywordflow}{not} rank\_fields:}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00128}00128         \textcolor{keywordflow}{return} \textcolor{keywordtype}{None}, []}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00129}00129         }
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00130}00130     rank\_expr = \textcolor{stringliteral}{' || '}.join(rank\_fields)}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00131}00131     where\_clause = \textcolor{stringliteral}{' OR '}.join(where\_conditions)}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00132}00132     }
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00133}00133     query = f\textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00134}00134 \textcolor{stringliteral}{    SELECT id, title, abstract, corpus, keywords, url,}}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00135}00135 \textcolor{stringliteral}{           \{ranking\_type\}(\{rank\_expr\}, to\_tsquery('english'}, \%s)) \textcolor{keyword}{as} rank}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00136}00136     FROM docs }
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00137}00137     WHERE \{where\_clause\}}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00138}00138     ORDER BY rank DESC}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00139}00139     LIMIT 100}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00140}00140     \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00141}00141 \textcolor{stringliteral}{    }}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00142}00142 \textcolor{stringliteral}{    }\textcolor{comment}{\# Parameters for the query -\/ one for ranking and one for each where condition}}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00143}00143     params = [search\_terms] * (len(where\_conditions) + 1)}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00144}00144     \textcolor{keywordflow}{return} query, params}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00145}00145 }
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00146}\mbox{\hyperlink{namespaceSearchEngine_1_1Postgres_a4c42ae990ceeb3844ee0b39ed6f9e53b}{00146}} \textcolor{keyword}{def }\mbox{\hyperlink{namespaceSearchEngine_1_1Postgres_a4c42ae990ceeb3844ee0b39ed6f9e53b}{search}}(search\_query, title\_true, abstract\_true, corpus\_true, ranking\_type='ts\_rank\_cd'):}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00147}00147     \textcolor{stringliteral}{"{}"{}"{}!}}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00148}00148 \textcolor{stringliteral}{    }\textcolor{preprocessor}{@brief} Main PostgreSQL search function \textcolor{keyword}{with} dual search modes}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00149}00149     \textcolor{preprocessor}{@param} search\_query The user\textcolor{stringliteral}{'s input query string}}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00150}00150 \textcolor{stringliteral}{    }\textcolor{preprocessor}{@param} title\_true Boolean flag to search \textcolor{keywordflow}{in} title field}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00151}00151     \textcolor{preprocessor}{@param} abstract\_true Boolean flag to search \textcolor{keywordflow}{in} abstract field}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00152}00152     \textcolor{preprocessor}{@param} corpus\_true Boolean flag to search \textcolor{keywordflow}{in} corpus field}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00153}00153     \textcolor{preprocessor}{@param} ranking\_type The ranking function to use (\textcolor{stringliteral}{'ts\_rank'} \textcolor{keywordflow}{or} \textcolor{stringliteral}{'ts\_rank\_cd'})}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00154}00154     \textcolor{preprocessor}{@return} List of matching documents ordered by relevance}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00155}00155     \textcolor{preprocessor}{@details} Supports both field-\/specific searches (\textcolor{keyword}{with} AND/OR syntax) \textcolor{keywordflow}{and}}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00156}00156              checkbox-\/based searches. Uses PostgreSQL full-\/text search capabilities.}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00157}00157     \textcolor{preprocessor}{@throws} ValueError If database connection fails \textcolor{keywordflow}{or} query execution errors occur}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00158}00158     \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00159}00159 \textcolor{stringliteral}{    conn = \mbox{\hyperlink{namespaceQueries_1_1PostgresQuery_a274578a8abb09d445e874a32e9aacb0c}{dbConn}}()}}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00160}00160 \textcolor{stringliteral}{    cur = conn.cursor()}}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00161}00161 \textcolor{stringliteral}{    }}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00162}00162 \textcolor{stringliteral}{    }\textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00163}00163         \textcolor{comment}{\# Check if the query contains field-\/specific searches}}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00164}00164         \textcolor{keywordflow}{if} \textcolor{stringliteral}{'AND'} \textcolor{keywordflow}{in} search\_query \textcolor{keywordflow}{or} \textcolor{stringliteral}{'OR'} \textcolor{keywordflow}{in} search\_query:}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00165}00165             where\_clause, params, fields\_used = \mbox{\hyperlink{namespaceSearchEngine_1_1Postgres_ac36cebc858257e6c674c291410ff2d27}{parse\_advanced\_query}}(search\_query)}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00166}00166             \textcolor{keywordflow}{if} where\_clause:}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00167}00167                 \textcolor{comment}{\# Override checkbox selections with fields explicitly used in the query}}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00168}00168                 title\_true = title\_true \textcolor{keywordflow}{or} fields\_used[\textcolor{stringliteral}{'title'}]}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00169}00169                 abstract\_true = abstract\_true \textcolor{keywordflow}{or} fields\_used[\textcolor{stringliteral}{'abstract'}]}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00170}00170                 corpus\_true = corpus\_true \textcolor{keywordflow}{or} fields\_used[\textcolor{stringliteral}{'corpus'}]}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00171}00171                 }
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00172}00172                 \textcolor{comment}{\# Build query with both explicit field searches and checkbox selections}}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00173}00173                 q = f\textcolor{stringliteral}{'''}}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00174}00174 \textcolor{stringliteral}{                SELECT id, title, abstract, corpus, keywords, url,}}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00175}00175 \textcolor{stringliteral}{                       \{ranking\_type\}(}}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00176}00176 \textcolor{stringliteral}{                           CASE WHEN \{title\_true\} THEN title\_tsv ELSE ''}::tsvector END ||}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00177}00177                            CASE WHEN \{abstract\_true\} THEN abstract\_tsv ELSE \textcolor{stringliteral}{''}::tsvector END ||}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00178}00178                            CASE WHEN \{corpus\_true\} THEN corpus\_tsv ELSE \textcolor{stringliteral}{''}::tsvector END,}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00179}00179                            phraseto\_tsquery(\textcolor{stringliteral}{'english'}, \%s)}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00180}00180                        ) \textcolor{keyword}{as} rank}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00181}00181                 FROM docs }
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00182}00182                 WHERE \{where\_clause\}}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00183}00183                 ORDER BY rank DESC}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00184}00184                 LIMIT 100}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00185}00185                 \textcolor{stringliteral}{'''}}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00186}00186 \textcolor{stringliteral}{                }\textcolor{comment}{\# Add parameter for ranking calculation}}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00187}00187                 \textcolor{keywordflow}{if} params:}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00188}00188                     execution\_params = [params[0]] + params}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00189}00189                 \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00190}00190                     execution\_params = []}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00191}00191 }
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00192}00192                 \textcolor{comment}{\# DEBUG PRINTS:}}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00193}00193                 print(f\textcolor{stringliteral}{"{}DEBUG: Original search\_query: \{search\_query\}"{}})}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00194}00194                 print(f\textcolor{stringliteral}{"{}DEBUG: Parsed where\_clause: \{where\_clause\}"{}})}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00195}00195                 print(f\textcolor{stringliteral}{"{}DEBUG: Params from parse\_advanced\_query: \{params\}"{}})}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00196}00196                 print(f\textcolor{stringliteral}{"{}DEBUG: Final execution\_params: \{execution\_params\}"{}})}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00197}00197                 \textcolor{comment}{\# Puoi anche stampare q se non è troppo lungo, o parti di esso.}}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00198}00198                 \textcolor{comment}{\# print(f"{}DEBUG: SQL Query: \{q\}"{})}}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00199}00199 }
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00200}00200                 cur.execute(q, execution\_params)}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00201}00201                 \textcolor{keywordflow}{return} cur.fetchall()}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00202}00202         \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00203}00203             \textcolor{comment}{\# Use the checkbox-\/based search}}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00204}00204             keywords = \mbox{\hyperlink{namespaceSearchEngine_1_1Postgres_ac429afb987d9a291bb21cbe1df5f378c}{extract\_keywords}}(search\_query)}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00205}00205             \textcolor{keywordflow}{if} \textcolor{keywordflow}{not} keywords:}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00206}00206                 \textcolor{keywordflow}{return} []}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00207}00207             }
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00208}00208             search\_terms = \textcolor{stringliteral}{' \& '}.join(keywords)}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00209}00209             query, params = \mbox{\hyperlink{namespaceSearchEngine_1_1Postgres_a97b46e7f635ed1c5bcb4fff68c498178}{build\_search\_query}}(}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00210}00210                 search\_terms, }
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00211}00211                 title\_true, }
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00212}00212                 abstract\_true, }
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00213}00213                 corpus\_true, }
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00214}00214                 ranking\_type}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00215}00215             )}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00216}00216             }
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00217}00217             \textcolor{keywordflow}{if} query \textcolor{keywordflow}{and} params:}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00218}00218                 cur.execute(query, params)}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00219}00219                 \textcolor{keywordflow}{return} cur.fetchall()}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00220}00220         }
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00221}00221         \textcolor{keywordflow}{return} []}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00222}00222     }
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00223}00223     \textcolor{keywordflow}{finally}:}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00224}00224         cur.close()}
+\DoxyCodeLine{\Hypertarget{Postgres_8py_source_l00225}00225         conn.close()}
+
+\end{DoxyCode}

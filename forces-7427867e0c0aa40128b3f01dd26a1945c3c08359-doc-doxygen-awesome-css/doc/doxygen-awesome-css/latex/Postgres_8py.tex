@@ -1,0 +1,40 @@
+\hypertarget{Postgres_8py}{}\doxysection{/root/\+Juri\+Scan/\+Search\+Engine/\+Postgres.py File Reference}
+\label{Postgres_8py}\index{/root/JuriScan/SearchEngine/Postgres.py@{/root/JuriScan/SearchEngine/Postgres.py}}
+
+
+Postgre\+SQL full-\/text search engine implementation for Juri\+Scan.  
+
+
+\doxysubsection*{Namespaces}
+\begin{DoxyCompactItemize}
+\item 
+namespace \mbox{\hyperlink{namespaceSearchEngine}{Search\+Engine}}
+\item 
+namespace \mbox{\hyperlink{namespaceSearchEngine_1_1Postgres}{Search\+Engine.\+Postgres}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \mbox{\hyperlink{namespaceSearchEngine_1_1Postgres_ac429afb987d9a291bb21cbe1df5f378c}{Search\+Engine.\+Postgres.\+extract\+\_\+keywords}} (uin)
+\begin{DoxyCompactList}\small\item\em Extract keywords from user input using NLTK POS tagging. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceSearchEngine_1_1Postgres_ac36cebc858257e6c674c291410ff2d27}{Search\+Engine.\+Postgres.\+parse\+\_\+advanced\+\_\+query}} (query\+\_\+string)
+\begin{DoxyCompactList}\small\item\em Parse field-\/specific query strings with AND/\+OR operators. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceSearchEngine_1_1Postgres_a97b46e7f635ed1c5bcb4fff68c498178}{Search\+Engine.\+Postgres.\+build\+\_\+search\+\_\+query}} (search\+\_\+terms, title\+\_\+true, abstract\+\_\+true, corpus\+\_\+true, ranking\+\_\+type=\textquotesingle{}ts\+\_\+rank\+\_\+cd\textquotesingle{})
+\begin{DoxyCompactList}\small\item\em Build Postgre\+SQL full-\/text search query with ranking. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceSearchEngine_1_1Postgres_a4c42ae990ceeb3844ee0b39ed6f9e53b}{Search\+Engine.\+Postgres.\+search}} (search\+\_\+query, title\+\_\+true, abstract\+\_\+true, corpus\+\_\+true, ranking\+\_\+type=\textquotesingle{}ts\+\_\+rank\+\_\+cd\textquotesingle{})
+\begin{DoxyCompactList}\small\item\em Main Postgre\+SQL search function with dual search modes. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Postgre\+SQL full-\/text search engine implementation for Juri\+Scan. 
+
+Provides Postgre\+SQL-\/based document searching with ts\+\_\+rank algorithms \begin{DoxyAuthor}{Author}
+Magni \&\& Testoni 
+\end{DoxyAuthor}
+\begin{DoxyDate}{Date}
+2025 
+\end{DoxyDate}
+
+
+Definition in file \mbox{\hyperlink{Postgres_8py_source}{Postgres.\+py}}.
+

@@ -1,0 +1,163 @@
+\hypertarget{namespaceQueries_1_1PostgresQuery}{}\doxysection{Queries.\+Postgres\+Query Namespace Reference}
+\label{namespaceQueries_1_1PostgresQuery}\index{Queries.PostgresQuery@{Queries.PostgresQuery}}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \mbox{\hyperlink{namespaceQueries_1_1PostgresQuery_a274578a8abb09d445e874a32e9aacb0c}{db\+Conn}} ()
+\item 
+def \mbox{\hyperlink{namespaceQueries_1_1PostgresQuery_afa28f4d7cb9758b7ef131f7a17671a0c}{create\+Table}} ()
+\item 
+def \mbox{\hyperlink{namespaceQueries_1_1PostgresQuery_ad49a3f22aa657c1e170d4ab4b7ec0e3f}{create\+Index}} ()
+\item 
+def \mbox{\hyperlink{namespaceQueries_1_1PostgresQuery_ac71420b7e0af729c2188de2d935ce6f2}{doc\+Insert}} (id, title, abstract, corpus, url, keywords=None)
+\item 
+def \mbox{\hyperlink{namespaceQueries_1_1PostgresQuery_a420989d59ff3bb6f230a68fd5abdf3c6}{insert\+Batch}} (cur, batch)
+\item 
+def \mbox{\hyperlink{namespaceQueries_1_1PostgresQuery_a0d2cd4efa8b9bc59f52dd6632c28437e}{json\+To\+PG}} (file)
+\item 
+def \mbox{\hyperlink{namespaceQueries_1_1PostgresQuery_a52b896a8b361b289c9309e18171bb3e7}{reset\+Table}} ()
+\item 
+def \mbox{\hyperlink{namespaceQueries_1_1PostgresQuery_a04fec4d53af4272ee51fe49ec67b7333}{main}} ()
+\end{DoxyCompactItemize}
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{namespaceQueries_1_1PostgresQuery_a40453fb53dee546f54636dc9bf12e143}{project\+\_\+root}} = Path(\+\_\+\+\_\+file\+\_\+\+\_\+).parent.\+parent
+\item 
+\mbox{\hyperlink{namespaceQueries_1_1PostgresQuery_ac9e933de893770fc9cb57673e8ea4f96}{FILE\+\_\+\+PATH}} = str(\mbox{\hyperlink{namespaceQueries_1_1PostgresQuery_a40453fb53dee546f54636dc9bf12e143}{project\+\_\+root}} / \char`\"{}Web\+Scraping/results/Docs\+\_\+cleaned.\+json\char`\"{})
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{namespaceQueries_1_1PostgresQuery_ad49a3f22aa657c1e170d4ab4b7ec0e3f}\label{namespaceQueries_1_1PostgresQuery_ad49a3f22aa657c1e170d4ab4b7ec0e3f}} 
+\index{Queries.PostgresQuery@{Queries.PostgresQuery}!createIndex@{createIndex}}
+\index{createIndex@{createIndex}!Queries.PostgresQuery@{Queries.PostgresQuery}}
+\doxysubsubsection{\texorpdfstring{createIndex()}{createIndex()}}
+{\footnotesize\ttfamily def Queries.\+Postgres\+Query.\+create\+Index (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{PostgresQuery_8py_source_l00070}{70}} of file \mbox{\hyperlink{PostgresQuery_8py_source}{Postgres\+Query.\+py}}.
+
+\mbox{\Hypertarget{namespaceQueries_1_1PostgresQuery_afa28f4d7cb9758b7ef131f7a17671a0c}\label{namespaceQueries_1_1PostgresQuery_afa28f4d7cb9758b7ef131f7a17671a0c}} 
+\index{Queries.PostgresQuery@{Queries.PostgresQuery}!createTable@{createTable}}
+\index{createTable@{createTable}!Queries.PostgresQuery@{Queries.PostgresQuery}}
+\doxysubsubsection{\texorpdfstring{createTable()}{createTable()}}
+{\footnotesize\ttfamily def Queries.\+Postgres\+Query.\+create\+Table (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Database table creation funtction.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{PostgresQuery_8py_source_l00043}{43}} of file \mbox{\hyperlink{PostgresQuery_8py_source}{Postgres\+Query.\+py}}.
+
+\mbox{\Hypertarget{namespaceQueries_1_1PostgresQuery_a274578a8abb09d445e874a32e9aacb0c}\label{namespaceQueries_1_1PostgresQuery_a274578a8abb09d445e874a32e9aacb0c}} 
+\index{Queries.PostgresQuery@{Queries.PostgresQuery}!dbConn@{dbConn}}
+\index{dbConn@{dbConn}!Queries.PostgresQuery@{Queries.PostgresQuery}}
+\doxysubsubsection{\texorpdfstring{dbConn()}{dbConn()}}
+{\footnotesize\ttfamily def Queries.\+Postgres\+Query.\+db\+Conn (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Database connection function.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{PostgresQuery_8py_source_l00015}{15}} of file \mbox{\hyperlink{PostgresQuery_8py_source}{Postgres\+Query.\+py}}.
+
+\mbox{\Hypertarget{namespaceQueries_1_1PostgresQuery_ac71420b7e0af729c2188de2d935ce6f2}\label{namespaceQueries_1_1PostgresQuery_ac71420b7e0af729c2188de2d935ce6f2}} 
+\index{Queries.PostgresQuery@{Queries.PostgresQuery}!docInsert@{docInsert}}
+\index{docInsert@{docInsert}!Queries.PostgresQuery@{Queries.PostgresQuery}}
+\doxysubsubsection{\texorpdfstring{docInsert()}{docInsert()}}
+{\footnotesize\ttfamily def Queries.\+Postgres\+Query.\+doc\+Insert (\begin{DoxyParamCaption}\item[{}]{id,  }\item[{}]{title,  }\item[{}]{abstract,  }\item[{}]{corpus,  }\item[{}]{url,  }\item[{}]{keywords = {\ttfamily None} }\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Field extraction and insertion function.
+
+Args:
+    id (int): Document primary key.
+    title (str): Document title.
+    abstract (str): Document abstract.
+    corpus (str): Document text.
+    url (str): Document url.
+    keywords (str, optional): Document keywords. Defaults to None.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{PostgresQuery_8py_source_l00088}{88}} of file \mbox{\hyperlink{PostgresQuery_8py_source}{Postgres\+Query.\+py}}.
+
+\mbox{\Hypertarget{namespaceQueries_1_1PostgresQuery_a420989d59ff3bb6f230a68fd5abdf3c6}\label{namespaceQueries_1_1PostgresQuery_a420989d59ff3bb6f230a68fd5abdf3c6}} 
+\index{Queries.PostgresQuery@{Queries.PostgresQuery}!insertBatch@{insertBatch}}
+\index{insertBatch@{insertBatch}!Queries.PostgresQuery@{Queries.PostgresQuery}}
+\doxysubsubsection{\texorpdfstring{insertBatch()}{insertBatch()}}
+{\footnotesize\ttfamily def Queries.\+Postgres\+Query.\+insert\+Batch (\begin{DoxyParamCaption}\item[{}]{cur,  }\item[{}]{batch }\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Helper function to insert a batch of documents into the database.
+
+Args:
+    cur: Database cursor
+    batch: List of document tuples to insert
+
+Returns:
+    int: Number of documents successfully inserted
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{PostgresQuery_8py_source_l00120}{120}} of file \mbox{\hyperlink{PostgresQuery_8py_source}{Postgres\+Query.\+py}}.
+
+\mbox{\Hypertarget{namespaceQueries_1_1PostgresQuery_a0d2cd4efa8b9bc59f52dd6632c28437e}\label{namespaceQueries_1_1PostgresQuery_a0d2cd4efa8b9bc59f52dd6632c28437e}} 
+\index{Queries.PostgresQuery@{Queries.PostgresQuery}!jsonToPG@{jsonToPG}}
+\index{jsonToPG@{jsonToPG}!Queries.PostgresQuery@{Queries.PostgresQuery}}
+\doxysubsubsection{\texorpdfstring{jsonToPG()}{jsonToPG()}}
+{\footnotesize\ttfamily def Queries.\+Postgres\+Query.\+json\+To\+PG (\begin{DoxyParamCaption}\item[{}]{file }\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}JSON field extraction and batch insertion into postgres remote database function.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{PostgresQuery_8py_source_l00152}{152}} of file \mbox{\hyperlink{PostgresQuery_8py_source}{Postgres\+Query.\+py}}.
+
+\mbox{\Hypertarget{namespaceQueries_1_1PostgresQuery_a04fec4d53af4272ee51fe49ec67b7333}\label{namespaceQueries_1_1PostgresQuery_a04fec4d53af4272ee51fe49ec67b7333}} 
+\index{Queries.PostgresQuery@{Queries.PostgresQuery}!main@{main}}
+\index{main@{main}!Queries.PostgresQuery@{Queries.PostgresQuery}}
+\doxysubsubsection{\texorpdfstring{main()}{main()}}
+{\footnotesize\ttfamily def Queries.\+Postgres\+Query.\+main (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Main routine called when the script is run.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{PostgresQuery_8py_source_l00239}{239}} of file \mbox{\hyperlink{PostgresQuery_8py_source}{Postgres\+Query.\+py}}.
+
+\mbox{\Hypertarget{namespaceQueries_1_1PostgresQuery_a52b896a8b361b289c9309e18171bb3e7}\label{namespaceQueries_1_1PostgresQuery_a52b896a8b361b289c9309e18171bb3e7}} 
+\index{Queries.PostgresQuery@{Queries.PostgresQuery}!resetTable@{resetTable}}
+\index{resetTable@{resetTable}!Queries.PostgresQuery@{Queries.PostgresQuery}}
+\doxysubsubsection{\texorpdfstring{resetTable()}{resetTable()}}
+{\footnotesize\ttfamily def Queries.\+Postgres\+Query.\+reset\+Table (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Database reset function to be aware of copies.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{PostgresQuery_8py_source_l00227}{227}} of file \mbox{\hyperlink{PostgresQuery_8py_source}{Postgres\+Query.\+py}}.
+
+
+
+\doxysubsection{Variable Documentation}
+\mbox{\Hypertarget{namespaceQueries_1_1PostgresQuery_ac9e933de893770fc9cb57673e8ea4f96}\label{namespaceQueries_1_1PostgresQuery_ac9e933de893770fc9cb57673e8ea4f96}} 
+\index{Queries.PostgresQuery@{Queries.PostgresQuery}!FILE\_PATH@{FILE\_PATH}}
+\index{FILE\_PATH@{FILE\_PATH}!Queries.PostgresQuery@{Queries.PostgresQuery}}
+\doxysubsubsection{\texorpdfstring{FILE\_PATH}{FILE\_PATH}}
+{\footnotesize\ttfamily Queries.\+Postgres\+Query.\+FILE\+\_\+\+PATH = str(\mbox{\hyperlink{namespaceQueries_1_1PostgresQuery_a40453fb53dee546f54636dc9bf12e143}{project\+\_\+root}} / \char`\"{}Web\+Scraping/results/Docs\+\_\+cleaned.\+json\char`\"{})}
+
+
+
+Definition at line \mbox{\hyperlink{PostgresQuery_8py_source_l00013}{13}} of file \mbox{\hyperlink{PostgresQuery_8py_source}{Postgres\+Query.\+py}}.
+
+\mbox{\Hypertarget{namespaceQueries_1_1PostgresQuery_a40453fb53dee546f54636dc9bf12e143}\label{namespaceQueries_1_1PostgresQuery_a40453fb53dee546f54636dc9bf12e143}} 
+\index{Queries.PostgresQuery@{Queries.PostgresQuery}!project\_root@{project\_root}}
+\index{project\_root@{project\_root}!Queries.PostgresQuery@{Queries.PostgresQuery}}
+\doxysubsubsection{\texorpdfstring{project\_root}{project\_root}}
+{\footnotesize\ttfamily Queries.\+Postgres\+Query.\+project\+\_\+root = Path(\+\_\+\+\_\+file\+\_\+\+\_\+).parent.\+parent}
+
+
+
+Definition at line \mbox{\hyperlink{PostgresQuery_8py_source_l00008}{8}} of file \mbox{\hyperlink{PostgresQuery_8py_source}{Postgres\+Query.\+py}}.
+

@@ -1,0 +1,139 @@
+\hypertarget{namespaceUrlGenerator}{}\doxysection{Url\+Generator Namespace Reference}
+\label{namespaceUrlGenerator}\index{UrlGenerator@{UrlGenerator}}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \mbox{\hyperlink{namespaceUrlGenerator_a85ab939096917684d5fc37a374e1b9e3}{generate\+\_\+url}} (m, a)
+\item 
+def \mbox{\hyperlink{namespaceUrlGenerator_a934e1ee0a3013d5fb29f25f089d60d0e}{Url\+Generators}} ()
+\item 
+def \mbox{\hyperlink{namespaceUrlGenerator_af418a40661d35f5b7843174b78dc9cf3}{Check\+Conn}} (response)
+\end{DoxyCompactItemize}
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+string \mbox{\hyperlink{namespaceUrlGenerator_a40ef31f700414f0e6e9719c604407c07}{BASE\+\_\+\+URL}} = \char`\"{}https\+://arxiv.\+org/html/24\char`\"{}
+\item 
+list \mbox{\hyperlink{namespaceUrlGenerator_a46ce80e34b32f9597126258fa6299c73}{urls}} = \mbox{[}$\,$\mbox{]}
+\item 
+list \mbox{\hyperlink{namespaceUrlGenerator_a73d51fecedeaa9933f85fe7433bb2c07}{MONTH\+\_\+\+LIST}} = \mbox{[}i for i in range(1, 13)\mbox{]}
+\item 
+list \mbox{\hyperlink{namespaceUrlGenerator_ac023b10e53011afa2c7aea842110409e}{ARTICLE\+\_\+\+LIST}} = \mbox{[}i for i in range(1, 2)\mbox{]}
+\item 
+int \mbox{\hyperlink{namespaceUrlGenerator_aeece0837e39a0e024e26f3b4292990f0}{MAX\+\_\+\+THREADS}} = 30
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{namespaceUrlGenerator_af418a40661d35f5b7843174b78dc9cf3}\label{namespaceUrlGenerator_af418a40661d35f5b7843174b78dc9cf3}} 
+\index{UrlGenerator@{UrlGenerator}!CheckConn@{CheckConn}}
+\index{CheckConn@{CheckConn}!UrlGenerator@{UrlGenerator}}
+\doxysubsubsection{\texorpdfstring{CheckConn()}{CheckConn()}}
+{\footnotesize\ttfamily def Url\+Generator.\+Check\+Conn (\begin{DoxyParamCaption}\item[{}]{response }\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Connection check function.
+
+This function checks if the connection to the URL was successful and if the HTML contains the "No HTML" string.
+
+Arguments:
+    response (requests.models.Response): The response object from the request.
+    
+Returns:
+    bool: True if the connection was successful and the HTML does not contain the "No HTML" string, False otherwise.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{UrlGenerator_8py_source_l00086}{86}} of file \mbox{\hyperlink{UrlGenerator_8py_source}{Url\+Generator.\+py}}.
+
+\mbox{\Hypertarget{namespaceUrlGenerator_a85ab939096917684d5fc37a374e1b9e3}\label{namespaceUrlGenerator_a85ab939096917684d5fc37a374e1b9e3}} 
+\index{UrlGenerator@{UrlGenerator}!generate\_url@{generate\_url}}
+\index{generate\_url@{generate\_url}!UrlGenerator@{UrlGenerator}}
+\doxysubsubsection{\texorpdfstring{generate\_url()}{generate\_url()}}
+{\footnotesize\ttfamily def Url\+Generator.\+generate\+\_\+url (\begin{DoxyParamCaption}\item[{}]{m,  }\item[{}]{a }\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Url generator function.
+
+This function generates a URL for a given month and article number.
+
+Arguments:
+    m (int): The month number.
+    a (int): The article number.
+
+Returns:
+    str: The generated URL.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{UrlGenerator_8py_source_l00046}{46}} of file \mbox{\hyperlink{UrlGenerator_8py_source}{Url\+Generator.\+py}}.
+
+\mbox{\Hypertarget{namespaceUrlGenerator_a934e1ee0a3013d5fb29f25f089d60d0e}\label{namespaceUrlGenerator_a934e1ee0a3013d5fb29f25f089d60d0e}} 
+\index{UrlGenerator@{UrlGenerator}!UrlGenerators@{UrlGenerators}}
+\index{UrlGenerators@{UrlGenerators}!UrlGenerator@{UrlGenerator}}
+\doxysubsubsection{\texorpdfstring{UrlGenerators()}{UrlGenerators()}}
+{\footnotesize\ttfamily def Url\+Generator.\+Url\+Generators (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Url collapse function.
+
+This function generates all the URLs for the articles and months specified in the MONTH_LIST and ARTICLE_LIST lists using
+the previous function to generate the URLs, then it collapses all the URLs into a single list.
+
+Returns:
+    list: The list of all generated URLs.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{UrlGenerator_8py_source_l00062}{62}} of file \mbox{\hyperlink{UrlGenerator_8py_source}{Url\+Generator.\+py}}.
+
+
+
+\doxysubsection{Variable Documentation}
+\mbox{\Hypertarget{namespaceUrlGenerator_ac023b10e53011afa2c7aea842110409e}\label{namespaceUrlGenerator_ac023b10e53011afa2c7aea842110409e}} 
+\index{UrlGenerator@{UrlGenerator}!ARTICLE\_LIST@{ARTICLE\_LIST}}
+\index{ARTICLE\_LIST@{ARTICLE\_LIST}!UrlGenerator@{UrlGenerator}}
+\doxysubsubsection{\texorpdfstring{ARTICLE\_LIST}{ARTICLE\_LIST}}
+{\footnotesize\ttfamily list Url\+Generator.\+ARTICLE\+\_\+\+LIST = \mbox{[}i for i in range(1, 2)\mbox{]}}
+
+
+
+Definition at line \mbox{\hyperlink{UrlGenerator_8py_source_l00030}{30}} of file \mbox{\hyperlink{UrlGenerator_8py_source}{Url\+Generator.\+py}}.
+
+\mbox{\Hypertarget{namespaceUrlGenerator_a40ef31f700414f0e6e9719c604407c07}\label{namespaceUrlGenerator_a40ef31f700414f0e6e9719c604407c07}} 
+\index{UrlGenerator@{UrlGenerator}!BASE\_URL@{BASE\_URL}}
+\index{BASE\_URL@{BASE\_URL}!UrlGenerator@{UrlGenerator}}
+\doxysubsubsection{\texorpdfstring{BASE\_URL}{BASE\_URL}}
+{\footnotesize\ttfamily string Url\+Generator.\+BASE\+\_\+\+URL = \char`\"{}https\+://arxiv.\+org/html/24\char`\"{}}
+
+
+
+Definition at line \mbox{\hyperlink{UrlGenerator_8py_source_l00006}{6}} of file \mbox{\hyperlink{UrlGenerator_8py_source}{Url\+Generator.\+py}}.
+
+\mbox{\Hypertarget{namespaceUrlGenerator_aeece0837e39a0e024e26f3b4292990f0}\label{namespaceUrlGenerator_aeece0837e39a0e024e26f3b4292990f0}} 
+\index{UrlGenerator@{UrlGenerator}!MAX\_THREADS@{MAX\_THREADS}}
+\index{MAX\_THREADS@{MAX\_THREADS}!UrlGenerator@{UrlGenerator}}
+\doxysubsubsection{\texorpdfstring{MAX\_THREADS}{MAX\_THREADS}}
+{\footnotesize\ttfamily int Url\+Generator.\+MAX\+\_\+\+THREADS = 30}
+
+
+
+Definition at line \mbox{\hyperlink{UrlGenerator_8py_source_l00038}{38}} of file \mbox{\hyperlink{UrlGenerator_8py_source}{Url\+Generator.\+py}}.
+
+\mbox{\Hypertarget{namespaceUrlGenerator_a73d51fecedeaa9933f85fe7433bb2c07}\label{namespaceUrlGenerator_a73d51fecedeaa9933f85fe7433bb2c07}} 
+\index{UrlGenerator@{UrlGenerator}!MONTH\_LIST@{MONTH\_LIST}}
+\index{MONTH\_LIST@{MONTH\_LIST}!UrlGenerator@{UrlGenerator}}
+\doxysubsubsection{\texorpdfstring{MONTH\_LIST}{MONTH\_LIST}}
+{\footnotesize\ttfamily list Url\+Generator.\+MONTH\+\_\+\+LIST = \mbox{[}i for i in range(1, 13)\mbox{]}}
+
+
+
+Definition at line \mbox{\hyperlink{UrlGenerator_8py_source_l00022}{22}} of file \mbox{\hyperlink{UrlGenerator_8py_source}{Url\+Generator.\+py}}.
+
+\mbox{\Hypertarget{namespaceUrlGenerator_a46ce80e34b32f9597126258fa6299c73}\label{namespaceUrlGenerator_a46ce80e34b32f9597126258fa6299c73}} 
+\index{UrlGenerator@{UrlGenerator}!urls@{urls}}
+\index{urls@{urls}!UrlGenerator@{UrlGenerator}}
+\doxysubsubsection{\texorpdfstring{urls}{urls}}
+{\footnotesize\ttfamily list Url\+Generator.\+urls = \mbox{[}$\,$\mbox{]}}
+
+
+
+Definition at line \mbox{\hyperlink{UrlGenerator_8py_source_l00014}{14}} of file \mbox{\hyperlink{UrlGenerator_8py_source}{Url\+Generator.\+py}}.
+

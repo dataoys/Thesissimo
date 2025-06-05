@@ -1,0 +1,85 @@
+\hypertarget{PyLuceneUI_8py_source}{}\doxysection{Py\+Lucene\+UI.\+py}
+\label{PyLuceneUI_8py_source}\index{/root/JuriScan/WebApp/PyLuceneUI.py@{/root/JuriScan/WebApp/PyLuceneUI.py}}
+\mbox{\hyperlink{PyLuceneUI_8py}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00001}\mbox{\hyperlink{namespaceWebApp_1_1PyLuceneUI}{00001}} \textcolor{stringliteral}{"{}"{}"{}!}}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00002}00002 \textcolor{stringliteral}{@file PyLuceneUI.py}}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00003}00003 \textcolor{stringliteral}{@brief Streamlit web interface for PyLucene search engine}}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00004}00004 \textcolor{stringliteral}{@details Provides interactive web UI for document search using PyLucene with JVM management}}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00005}00005 \textcolor{stringliteral}{@author Magni \&\& Testoni}}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00006}00006 \textcolor{stringliteral}{@date 2025}}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00007}00007 \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00008}00008 }
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00009}00009 \textcolor{keyword}{import} lucene}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00010}00010 \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00011}00011     lucene.initVM()}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00012}00012 \textcolor{keywordflow}{except} ValueError:}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00013}00013     \textcolor{keywordflow}{pass}  \textcolor{comment}{\# JVM è già in esecuzione, ignoriamo l'errore}}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00014}00014 }
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00015}00015 \textcolor{keyword}{import} streamlit \textcolor{keyword}{as} st}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00016}00016 \textcolor{keyword}{from} pathlib \textcolor{keyword}{import} Path}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00017}00017 \textcolor{keyword}{import} sys}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00018}00018 }
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00019}\mbox{\hyperlink{namespaceWebApp_1_1PyLuceneUI_ab016681c134b508ade60f044828cd7d5}{00019}} project\_root = Path(\_\_file\_\_).parent.parent}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00020}\mbox{\hyperlink{namespaceWebApp_1_1PyLuceneUI_aef277dbf6d8fa0b42b14fe21998e5f3b}{00020}} json\_file = str(project\_root / \textcolor{stringliteral}{"{}WebScraping/results/Docs\_cleaned.json"{}}) }
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00021}00021 sys.path.append(str(project\_root))}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00022}00022 }
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00023}00023 \textcolor{keyword}{from} \mbox{\hyperlink{namespaceSearchEngine_1_1Pylucene}{SearchEngine.Pylucene}} \textcolor{keyword}{import} create\_index, search\_documents}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00024}00024 }
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00025}\mbox{\hyperlink{namespaceWebApp_1_1PyLuceneUI_ad6614b9695eee7b6635c978d93ddd4ac}{00025}} directory, searcher = \mbox{\hyperlink{namespaceSearchEngine_1_1Pylucene_a52bc027d18b16aae3e162458cba18d9b}{create\_index}}()}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00026}00026 }
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00027}\mbox{\hyperlink{namespaceWebApp_1_1PyLuceneUI_a7788df12bea190a9874c60ef14a9ba92}{00027}} \textcolor{keyword}{def }\mbox{\hyperlink{namespaceWebApp_1_1PyLuceneUI_a7788df12bea190a9874c60ef14a9ba92}{searchUI}}():}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00028}00028     \textcolor{stringliteral}{"{}"{}"{}!}}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00029}00029 \textcolor{stringliteral}{    }\textcolor{preprocessor}{@brief} Main Streamlit UI function \textcolor{keywordflow}{for} PyLucene search interface}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00030}00030     \textcolor{preprocessor}{@details} Creates complete web interface including:}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00031}00031              -\/ JVM initialization \textcolor{keywordflow}{and} index management}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00032}00032              -\/ Search field configuration \textcolor{keywordflow}{and} filters}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00033}00033              -\/ Document ranking type selection (TF\_IDF, BM25)}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00034}00034              -\/ Results display \textcolor{keyword}{with} document scores \textcolor{keywordflow}{and} links}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00035}00035              -\/ Integration \textcolor{keyword}{with} PyLucene precision-\/recall metrics}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00036}00036     \textcolor{preprocessor}{@return} \textcolor{keywordtype}{None}}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00037}00037     \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00038}00038 \textcolor{stringliteral}{    st.sidebar.image('/root/JuriScan/forces-\/7427867e0c0aa40128b3f01dd26a1945c3c08359-\/doc-\/doxygen-\/awesome-\/css/doc/doxygen-\/awesome-\/css/Logo.png'}, width=150)}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00039}00039     st.sidebar.write(\textcolor{stringliteral}{"{}Thesissimo è un motore di ricerca innovativo progettato per permettere agli studenti, ricercatori e professionisti di cercare tra decine di  migliaia di tesi universitarie relative a materie scientifiche. Che si tratti di scienze, astrofisica, o ingegneria noi abbiamo la risposta. Con una ricerca precisa, rapida e facile da usare, Thesissimo rende più facile l'accesso a risorse accademiche."{}})}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00040}00040     st.title(\textcolor{stringliteral}{"{}📚 Ricerca Documenti"{}})}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00041}00041     ranking\_type = st.radio(\textcolor{stringliteral}{"{}🔍 Seleziona il tipo di ranking"{}}, [\textcolor{stringliteral}{"{}TF\_IDF"{}}, \textcolor{stringliteral}{"{}BM25"{}}])}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00042}00042 }
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00043}00043     \textcolor{keyword}{with} st.expander(\textcolor{stringliteral}{'🔧Filtra la tua ricerca!'}):}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00044}00044         col1, col2, col3 = st.columns(3)}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00045}00045         \textcolor{keyword}{with} col1:}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00046}00046             title\_true = st.checkbox(\textcolor{stringliteral}{"{}Titolo"{}})}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00047}00047         \textcolor{keyword}{with} col2:}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00048}00048             abstract\_true = st.checkbox(\textcolor{stringliteral}{"{}Abstract"{}})}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00049}00049         \textcolor{keyword}{with} col3:}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00050}00050             corpus\_true = st.checkbox(\textcolor{stringliteral}{"{}Corpus"{}})}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00051}00051     }
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00052}00052     st.info(\textcolor{stringliteral}{"{}"{}"{}Lil Tip: Do a query with natural language. The output will include synonyms, so the more term you use, the better the search!\(\backslash\)n\(\backslash\)nFor example:\(\backslash\)n\(\backslash\)n}}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00053}00053 \textcolor{stringliteral}{         Document about radioactivity\(\backslash\)n\(\backslash\)n}}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00054}00054 \textcolor{stringliteral}{        "{}"{}"{}, icon="{}💡"{}) }}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00055}00055 \textcolor{stringliteral}{}}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00056}00056 \textcolor{stringliteral}{    query\_string = st.text\_input("{}🔍 Inserisci il testo da cercare"{}}, \textcolor{stringliteral}{"{}"{}})}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00057}00057     results, pr\_metrics, plot\_path = \mbox{\hyperlink{namespaceSearchEngine_1_1Pylucene_a263c48dafaf0fdcbe0da28b1e3635c7d}{search\_documents}}(searcher, title\_true, abstract\_true, corpus\_true, query\_string, ranking\_type)}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00058}00058     }
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00059}00059     \textcolor{keywordflow}{if} results:}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00060}00060         st.success(f\textcolor{stringliteral}{"{}Trovati \{len(results.scoreDocs)\} documenti"{}})}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00061}00061 }
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00062}00062         \textcolor{comment}{\# Mostra i risultati}}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00063}00063         \textcolor{keywordflow}{for} scoreDoc \textcolor{keywordflow}{in} results.scoreDocs:}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00064}00064             doc = searcher.storedFields().document(scoreDoc.doc)}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00065}00065             title\_html = f\textcolor{stringliteral}{'📄 \{doc.get("{}title"{})\}'}}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00066}00066             \textcolor{keyword}{with} st.expander(title\_html, expanded=\textcolor{keyword}{False}):}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00067}00067                 st.write(\textcolor{stringliteral}{"{}**ID:** "{}}, scoreDoc.doc)}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00068}00068                 st.write(\textcolor{stringliteral}{"{}**Abstract:**"{}}, doc.get(\textcolor{stringliteral}{"{}abstract"{}}))}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00069}00069                 \textcolor{keywordflow}{if} doc.get(\textcolor{stringliteral}{"{}keywords"{}}) != \textcolor{stringliteral}{"{}No keywords available"{}}:}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00070}00070                     st.write(\textcolor{stringliteral}{"{}**Keywords:**"{}}, doc.get(\textcolor{stringliteral}{"{}keywords"{}}))}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00071}00071                 url=doc.get(\textcolor{stringliteral}{"{}url"{}})}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00072}00072                 st.markdown(f\textcolor{stringliteral}{"{}[🔗 Vai al documento originale](\{url\})"{}})}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00073}00073                 st.markdown(\textcolor{stringliteral}{"{}-\/-\/-\/"{}})}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00074}00074                 st.write(\textcolor{stringliteral}{"{}**Punteggio**"{}}, scoreDoc.score)}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00075}00075     \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00076}00076         st.warning(\textcolor{stringliteral}{"{}Nessun documento trovato per la ricerca effettuata."{}})}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00077}00077 }
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00078}00078 \textcolor{keywordflow}{if} \_\_name\_\_ == \textcolor{stringliteral}{"{}\_\_main\_\_"{}}:}
+\DoxyCodeLine{\Hypertarget{PyLuceneUI_8py_source_l00079}00079     \mbox{\hyperlink{namespaceWebApp_1_1PyLuceneUI_a7788df12bea190a9874c60ef14a9ba92}{searchUI}}()}
+
+\end{DoxyCode}

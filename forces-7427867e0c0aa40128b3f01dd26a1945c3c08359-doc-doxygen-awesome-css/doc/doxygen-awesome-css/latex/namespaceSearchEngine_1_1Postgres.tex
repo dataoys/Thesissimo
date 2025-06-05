@@ -1,0 +1,125 @@
+\hypertarget{namespaceSearchEngine_1_1Postgres}{}\doxysection{Search\+Engine.\+Postgres Namespace Reference}
+\label{namespaceSearchEngine_1_1Postgres}\index{SearchEngine.Postgres@{SearchEngine.Postgres}}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \mbox{\hyperlink{namespaceSearchEngine_1_1Postgres_ac429afb987d9a291bb21cbe1df5f378c}{extract\+\_\+keywords}} (uin)
+\begin{DoxyCompactList}\small\item\em Extract keywords from user input using NLTK POS tagging. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceSearchEngine_1_1Postgres_ac36cebc858257e6c674c291410ff2d27}{parse\+\_\+advanced\+\_\+query}} (query\+\_\+string)
+\begin{DoxyCompactList}\small\item\em Parse field-\/specific query strings with AND/\+OR operators. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceSearchEngine_1_1Postgres_a97b46e7f635ed1c5bcb4fff68c498178}{build\+\_\+search\+\_\+query}} (search\+\_\+terms, title\+\_\+true, abstract\+\_\+true, corpus\+\_\+true, ranking\+\_\+type=\textquotesingle{}ts\+\_\+rank\+\_\+cd\textquotesingle{})
+\begin{DoxyCompactList}\small\item\em Build Postgre\+SQL full-\/text search query with ranking. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceSearchEngine_1_1Postgres_a4c42ae990ceeb3844ee0b39ed6f9e53b}{search}} (search\+\_\+query, title\+\_\+true, abstract\+\_\+true, corpus\+\_\+true, ranking\+\_\+type=\textquotesingle{}ts\+\_\+rank\+\_\+cd\textquotesingle{})
+\begin{DoxyCompactList}\small\item\em Main Postgre\+SQL search function with dual search modes. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{namespaceSearchEngine_1_1Postgres_a97b46e7f635ed1c5bcb4fff68c498178}\label{namespaceSearchEngine_1_1Postgres_a97b46e7f635ed1c5bcb4fff68c498178}} 
+\index{SearchEngine.Postgres@{SearchEngine.Postgres}!build\_search\_query@{build\_search\_query}}
+\index{build\_search\_query@{build\_search\_query}!SearchEngine.Postgres@{SearchEngine.Postgres}}
+\doxysubsubsection{\texorpdfstring{build\_search\_query()}{build\_search\_query()}}
+{\footnotesize\ttfamily def Search\+Engine.\+Postgres.\+build\+\_\+search\+\_\+query (\begin{DoxyParamCaption}\item[{}]{search\+\_\+terms,  }\item[{}]{title\+\_\+true,  }\item[{}]{abstract\+\_\+true,  }\item[{}]{corpus\+\_\+true,  }\item[{}]{ranking\+\_\+type = {\ttfamily \textquotesingle{}ts\+\_\+rank\+\_\+cd\textquotesingle{}} }\end{DoxyParamCaption})}
+
+
+
+Build Postgre\+SQL full-\/text search query with ranking. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em search\+\_\+terms} & The search terms to look for \\
+\hline
+{\em title\+\_\+true} & Boolean flag to search in title field \\
+\hline
+{\em abstract\+\_\+true} & Boolean flag to search in abstract field \\
+\hline
+{\em corpus\+\_\+true} & Boolean flag to search in corpus field \\
+\hline
+{\em ranking\+\_\+type} & The ranking function to use (\textquotesingle{}ts\+\_\+rank\textquotesingle{} or \textquotesingle{}ts\+\_\+rank\+\_\+cd\textquotesingle{}) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Tuple of (query\+\_\+string, params) for Postgre\+SQL execution
+\end{DoxyReturn}
+Constructs SQL query with tsvector matching and relevance ranking 
+
+Definition at line \mbox{\hyperlink{Postgres_8py_source_l00103}{103}} of file \mbox{\hyperlink{Postgres_8py_source}{Postgres.\+py}}.
+
+\mbox{\Hypertarget{namespaceSearchEngine_1_1Postgres_ac429afb987d9a291bb21cbe1df5f378c}\label{namespaceSearchEngine_1_1Postgres_ac429afb987d9a291bb21cbe1df5f378c}} 
+\index{SearchEngine.Postgres@{SearchEngine.Postgres}!extract\_keywords@{extract\_keywords}}
+\index{extract\_keywords@{extract\_keywords}!SearchEngine.Postgres@{SearchEngine.Postgres}}
+\doxysubsubsection{\texorpdfstring{extract\_keywords()}{extract\_keywords()}}
+{\footnotesize\ttfamily def Search\+Engine.\+Postgres.\+extract\+\_\+keywords (\begin{DoxyParamCaption}\item[{}]{uin }\end{DoxyParamCaption})}
+
+
+
+Extract keywords from user input using NLTK POS tagging. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em uin} & Search bar input string \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+List of keywords filtered from nouns and verbs
+\end{DoxyReturn}
+Tokenizes input, performs POS tagging, and filters for meaningful parts of speech while removing English stopwords 
+
+Definition at line \mbox{\hyperlink{Postgres_8py_source_l00020}{20}} of file \mbox{\hyperlink{Postgres_8py_source}{Postgres.\+py}}.
+
+\mbox{\Hypertarget{namespaceSearchEngine_1_1Postgres_ac36cebc858257e6c674c291410ff2d27}\label{namespaceSearchEngine_1_1Postgres_ac36cebc858257e6c674c291410ff2d27}} 
+\index{SearchEngine.Postgres@{SearchEngine.Postgres}!parse\_advanced\_query@{parse\_advanced\_query}}
+\index{parse\_advanced\_query@{parse\_advanced\_query}!SearchEngine.Postgres@{SearchEngine.Postgres}}
+\doxysubsubsection{\texorpdfstring{parse\_advanced\_query()}{parse\_advanced\_query()}}
+{\footnotesize\ttfamily def Search\+Engine.\+Postgres.\+parse\+\_\+advanced\+\_\+query (\begin{DoxyParamCaption}\item[{}]{query\+\_\+string }\end{DoxyParamCaption})}
+
+
+
+Parse field-\/specific query strings with AND/\+OR operators. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em query\+\_\+string} & Query string with field specifications (e.\+g., \char`\"{}title\+:space AND corpus\+:python\char`\"{}) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Tuple of (where\+\_\+clause, params, fields\+\_\+used)
+\end{DoxyReturn}
+Supports multi-\/word searches in quotes and logical operators. Returns SQL WHERE clause, parameters, and field usage tracking. 
+
+Definition at line \mbox{\hyperlink{Postgres_8py_source_l00044}{44}} of file \mbox{\hyperlink{Postgres_8py_source}{Postgres.\+py}}.
+
+\mbox{\Hypertarget{namespaceSearchEngine_1_1Postgres_a4c42ae990ceeb3844ee0b39ed6f9e53b}\label{namespaceSearchEngine_1_1Postgres_a4c42ae990ceeb3844ee0b39ed6f9e53b}} 
+\index{SearchEngine.Postgres@{SearchEngine.Postgres}!search@{search}}
+\index{search@{search}!SearchEngine.Postgres@{SearchEngine.Postgres}}
+\doxysubsubsection{\texorpdfstring{search()}{search()}}
+{\footnotesize\ttfamily def Search\+Engine.\+Postgres.\+search (\begin{DoxyParamCaption}\item[{}]{search\+\_\+query,  }\item[{}]{title\+\_\+true,  }\item[{}]{abstract\+\_\+true,  }\item[{}]{corpus\+\_\+true,  }\item[{}]{ranking\+\_\+type = {\ttfamily \textquotesingle{}ts\+\_\+rank\+\_\+cd\textquotesingle{}} }\end{DoxyParamCaption})}
+
+
+
+Main Postgre\+SQL search function with dual search modes. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em search\+\_\+query} & The user\textquotesingle{}s input query string \\
+\hline
+{\em title\+\_\+true} & Boolean flag to search in title field \\
+\hline
+{\em abstract\+\_\+true} & Boolean flag to search in abstract field \\
+\hline
+{\em corpus\+\_\+true} & Boolean flag to search in corpus field \\
+\hline
+{\em ranking\+\_\+type} & The ranking function to use (\textquotesingle{}ts\+\_\+rank\textquotesingle{} or \textquotesingle{}ts\+\_\+rank\+\_\+cd\textquotesingle{}) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+List of matching documents ordered by relevance
+\end{DoxyReturn}
+Supports both field-\/specific searches (with AND/\+OR syntax) and checkbox-\/based searches. Uses Postgre\+SQL full-\/text search capabilities. 
+\begin{DoxyExceptions}{Exceptions}
+{\em Value\+Error} & If database connection fails or query execution errors occur \\
+\hline
+\end{DoxyExceptions}
+
+
+Definition at line \mbox{\hyperlink{Postgres_8py_source_l00146}{146}} of file \mbox{\hyperlink{Postgres_8py_source}{Postgres.\+py}}.
+

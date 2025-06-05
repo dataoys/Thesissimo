@@ -1,0 +1,586 @@
+\hypertarget{Whoosh_8py_source}{}\doxysection{Whoosh.\+py}
+\label{Whoosh_8py_source}\index{/root/JuriScan/SearchEngine/Whoosh.py@{/root/JuriScan/SearchEngine/Whoosh.py}}
+\mbox{\hyperlink{Whoosh_8py}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00001}\mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh}{00001}} \textcolor{stringliteral}{"{}"{}"{}!}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00002}00002 \textcolor{stringliteral}{@file Whoosh.py}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00003}00003 \textcolor{stringliteral}{@brief Whoosh search engine implementation for JuriScan}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00004}00004 \textcolor{stringliteral}{@details Pure Python search engine with advanced NLP features and semantic query expansion}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00005}00005 \textcolor{stringliteral}{@author Magni \&\& Testoni}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00006}00006 \textcolor{stringliteral}{@date 2025}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00007}00007 \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00008}00008 }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00009}00009 \textcolor{keyword}{import} os}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00010}00010 \textcolor{keyword}{import} ijson}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00011}00011 \textcolor{keyword}{from} whoosh.index \textcolor{keyword}{import} create\_in}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00012}00012 \textcolor{keyword}{from} whoosh \textcolor{keyword}{import} index \textcolor{keyword}{as} whoosh\_module\_index \textcolor{comment}{\# Alias to avoid conflict}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00013}00013 \textcolor{keyword}{from} whoosh.fields \textcolor{keyword}{import} Schema, TEXT, ID}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00014}00014 \textcolor{keyword}{from} whoosh.scoring \textcolor{keyword}{import} TF\_IDF, BM25F}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00015}00015 \textcolor{keyword}{from} whoosh.qparser \textcolor{keyword}{import} OrGroup, MultifieldParser}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00016}00016 \textcolor{keyword}{from} whoosh.analysis \textcolor{keyword}{import} StemmingAnalyzer}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00017}00017 \textcolor{keyword}{from} whoosh \textcolor{keyword}{import} qparser}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00018}00018 \textcolor{keyword}{from} nltk.corpus \textcolor{keyword}{import} stopwords}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00019}00019 \textcolor{keyword}{from} nltk.tokenize \textcolor{keyword}{import} word\_tokenize}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00020}00020 \textcolor{keyword}{from} nltk.corpus \textcolor{keyword}{import} wordnet}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00021}00021 \textcolor{keyword}{from} nltk \textcolor{keyword}{import} pos\_tag}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00022}00022 \textcolor{keyword}{from} nltk.stem \textcolor{keyword}{import} WordNetLemmatizer}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00023}00023 \textcolor{keyword}{import} nltk}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00024}00024 \textcolor{keyword}{import} yake  }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00025}00025 \textcolor{keyword}{from} pathlib \textcolor{keyword}{import} Path \textcolor{comment}{\# Import Path}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00026}00026 \textcolor{keyword}{import} traceback \textcolor{comment}{\# For detailed error printing}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00027}00027 }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00028}00028 \textcolor{comment}{\# Add this function after the imports}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00029}\mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_a2abe52eb8e6476513e34f8e274587bcb}{00029}} \textcolor{keyword}{def }\mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_a2abe52eb8e6476513e34f8e274587bcb}{setup\_nltk}}():}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00030}00030     \textcolor{stringliteral}{"{}"{}"{}!}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00031}00031 \textcolor{stringliteral}{    }\textcolor{preprocessor}{@brief} Download \textcolor{keywordflow}{and} setup required NLTK resources}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00032}00032     \textcolor{preprocessor}{@details} Downloads WordNet, POS tagger, tokenizer, \textcolor{keywordflow}{and} stopwords \textcolor{keywordflow}{if} \textcolor{keywordflow}{not} available.}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00033}00033              Includes error handling \textcolor{keywordflow}{and} fallback mechanisms.}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00034}00034     \textcolor{preprocessor}{@return} \textcolor{keywordtype}{None}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00035}00035     \textcolor{preprocessor}{@throws} Exception \textcolor{keywordflow}{if} NLTK resources cannot be downloaded}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00036}00036     \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00037}00037 \textcolor{stringliteral}{    }\textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00038}00038         \textcolor{comment}{\# Test if WordNet is available by trying to access a basic attribute or method}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00039}00039         \textcolor{comment}{\# Using synsets as a more robust check than all\_lemma\_names for initialization}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00040}00040         nltk.corpus.wordnet.synsets(\textcolor{stringliteral}{'test'})}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00041}00041         print(\textcolor{stringliteral}{"{}✅ NLTK resources (including WordNet) appear to be loaded."{}})}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00042}00042     \textcolor{keywordflow}{except} (LookupError, AttributeError) \textcolor{keyword}{as} e: \textcolor{comment}{\# Catch AttributeError as well}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00043}00043         print(f\textcolor{stringliteral}{"{}⏳ NLTK resources not found or WordNet not fully initialized (\{e\}). Downloading/Reloading..."{}})}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00044}00044         \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00045}00045             nltk.download(\textcolor{stringliteral}{'wordnet'}, quiet=\textcolor{keyword}{True})}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00046}00046             nltk.download(\textcolor{stringliteral}{'averaged\_perceptron\_tagger'}, quiet=\textcolor{keyword}{True})}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00047}00047             nltk.download(\textcolor{stringliteral}{'punkt'}, quiet=\textcolor{keyword}{True})}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00048}00048             nltk.download(\textcolor{stringliteral}{'stopwords'}, quiet=\textcolor{keyword}{True})}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00049}00049             nltk.download(\textcolor{stringliteral}{'omw-\/1.4'}, quiet=\textcolor{keyword}{True})  \textcolor{comment}{\# Open Multilingual WordNet}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00050}00050             print(\textcolor{stringliteral}{"{}👍 NLTK resources downloaded."{}})}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00051}00051             \textcolor{comment}{\# Attempt to force load WordNet after download}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00052}00052             \textcolor{keyword}{from} nltk.corpus \textcolor{keyword}{import} wordnet \textcolor{keyword}{as} wn}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00053}00053             wn.ensure\_loaded()}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00054}00054             print(\textcolor{stringliteral}{"{}✅ NLTK WordNet explicitly loaded."{}})}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00055}00055         \textcolor{keywordflow}{except} Exception \textcolor{keyword}{as} e\_download:}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00056}00056             print(f\textcolor{stringliteral}{"{}❌ Error downloading or loading NLTK resources: \{e\_download\}"{}})}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00057}00057             \textcolor{comment}{\# Consider raising an error or handling it if essential for app startup}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00058}00058             \textcolor{comment}{\# For now, we'll let it proceed, but functionality might be impaired.}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00059}00059 }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00060}00060 \textcolor{comment}{\# Function to create index schema}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00061}\mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_a6921413722748e5c81037e144ee86912}{00061}} \textcolor{keyword}{def }\mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_a6921413722748e5c81037e144ee86912}{create\_schema}}():}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00062}00062     \textcolor{stringliteral}{"{}"{}"{}!}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00063}00063 \textcolor{stringliteral}{    }\textcolor{preprocessor}{@brief} Generate Whoosh index schema \textcolor{keywordflow}{for} document structure}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00064}00064     \textcolor{preprocessor}{@return} Schema object configured \textcolor{keywordflow}{for} document fields}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00065}00065     \textcolor{preprocessor}{@details} Creates schema \textcolor{keyword}{with} ID, title, abstract, corpus, keywords, \textcolor{keywordflow}{and} URL fields.}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00066}00066              Uses stemming analyzer \textcolor{keywordflow}{for} text fields to improve search recall.}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00067}00067     \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00068}00068 \textcolor{stringliteral}{    }\textcolor{comment}{\# Eseguiamo stemming di soli campi testuali significativi}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00069}00069     \textcolor{keywordflow}{return} Schema(}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00070}00070         id=ID(stored=\textcolor{keyword}{True}),}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00071}00071         title=TEXT(stored=\textcolor{keyword}{True}, analyzer=StemmingAnalyzer()),}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00072}00072         abstract=TEXT(stored=\textcolor{keyword}{True}, analyzer=StemmingAnalyzer()),}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00073}00073         corpus=TEXT(stored=\textcolor{keyword}{True}, analyzer=StemmingAnalyzer()),}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00074}00074         keywords=TEXT(stored=\textcolor{keyword}{True}),}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00075}00075         url=TEXT(stored=\textcolor{keyword}{True})}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00076}00076     )}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00077}00077 }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00078}00078 \textcolor{comment}{\# Creazione dell'indice}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00079}\mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_a6afc92eebd7d7cb8313c804bdfe38735}{00079}} \textcolor{keyword}{def }\mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_a6afc92eebd7d7cb8313c804bdfe38735}{create\_whoosh\_index\_internal}}(index\_dir):}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00080}00080     \textcolor{stringliteral}{"{}"{}"{}!}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00081}00081 \textcolor{stringliteral}{    }\textcolor{preprocessor}{@brief} Internal function to create new Whoosh index structure}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00082}00082     \textcolor{preprocessor}{@param} index\_dir Path to the index directory}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00083}00083     \textcolor{preprocessor}{@return} Index object \textcolor{keywordflow}{for} the newly created index}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00084}00084     \textcolor{preprocessor}{@details} Creates directory \textcolor{keywordflow}{if} needed \textcolor{keywordflow}{and} initializes empty Whoosh index \textcolor{keyword}{with} schema}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00085}00085     \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00086}00086 \textcolor{stringliteral}{    }\textcolor{keywordflow}{if} \textcolor{keywordflow}{not} os.path.exists(index\_dir):}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00087}00087         print(f\textcolor{stringliteral}{"{}Creating directory for Whoosh index: \{index\_dir\}"{}})}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00088}00088         os.makedirs(index\_dir) \textcolor{comment}{\# Use makedirs to create parent dirs if needed}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00089}00089     schema = \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_a6921413722748e5c81037e144ee86912}{create\_schema}}()}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00090}00090     print(f\textcolor{stringliteral}{"{}Creating new Whoosh index in \{index\_dir\} with schema."{}})}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00091}00091     ix = create\_in(index\_dir, schema)}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00092}00092     \textcolor{keywordflow}{return} ix}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00093}00093 }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00094}00094 \textcolor{comment}{\# Indicizzazione dei documenti in batch}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00095}\mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_a3539d29b6b5695f37c9e246d6f4c07c7}{00095}} \textcolor{keyword}{def }\mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_a3539d29b6b5695f37c9e246d6f4c07c7}{index\_documents}}(index\_dir, json\_file, batch\_size=1000):}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00096}00096     \textcolor{stringliteral}{"{}"{}"{}!}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00097}00097 \textcolor{stringliteral}{    }\textcolor{preprocessor}{@brief} Index documents \textcolor{keyword}{from} JSON file into Whoosh index}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00098}00098     \textcolor{preprocessor}{@param} index\_dir Path to the index directory}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00099}00099     \textcolor{preprocessor}{@param} json\_file Path to the JSON document file}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00100}00100     \textcolor{preprocessor}{@param} batch\_size Number of documents to process \textcolor{keywordflow}{in} each batch (default: 1000)}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00101}00101     \textcolor{preprocessor}{@return} Index object \textcolor{keywordflow}{for} the populated index}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00102}00102     \textcolor{preprocessor}{@details} Forces rebuild of index, processes documents \textcolor{keywordflow}{in} batches \textcolor{keywordflow}{for} memory efficiency.}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00103}00103              Uses incremental JSON parsing to handle large files.}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00104}00104     \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00105}00105 \textcolor{stringliteral}{    print(f"{}-\/-\/-\/ Starting Whoosh Indexing -\/-\/-\/"{}})}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00106}00106     print(f\textcolor{stringliteral}{"{}Index directory: \{index\_dir\}"{}})}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00107}00107     print(f\textcolor{stringliteral}{"{}JSON source file: \{json\_file\}"{}})}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00108}00108     \textcolor{comment}{\# Crea un nuovo indice (forza la ricreazione)}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00109}00109     ix = \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_a6afc92eebd7d7cb8313c804bdfe38735}{create\_whoosh\_index\_internal}}(index\_dir)}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00110}00110     doc\_count = 0}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00111}00111     }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00112}00112     \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00113}00113         \textcolor{comment}{\# Leggere il file JSON in modo incrementale con ijson}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00114}00114         \textcolor{keyword}{with} open(json\_file, \textcolor{stringliteral}{'r'}, encoding=\textcolor{stringliteral}{'utf-\/8'}, errors=\textcolor{stringliteral}{'ignore'}) \textcolor{keyword}{as} f:}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00115}00115             parser = ijson.parse(f)}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00116}00116             current\_doc = \{\}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00117}00117             batch = []}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00118}00118             }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00119}00119             \textcolor{keywordflow}{for} prefix, event, value \textcolor{keywordflow}{in} parser:}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00120}00120                 \textcolor{keywordflow}{if} prefix.endswith(\textcolor{stringliteral}{'.id'}):}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00121}00121                     \textcolor{keywordflow}{if} current\_doc:  \textcolor{comment}{\# Se abbiamo un documento completo, aggiungiamolo al batch}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00122}00122                         batch.append(current\_doc)}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00123}00123                         current\_doc = \{\}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00124}00124                     current\_doc[\textcolor{stringliteral}{'id'}] = str(value)}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00125}00125                 \textcolor{keywordflow}{elif} prefix.endswith(\textcolor{stringliteral}{'.title'}):}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00126}00126                     current\_doc[\textcolor{stringliteral}{'title'}] = value}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00127}00127                 \textcolor{keywordflow}{elif} prefix.endswith(\textcolor{stringliteral}{'.abstract'}):}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00128}00128                     current\_doc[\textcolor{stringliteral}{'abstract'}] = value}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00129}00129                 \textcolor{keywordflow}{elif} prefix.endswith(\textcolor{stringliteral}{'.corpus'}):}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00130}00130                     current\_doc[\textcolor{stringliteral}{'corpus'}] = value}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00131}00131                 \textcolor{keywordflow}{elif} prefix.endswith(\textcolor{stringliteral}{'.keywords'}):}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00132}00132                     current\_doc[\textcolor{stringliteral}{'keywords'}] = value}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00133}00133                 \textcolor{keywordflow}{elif} prefix.endswith(\textcolor{stringliteral}{'.url'}):}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00134}00134                     current\_doc[\textcolor{stringliteral}{'url'}] = value}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00135}00135 }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00136}00136                 \textcolor{comment}{\# Se il batch raggiunge la dimensione specificata, scrivilo nell'indice}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00137}00137                 \textcolor{keywordflow}{if} len(batch) >= batch\_size:}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00138}00138                     \textcolor{keyword}{with} ix.writer() \textcolor{keyword}{as} writer:}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00139}00139                         \textcolor{keywordflow}{for} doc \textcolor{keywordflow}{in} batch:}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00140}00140                             writer.add\_document(}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00141}00141                                 id=doc[\textcolor{stringliteral}{'id'}],}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00142}00142                                 title=doc.get(\textcolor{stringliteral}{'title'}, \textcolor{stringliteral}{''}),}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00143}00143                                 abstract=doc.get(\textcolor{stringliteral}{'abstract'}, \textcolor{stringliteral}{''}),}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00144}00144                                 corpus=doc.get(\textcolor{stringliteral}{'corpus'}, \textcolor{stringliteral}{''}),}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00145}00145                                 keywords=doc.get(\textcolor{stringliteral}{'keywords'}, \textcolor{stringliteral}{''}),}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00146}00146                                 url=doc.get(\textcolor{stringliteral}{'url'}, \textcolor{stringliteral}{''})}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00147}00147                             )}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00148}00148                     doc\_count += len(batch)}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00149}00149                     print(f\textcolor{stringliteral}{"{}📦 Batch di \{len(batch)\} documenti indicizzati. Totale: \{doc\_count\}"{}})}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00150}00150                     batch = []}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00151}00151 }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00152}00152             \textcolor{comment}{\# Gestisci l'ultimo documento e batch}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00153}00153             \textcolor{keywordflow}{if} current\_doc:}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00154}00154                 batch.append(current\_doc)}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00155}00155             \textcolor{keywordflow}{if} batch:}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00156}00156                 \textcolor{keyword}{with} ix.writer() \textcolor{keyword}{as} writer:}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00157}00157                     \textcolor{keywordflow}{for} doc \textcolor{keywordflow}{in} batch:}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00158}00158                         writer.add\_document(}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00159}00159                             id=doc[\textcolor{stringliteral}{'id'}],}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00160}00160                             title=doc.get(\textcolor{stringliteral}{'title'}, \textcolor{stringliteral}{''}),}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00161}00161                             abstract=doc.get(\textcolor{stringliteral}{'abstract'}, \textcolor{stringliteral}{''}),}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00162}00162                             corpus=doc.get(\textcolor{stringliteral}{'corpus'}, \textcolor{stringliteral}{''}),}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00163}00163                             keywords=doc.get(\textcolor{stringliteral}{'keywords'}, \textcolor{stringliteral}{''}),}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00164}00164                             url=doc.get(\textcolor{stringliteral}{'url'}, \textcolor{stringliteral}{''})}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00165}00165                         )}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00166}00166                 doc\_count += len(batch)}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00167}00167                 print(f\textcolor{stringliteral}{"{}📦 Ultimo batch di \{len(batch)\} documenti indicizzati. Totale finale: \{doc\_count\}"{}})}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00168}00168 }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00169}00169     \textcolor{keywordflow}{except} Exception \textcolor{keyword}{as} e:}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00170}00170         print(f\textcolor{stringliteral}{"{}❌ Errore durante l'indicizzazione: \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00171}00171         traceback.print\_exc() \textcolor{comment}{\# Print full traceback}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00172}00172         \textcolor{comment}{\# raise \# Re-\/raise if you want to stop execution}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00173}00173     }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00174}00174     print(f\textcolor{stringliteral}{"{}✅ Indicizzazione completata! Totale documenti indicizzati: \{doc\_count\}"{}})}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00175}00175     \textcolor{keywordflow}{return} ix}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00176}00176 }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00177}00177 \textcolor{comment}{\# Funzione per cercare nei documenti indicizzati}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00178}\mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_af2e81655e82ca7c3977c24845da90795}{00178}} \textcolor{keyword}{def }\mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_af2e81655e82ca7c3977c24845da90795}{parse\_advanced\_query}}(query\_string, schema):}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00179}00179     \textcolor{stringliteral}{"{}"{}"{}!}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00180}00180 \textcolor{stringliteral}{    }\textcolor{preprocessor}{@brief} Parse complex query strings \textcolor{keyword}{with} field specifications \textcolor{keywordflow}{and} operators}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00181}00181     \textcolor{preprocessor}{@param} query\_string Query string to parse (may contain field:term AND/OR operators)}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00182}00182     \textcolor{preprocessor}{@param} schema Whoosh schema object \textcolor{keywordflow}{for} field validation}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00183}00183     \textcolor{preprocessor}{@return} Parsed Query object \textcolor{keywordflow}{or} \textcolor{keywordtype}{None} \textcolor{keywordflow}{if} parsing fails}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00184}00184     \textcolor{preprocessor}{@details} Handles field-\/specific searches, phrase queries, \textcolor{keywordflow}{and} logical operators.}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00185}00185              Expands non-\/field queries to search across multiple fields.}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00186}00186     \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00187}00187 \textcolor{stringliteral}{    }\textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00188}00188         \textcolor{comment}{\# Check if query has any field specifications}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00189}00189         has\_field\_specs = any(field + \textcolor{stringliteral}{"{}:"{}} \textcolor{keywordflow}{in} query\_string \textcolor{keywordflow}{for} field \textcolor{keywordflow}{in} [\textcolor{stringliteral}{'title'}, \textcolor{stringliteral}{'abstract'}, \textcolor{stringliteral}{'corpus'}, \textcolor{stringliteral}{'keywords'}])}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00190}00190         }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00191}00191         \textcolor{comment}{\# For queries without field specifications but with AND/OR operators}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00192}00192         \textcolor{keywordflow}{if} \textcolor{keywordflow}{not} has\_field\_specs \textcolor{keywordflow}{and} (\textcolor{stringliteral}{"{} AND "{}} \textcolor{keywordflow}{in} query\_string \textcolor{keywordflow}{or} \textcolor{stringliteral}{"{} OR "{}} \textcolor{keywordflow}{in} query\_string):}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00193}00193             print(f\textcolor{stringliteral}{"{}Processing query without field specs: \{query\_string\}"{}})}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00194}00194             }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00195}00195             \textcolor{comment}{\# Create a specific parser for non-\/field queries with AND/OR}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00196}00196             parser = qparser.QueryParser(\textcolor{stringliteral}{"{}content"{}}, schema)}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00197}00197             parser.add\_plugin(qparser.GroupPlugin())}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00198}00198             parser.add\_plugin(qparser.PhrasePlugin())}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00199}00199             }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00200}00200             \textcolor{comment}{\# Split the query into terms respecting quotes}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00201}00201             terms = []}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00202}00202             current\_term = \textcolor{stringliteral}{"{}"{}}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00203}00203             in\_quotes = \textcolor{keyword}{False}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00204}00204             }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00205}00205             \textcolor{keywordflow}{for} char \textcolor{keywordflow}{in} query\_string:}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00206}00206                 \textcolor{keywordflow}{if} char == \textcolor{stringliteral}{'"{}'}:}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00207}00207                     in\_quotes = \textcolor{keywordflow}{not} in\_quotes}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00208}00208                     current\_term += char}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00209}00209                 \textcolor{keywordflow}{elif} char == \textcolor{stringliteral}{' '} \textcolor{keywordflow}{and} \textcolor{keywordflow}{not} in\_quotes:}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00210}00210                     \textcolor{keywordflow}{if} current\_term:}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00211}00211                         terms.append(current\_term)}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00212}00212                         current\_term = \textcolor{stringliteral}{"{}"{}}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00213}00213                 \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00214}00214                     current\_term += char}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00215}00215             }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00216}00216             \textcolor{keywordflow}{if} current\_term:}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00217}00217                 terms.append(current\_term)}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00218}00218             }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00219}00219             \textcolor{comment}{\# Build the query with appropriate operators}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00220}00220             final\_query\_parts = []}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00221}00221             i = 0}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00222}00222             \textcolor{keywordflow}{while} i < len(terms):}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00223}00223                 \textcolor{keywordflow}{if} terms[i].upper() \textcolor{keywordflow}{in} [\textcolor{stringliteral}{"{}AND"{}}, \textcolor{stringliteral}{"{}OR"{}}]:}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00224}00224                     \textcolor{comment}{\# Skip operators}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00225}00225                     i += 1}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00226}00226                     \textcolor{keywordflow}{continue}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00227}00227                     }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00228}00228                 \textcolor{comment}{\# Handle phrase (with quotes)}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00229}00229                 term = terms[i].strip(\textcolor{stringliteral}{'"{}'})}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00230}00230                 }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00231}00231                 \textcolor{comment}{\# Build a sub-\/query that searches this term in all fields}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00232}00232                 sub\_query = []}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00233}00233                 \textcolor{keywordflow}{for} field \textcolor{keywordflow}{in} [\textcolor{stringliteral}{'title'}, \textcolor{stringliteral}{'abstract'}, \textcolor{stringliteral}{'corpus'}]:}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00234}00234                     \textcolor{keywordflow}{if} \textcolor{stringliteral}{'"{}'} \textcolor{keywordflow}{in} terms[i]:}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00235}00235                         \textcolor{comment}{\# For phrases, keep them intact}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00236}00236                         sub\_query.append(f\textcolor{stringliteral}{'\{field\}:"{}\{term\}"{}'})}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00237}00237                     \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00238}00238                         \textcolor{comment}{\# For single terms}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00239}00239                         sub\_query.append(f\textcolor{stringliteral}{'\{field\}:\{term\}'})}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00240}00240                 }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00241}00241                 final\_query\_parts.append(\textcolor{stringliteral}{"{}("{}} + \textcolor{stringliteral}{"{} OR "{}}.join(sub\_query) + \textcolor{stringliteral}{"{})"{}})}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00242}00242                 }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00243}00243                 \textcolor{comment}{\# Check if we need to add an operator}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00244}00244                 \textcolor{keywordflow}{if} i + 1 < len(terms) \textcolor{keywordflow}{and} terms[i+1].upper() \textcolor{keywordflow}{in} [\textcolor{stringliteral}{"{}AND"{}}, \textcolor{stringliteral}{"{}OR"{}}]:}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00245}00245                     final\_query\_parts.append(terms[i+1])}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00246}00246                     i += 2}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00247}00247                 \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00248}00248                     i += 1}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00249}00249             }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00250}00250             \textcolor{comment}{\# Join all parts}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00251}00251             expanded\_query = \textcolor{stringliteral}{"{} "{}}.join(final\_query\_parts)}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00252}00252             print(f\textcolor{stringliteral}{"{}Expanded query: \{expanded\_query\}"{}})}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00253}00253             }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00254}00254             \textcolor{comment}{\# Parse with a field-\/aware parser}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00255}00255             field\_parser = qparser.QueryParser(\textcolor{stringliteral}{"{}content"{}}, schema)}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00256}00256             field\_parser.add\_plugin(qparser.FieldsPlugin())}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00257}00257             field\_parser.add\_plugin(qparser.PhrasePlugin())}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00258}00258             field\_parser.add\_plugin(qparser.OperatorsPlugin())}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00259}00259             }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00260}00260             \textcolor{keywordflow}{return} field\_parser.parse(expanded\_query)}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00261}00261             }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00262}00262         \textcolor{comment}{\# For field-\/specific queries or simple queries}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00263}00263         \textcolor{keywordflow}{elif} has\_field\_specs:}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00264}00264             \textcolor{comment}{\# Use a parser that respects field prefixes}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00265}00265             parser = qparser.QueryParser(\textcolor{stringliteral}{"{}content"{}}, schema)}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00266}00266             parser.add\_plugin(qparser.FieldsPlugin())}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00267}00267         \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00268}00268             \textcolor{comment}{\# For simple queries without operators, search across all fields}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00269}00269             parser = qparser.MultifieldParser([\textcolor{stringliteral}{'title'}, \textcolor{stringliteral}{'abstract'}, \textcolor{stringliteral}{'corpus'}], }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00270}00270                                            schema,}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00271}00271                                            group=qparser.OrGroup)}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00272}00272         }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00273}00273         \textcolor{comment}{\# Add plugins for advanced features}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00274}00274         parser.add\_plugin(qparser.PhrasePlugin())}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00275}00275         parser.add\_plugin(qparser.OperatorsPlugin())}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00276}00276         }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00277}00277         \textcolor{comment}{\# Parse and return the query}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00278}00278         \textcolor{keywordflow}{return} parser.parse(query\_string)}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00279}00279         }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00280}00280     \textcolor{keywordflow}{except} Exception \textcolor{keyword}{as} e:}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00281}00281         print(f\textcolor{stringliteral}{"{}Error parsing advanced query: \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00282}00282         print(f\textcolor{stringliteral}{"{}Query string was: \{query\_string\}"{}})}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00283}00283         \textcolor{keyword}{import} traceback}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00284}00284         traceback.print\_exc()}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00285}00285         \textcolor{keywordflow}{return} \textcolor{keywordtype}{None}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00286}00286 }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00287}\mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_a6ca85082d43993cae65946687d8214f6}{00287}} \textcolor{keyword}{def }\mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_a6ca85082d43993cae65946687d8214f6}{search\_documents}}(index\_dir, query\_string, title\_true, abstract\_true, corpus\_true, ranking\_type):}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00288}00288     \textcolor{stringliteral}{"{}"{}"{}!}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00289}00289 \textcolor{stringliteral}{    }\textcolor{preprocessor}{@brief} Main search function \textcolor{keywordflow}{for} Whoosh engine}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00290}00290     \textcolor{preprocessor}{@param} index\_dir Path to the Whoosh index directory}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00291}00291     \textcolor{preprocessor}{@param} query\_string The search query string}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00292}00292     \textcolor{preprocessor}{@param} title\_true Boolean flag to search \textcolor{keywordflow}{in} title field}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00293}00293     \textcolor{preprocessor}{@param} abstract\_true Boolean flag to search \textcolor{keywordflow}{in} abstract field}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00294}00294     \textcolor{preprocessor}{@param} corpus\_true Boolean flag to search \textcolor{keywordflow}{in} corpus field}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00295}00295     \textcolor{preprocessor}{@param} ranking\_type Scoring algorithm (\textcolor{stringliteral}{"{}TF\_IDF"{}} \textcolor{keywordflow}{or} \textcolor{stringliteral}{"{}BM25F"{}})}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00296}00296     \textcolor{preprocessor}{@return} List of tuples containing (id, title, abstract, corpus, keywords, score, url)}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00297}00297     \textcolor{preprocessor}{@details} Supports both simple \textcolor{keywordflow}{and} advanced query parsing \textcolor{keyword}{with} natural language processing}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00298}00298     \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00299}00299 \textcolor{stringliteral}{    }\textcolor{keywordflow}{if} \textcolor{keywordflow}{not} query\_string.strip():}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00300}00300         \textcolor{keywordflow}{return} []}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00301}00301     }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00302}00302     print(f\textcolor{stringliteral}{"{}\(\backslash\)n-\/-\/-\/ Whoosh Search -\/-\/-\/"{}})}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00303}00303     print(f\textcolor{stringliteral}{"{}Index dir: \{index\_dir\}"{}})}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00304}00304     print(f\textcolor{stringliteral}{"{}Query: '\{query\_string\}', Ranking: \{ranking\_type\}"{}})}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00305}00305     print(f\textcolor{stringliteral}{"{}Fields -\/ Title: \{title\_true\}, Abstract: \{abstract\_true\}, Corpus: \{corpus\_true\}"{}})}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00306}00306 }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00307}00307     \textcolor{comment}{\# If no fields are selected, default to searching all fields}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00308}00308     \textcolor{keywordflow}{if} \textcolor{keywordflow}{not} any([title\_true, abstract\_true, corpus\_true]):}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00309}00309         title\_true = \textcolor{keyword}{True}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00310}00310         abstract\_true = \textcolor{keyword}{True}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00311}00311         corpus\_true = \textcolor{keyword}{True}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00312}00312 }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00313}00313     \textcolor{comment}{\# Choose scoring function}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00314}00314     \textcolor{keywordflow}{if} ranking\_type == \textcolor{stringliteral}{"{}TF\_IDF"{}}:}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00315}00315         scorer = TF\_IDF()}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00316}00316     \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00317}00317         scorer = BM25F() \textcolor{comment}{\# Default to BM25F}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00318}00318     }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00319}00319     \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00320}00320         print(f\textcolor{stringliteral}{"{}Attempting to open Whoosh index at: \{index\_dir\}"{}})}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00321}00321         ix = whoosh\_module\_index.open\_dir(index\_dir) \textcolor{comment}{\# Use aliased import}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00322}00322         print(f\textcolor{stringliteral}{"{}Whoosh index opened. Doc count: \{ix.doc\_count()\}"{}})}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00323}00323     \textcolor{keywordflow}{except} Exception \textcolor{keyword}{as} e:}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00324}00324         print(f\textcolor{stringliteral}{"{}❌ Error opening Whoosh index at \{index\_dir\}: \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00325}00325         traceback.print\_exc()}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00326}00326         \textcolor{keywordflow}{return} []}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00327}00327 }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00328}00328     \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00329}00329         \textcolor{keyword}{with} ix.searcher(weighting=scorer) \textcolor{keyword}{as} searcher:}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00330}00330             \textcolor{comment}{\# Use advanced parsing for complex queries with field specifications or AND/OR operators}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00331}00331             \textcolor{keywordflow}{if} \textcolor{stringliteral}{':'} \textcolor{keywordflow}{in} query\_string \textcolor{keywordflow}{or} \textcolor{stringliteral}{' AND '} \textcolor{keywordflow}{in} query\_string \textcolor{keywordflow}{or} \textcolor{stringliteral}{' OR '} \textcolor{keywordflow}{in} query\_string:}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00332}00332                 print(f\textcolor{stringliteral}{"{}Using advanced query parsing for: \{query\_string\}"{}})}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00333}00333                 query\_obj = \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_af2e81655e82ca7c3977c24845da90795}{parse\_advanced\_query}}(query\_string, ix.schema)}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00334}00334                 \textcolor{keywordflow}{if} query\_obj \textcolor{keywordflow}{is} \textcolor{keywordtype}{None}:}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00335}00335                     print(\textcolor{stringliteral}{"{}Failed to parse advanced query"{}})}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00336}00336                     \textcolor{keywordflow}{return} []}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00337}00337             \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00338}00338                 \textcolor{comment}{\# Simple query (no field specs, no AND/OR)}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00339}00339                 print(f\textcolor{stringliteral}{"{}Using simple query: \{query\_string\}"{}})}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00340}00340                 }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00341}00341                 \textcolor{comment}{\# Determine fields to search based on checkboxes}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00342}00342                 fields = []}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00343}00343                 \textcolor{keywordflow}{if} title\_true:}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00344}00344                     fields.append(\textcolor{stringliteral}{"{}title"{}})}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00345}00345                 \textcolor{keywordflow}{if} abstract\_true:}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00346}00346                     fields.append(\textcolor{stringliteral}{"{}abstract"{}})}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00347}00347                 \textcolor{keywordflow}{if} corpus\_true:}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00348}00348                     fields.append(\textcolor{stringliteral}{"{}corpus"{}})}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00349}00349                 }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00350}00350                 \textcolor{comment}{\# For phrase queries, preserve the exact phrase}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00351}00351                 \textcolor{keywordflow}{if} \textcolor{stringliteral}{'"{}'} \textcolor{keywordflow}{in} query\_string:}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00352}00352                     phrase\_to\_search = query\_string  \textcolor{comment}{\# Keep quotes intact}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00353}00353                 \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00354}00354                     \textcolor{comment}{\# Process the query for better results}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00355}00355                     phrase\_to\_search = \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_ab003bd8fc6d4d63985bee0b694203286}{process\_natural\_query}}(query\_string)}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00356}00356                 }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00357}00357                 \textcolor{comment}{\# Use MultifieldParser for simple queries}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00358}00358                 parser = MultifieldParser(fields, ix.schema, group=OrGroup)}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00359}00359                 parser.add\_plugin(qparser.PhrasePlugin())}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00360}00360                 query\_obj = parser.parse(phrase\_to\_search)}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00361}00361             }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00362}00362             \textcolor{comment}{\# Print the final query for debugging}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00363}00363             print(f\textcolor{stringliteral}{"{}Final query object: \{query\_obj\}"{}})}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00364}00364             }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00365}00365             \textcolor{comment}{\# Execute search}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00366}00366             results = searcher.search(query\_obj, limit=100)}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00367}00367             print(f\textcolor{stringliteral}{"{}Search returned \{len(results)\} results"{}})}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00368}00368             }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00369}00369             \textcolor{comment}{\# Format results}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00370}00370             formatted\_results = []}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00371}00371             \textcolor{keywordflow}{for} result \textcolor{keywordflow}{in} results:}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00372}00372                 formatted\_results.append((}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00373}00373                     result[\textcolor{stringliteral}{'id'}],}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00374}00374                     result[\textcolor{stringliteral}{'title'}],}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00375}00375                     result[\textcolor{stringliteral}{'abstract'}],}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00376}00376                     result[\textcolor{stringliteral}{'corpus'}],}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00377}00377                     result[\textcolor{stringliteral}{'keywords'}],}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00378}00378                     result.score,}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00379}00379                     result[\textcolor{stringliteral}{'url'}]}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00380}00380                 ))}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00381}00381             }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00382}00382             \textcolor{keywordflow}{return} formatted\_results}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00383}00383             }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00384}00384     \textcolor{keywordflow}{except} Exception \textcolor{keyword}{as} e:}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00385}00385         print(f\textcolor{stringliteral}{"{}Error during Whoosh search: \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00386}00386         traceback.print\_exc()}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00387}00387         \textcolor{keywordflow}{return} []}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00388}00388 }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00389}00389 \textcolor{comment}{\# Funzione per verificare se l'indice esiste e è valido}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00390}\mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_ae554a85cc85b15acdded53525af8d734}{00390}} \textcolor{keyword}{def }\mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_ae554a85cc85b15acdded53525af8d734}{index\_exists\_and\_valid}}(index\_dir):}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00391}00391     \textcolor{stringliteral}{"{}"{}"{}!}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00392}00392 \textcolor{stringliteral}{    }\textcolor{preprocessor}{@brief} Check \textcolor{keywordflow}{if} Whoosh index exists \textcolor{keywordflow}{and} contains documents}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00393}00393     \textcolor{preprocessor}{@param} index\_dir Path to the index directory}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00394}00394     \textcolor{preprocessor}{@return} \textcolor{keyword}{True} \textcolor{keywordflow}{if} valid index \textcolor{keyword}{with} documents exists, \textcolor{keyword}{False} otherwise}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00395}00395     \textcolor{preprocessor}{@details} Verifies directory existence, index validity, \textcolor{keywordflow}{and} document count}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00396}00396     \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00397}00397 \textcolor{stringliteral}{    }}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00398}00398 \textcolor{stringliteral}{    }\textcolor{keywordflow}{if} \textcolor{keywordflow}{not} os.path.exists(index\_dir):}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00399}00399         \textcolor{keywordflow}{return} \textcolor{keyword}{False}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00400}00400     \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00401}00401         \textcolor{comment}{\# Prova ad aprire l'indice}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00402}00402         ix = whoosh\_module\_index.open\_dir(index\_dir) \textcolor{comment}{\# Use aliased import}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00403}00403         \textcolor{keyword}{with} ix.searcher() \textcolor{keyword}{as} searcher:}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00404}00404             \textcolor{comment}{\# Verifica che ci siano documenti}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00405}00405             \textcolor{keywordflow}{return} searcher.doc\_count() > 0}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00406}00406     \textcolor{keywordflow}{except}:}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00407}00407         \textcolor{keywordflow}{return} \textcolor{keyword}{False}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00408}00408 }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00409}\mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_ac235bdd90c709aa66ef5b2931d6cf56c}{00409}} \textcolor{keyword}{def }\mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_ac235bdd90c709aa66ef5b2931d6cf56c}{create\_or\_get\_index}}(index\_dir, json\_file, force\_rebuild=False):}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00410}00410     \textcolor{stringliteral}{"{}"{}"{}!}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00411}00411 \textcolor{stringliteral}{    }\textcolor{preprocessor}{@brief} Create new index \textcolor{keywordflow}{or} open existing Whoosh index}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00412}00412     \textcolor{preprocessor}{@param} index\_dir Path to the index directory}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00413}00413     \textcolor{preprocessor}{@param} json\_file Path to the JSON document file}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00414}00414     \textcolor{preprocessor}{@param} force\_rebuild Force recreation of index even \textcolor{keywordflow}{if} it exists (default: \textcolor{keyword}{False})}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00415}00415     \textcolor{preprocessor}{@return} Index object ready \textcolor{keywordflow}{for} searching}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00416}00416     \textcolor{preprocessor}{@details} Manages index lifecycle \textcolor{keyword}{with} lock file cleanup \textcolor{keywordflow}{and} rebuilding options}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00417}00417     \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00418}00418 \textcolor{stringliteral}{    print(f"{}-\/-\/-\/ Whoosh create\_or\_get\_index -\/-\/-\/"{}})}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00419}00419     print(f\textcolor{stringliteral}{"{}Index dir: \{index\_dir\}, JSON file: \{json\_file\}, Force rebuild: \{force\_rebuild\}"{}})}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00420}00420     \textcolor{comment}{\# Rimuovi eventuali lock residui}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00421}00421     lock\_path = os.path.join(index\_dir, \textcolor{stringliteral}{'LOCK'})}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00422}00422     \textcolor{keywordflow}{if} os.path.exists(lock\_path):}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00423}00423         os.remove(lock\_path)}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00424}00424 }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00425}00425     \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00426}00426         \textcolor{keywordflow}{if} \textcolor{keywordflow}{not} force\_rebuild \textcolor{keywordflow}{and} \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_ae554a85cc85b15acdded53525af8d734}{index\_exists\_and\_valid}}(index\_dir):}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00427}00427             print(\textcolor{stringliteral}{"{}🔄 Utilizzando l'indice Whoosh esistente..."{}})}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00428}00428             \textcolor{keywordflow}{return} whoosh\_module\_index.open\_dir(index\_dir) \textcolor{comment}{\# Use aliased import}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00429}00429         }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00430}00430         print(f\textcolor{stringliteral}{"{}🔨 Creazione/Ricreazione indice Whoosh (force\_rebuild=\{force\_rebuild\})..."{}})}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00431}00431         \textcolor{keywordflow}{if} \textcolor{keywordflow}{not} os.path.exists(index\_dir):}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00432}00432             os.makedirs(index\_dir)}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00433}00433             }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00434}00434         \textcolor{comment}{\# Indicizza i documenti e ritorna il nuovo indice}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00435}00435         \textcolor{keywordflow}{return} \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_a3539d29b6b5695f37c9e246d6f4c07c7}{index\_documents}}(index\_dir, json\_file)}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00436}00436 }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00437}00437     \textcolor{keywordflow}{except} Exception \textcolor{keyword}{as} e:}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00438}00438         print(f\textcolor{stringliteral}{"{}❌ Errore durante la creazione/apertura dell'indice Whoosh: \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00439}00439         traceback.print\_exc() \textcolor{comment}{\# Print full traceback}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00440}00440         \textcolor{keywordflow}{raise}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00441}00441 }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00442}\mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_a3aed0cedf9d34e8217660149b16d19ca}{00442}} \textcolor{keyword}{def }\mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_a3aed0cedf9d34e8217660149b16d19ca}{get\_wordnet\_pos}}(tag):}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00443}00443     \textcolor{stringliteral}{"{}"{}"{}!}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00444}00444 \textcolor{stringliteral}{    }\textcolor{preprocessor}{@brief} Map NLTK POS tag to WordNet POS tag \textcolor{keywordflow}{for} accurate lemmatization}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00445}00445     \textcolor{preprocessor}{@param} tag NLTK part-\/of-\/speech tag}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00446}00446     \textcolor{preprocessor}{@return} WordNet POS constant (NOUN, VERB, ADJ, ADV)}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00447}00447     \textcolor{preprocessor}{@details} Converts NLTK POS tags to WordNet format \textcolor{keywordflow}{for} proper lemmatization}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00448}00448     \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00449}00449 \textcolor{stringliteral}{    tag\_dict = \{}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00450}00450 \textcolor{stringliteral}{        'N'}: wordnet.NOUN,}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00451}00451         \textcolor{stringliteral}{'V'}: wordnet.VERB,}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00452}00452         \textcolor{stringliteral}{'R'}: wordnet.ADV,}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00453}00453         \textcolor{stringliteral}{'J'}: wordnet.ADJ}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00454}00454     \}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00455}00455     \textcolor{keywordflow}{return} tag\_dict.get(tag[0], wordnet.NOUN)}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00456}00456 }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00457}\mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_ab003bd8fc6d4d63985bee0b694203286}{00457}} \textcolor{keyword}{def }\mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_ab003bd8fc6d4d63985bee0b694203286}{process\_natural\_query}}(query\_string):}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00458}00458     \textcolor{stringliteral}{"{}"{}"{}!}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00459}00459 \textcolor{stringliteral}{    }\textcolor{preprocessor}{@brief} Process natural language query \textcolor{keyword}{with} NLP techniques}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00460}00460     \textcolor{preprocessor}{@param} query\_string The natural language query to process}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00461}00461     \textcolor{preprocessor}{@return} Processed query string \textcolor{keyword}{with} expanded terms}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00462}00462     \textcolor{preprocessor}{@details} Uses YAKE keyword extraction, lemmatization, \textcolor{keywordflow}{and} WordNet expansion}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00463}00463              \textcolor{keywordflow}{for} synonyms, hypernyms, \textcolor{keywordflow}{and} hyponyms. Includes fallback mechanisms.}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00464}00464     \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00465}00465 \textcolor{stringliteral}{    }\textcolor{comment}{\# Inizializza gli strumenti NLP}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00466}00466     lemmatizer = WordNetLemmatizer()}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00467}00467     stop\_words = set(stopwords.words(\textcolor{stringliteral}{'english'}))}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00468}00468     }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00469}00469     \textcolor{comment}{\# 1. Keyword extraction with YAKE}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00470}00470     kw\_extractor = yake.KeywordExtractor(}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00471}00471         lan=\textcolor{stringliteral}{"{}en"{}},}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00472}00472         n=3, }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00473}00473         dedupLim=0.9,}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00474}00474         dedupFunc=\textcolor{stringliteral}{'seqm'},}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00475}00475         windowsSize=1,}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00476}00476         top=5, \textcolor{comment}{\# Estrai le top 5 keyword}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00477}00477         features=\textcolor{keywordtype}{None}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00478}00478     )}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00479}00479     keywords = [kw[0].lower() \textcolor{keywordflow}{for} kw \textcolor{keywordflow}{in} kw\_extractor.extract\_keywords(query\_string)]}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00480}00480 }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00481}00481     \textcolor{comment}{\# Tokenizzazione e rimozione stopwords dalla query originale}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00482}00482     tokens = word\_tokenize(query\_string.lower())}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00483}00483     }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00484}00484     \textcolor{comment}{\# Combina keyword e token originali per la lemmatizzazione e l'espansione}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00485}00485     \textcolor{comment}{\# per assicurarsi che le keyword multi-\/parola siano considerate}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00486}00486     base\_terms\_for\_nlp = list(set(keywords + tokens))}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00487}00487     base\_terms\_for\_nlp = [term \textcolor{keywordflow}{for} term \textcolor{keywordflow}{in} base\_terms\_for\_nlp \textcolor{keywordflow}{if} term.isalnum() \textcolor{keywordflow}{and} term \textcolor{keywordflow}{not} \textcolor{keywordflow}{in} stop\_words]}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00488}00488 }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00489}00489     pos\_tags = pos\_tag(base\_terms\_for\_nlp)}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00490}00490     }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00491}00491     lemmatized = [lemmatizer.lemmatize(word, \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_a3aed0cedf9d34e8217660149b16d19ca}{get\_wordnet\_pos}}(tag)) }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00492}00492                   \textcolor{keywordflow}{for} word, tag \textcolor{keywordflow}{in} pos\_tags]}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00493}00493     }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00494}00494     \textcolor{comment}{\# Espansione con sinonimi, iperonimi e iponimi}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00495}00495     expanded\_terms = set()}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00496}00496     \textcolor{comment}{\# Aggiungi le keyword estratte da YAKE (già in minuscolo) e i termini lemmatizzati originali}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00497}00497     expanded\_terms.update(keywords)}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00498}00498     expanded\_terms.update(lemmatized)}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00499}00499         }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00500}00500     \textcolor{comment}{\# Termini su cui basare l'espansione WordNet (keyword + lemmi originali)}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00501}00501     terms\_for\_wordnet\_expansion = set(keywords + lemmatized)}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00502}00502 }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00503}00503     \textcolor{keywordflow}{for} term \textcolor{keywordflow}{in} terms\_for\_wordnet\_expansion:}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00504}00504         \textcolor{comment}{\# Aggiungi il termine stesso (già fatto, ma per sicurezza)}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00505}00505         expanded\_terms.add(term)}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00506}00506         synsets = wordnet.synsets(term)}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00507}00507         \textcolor{keywordflow}{for} synset \textcolor{keywordflow}{in} synsets[:2]:  \textcolor{comment}{\# Limita a 2 synset per termine per evitare rumore}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00508}00508             \textcolor{comment}{\# Aggiungi sinonimi}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00509}00509             expanded\_terms.update(lemma.name().lower().replace(\textcolor{stringliteral}{'\_'}, \textcolor{stringliteral}{' '}) \textcolor{keywordflow}{for} lemma \textcolor{keywordflow}{in} synset.lemmas() \textcolor{keywordflow}{if} lemma.name().lower() \textcolor{keywordflow}{not} \textcolor{keywordflow}{in} stop\_words)}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00510}00510             }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00511}00511             \textcolor{comment}{\# Aggiungi iperonimi}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00512}00512             \textcolor{keywordflow}{for} hypernym \textcolor{keywordflow}{in} synset.hypernyms():}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00513}00513                 expanded\_terms.update(lemma.name().lower().replace(\textcolor{stringliteral}{'\_'}, \textcolor{stringliteral}{' '}) \textcolor{keywordflow}{for} lemma \textcolor{keywordflow}{in} hypernym.lemmas() \textcolor{keywordflow}{if} lemma.name().lower() \textcolor{keywordflow}{not} \textcolor{keywordflow}{in} stop\_words)}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00514}00514 }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00515}00515             \textcolor{comment}{\# Aggiungi iponimi (termini più specifici)}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00516}00516             \textcolor{keywordflow}{for} hyponym \textcolor{keywordflow}{in} synset.hyponyms()[:1]: \textcolor{comment}{\# Limita a 1 iponimo per synset per non allargare eccessivamente}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00517}00517                 expanded\_terms.update(lemma.name().lower().replace(\textcolor{stringliteral}{'\_'}, \textcolor{stringliteral}{' '}) \textcolor{keywordflow}{for} lemma \textcolor{keywordflow}{in} hyponym.lemmas() \textcolor{keywordflow}{if} lemma.name().lower() \textcolor{keywordflow}{not} \textcolor{keywordflow}{in} stop\_words)}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00518}00518     }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00519}00519     \textcolor{comment}{\# Pulisci i termini finali}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00520}00520     final\_expanded\_terms = \{}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00521}00521         term.strip() \textcolor{keywordflow}{for} term \textcolor{keywordflow}{in} expanded\_terms \textcolor{keywordflow}{if} term.strip() \textcolor{keywordflow}{and} term.strip() \textcolor{keywordflow}{not} \textcolor{keywordflow}{in} stop\_words \textcolor{keywordflow}{and} len(term.strip()) > 1}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00522}00522     \}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00523}00523     }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00524}00524     \textcolor{keywordflow}{if} \textcolor{keywordflow}{not} final\_expanded\_terms: \textcolor{comment}{\# Fallback se nessun termine è stato generato}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00525}00525         \textcolor{comment}{\# Usa le keyword o i lemmi originali se disponibili}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00526}00526         fallback\_terms = set(keywords + lemmatized)}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00527}00527         fallback\_terms = \{t \textcolor{keywordflow}{for} t \textcolor{keywordflow}{in} fallback\_terms \textcolor{keywordflow}{if} t \textcolor{keywordflow}{and} t \textcolor{keywordflow}{not} \textcolor{keywordflow}{in} stop\_words \textcolor{keywordflow}{and} len(t) > 1\}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00528}00528         \textcolor{keywordflow}{if} fallback\_terms:}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00529}00529             processed\_query = \textcolor{stringliteral}{' OR '}.join(fallback\_terms)}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00530}00530         \textcolor{keywordflow}{else}: \textcolor{comment}{\# Fallback estremo: usa la query originale tokenizzata e senza stopwords}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00531}00531             original\_tokens\_no\_stops = [token \textcolor{keywordflow}{for} token \textcolor{keywordflow}{in} word\_tokenize(query\_string.lower()) \textcolor{keywordflow}{if} token.isalnum() \textcolor{keywordflow}{and} token \textcolor{keywordflow}{not} \textcolor{keywordflow}{in} stop\_words \textcolor{keywordflow}{and} len(token)>1]}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00532}00532             \textcolor{keywordflow}{if} original\_tokens\_no\_stops:}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00533}00533                  processed\_query = \textcolor{stringliteral}{' OR '}.join(original\_tokens\_no\_stops)}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00534}00534             \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00535}00535                  processed\_query = query\_string \textcolor{comment}{\# Ultimo fallback, query originale}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00536}00536     \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00537}00537         processed\_query = \textcolor{stringliteral}{' OR '}.join(final\_expanded\_terms)}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00538}00538         }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00539}00539     print(f\textcolor{stringliteral}{"{}Whoosh -\/ Query elaborata: \{processed\_query\}"{}})}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00540}00540     \textcolor{keywordflow}{return} processed\_query}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00541}00541 }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00542}00542 }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00543}00543 \textcolor{comment}{\#RIMUOVERE COMMENTO ED ESEGUIRE PER GENERARE INDICE}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00544}00544 \textcolor{keywordflow}{if} \_\_name\_\_ == \textcolor{stringliteral}{"{}\_\_main\_\_"{}}:}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00545}00545     \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_a2abe52eb8e6476513e34f8e274587bcb}{setup\_nltk}}()}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00546}00546     \textcolor{comment}{\# Esempio di utilizzo}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00547}\mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_a3ba69e9d37f81a463edd6b65e73deacc}{00547}}     current\_script\_path = Path(\_\_file\_\_).resolve()}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00548}00548     \textcolor{comment}{\# /root/JuriScan/SearchEngine/Whoosh.py -\/> /root/JuriScan}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00549}\mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_a9f51ef9db77956fe1e56efbbc18ca8f2}{00549}}     project\_root\_path = current\_script\_path.parent.parent }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00550}00550     }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00551}\mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_aa1ea51c2bdb0e0b47eff89a8819b1659}{00551}}     index\_dir\_path = str(project\_root\_path / \textcolor{stringliteral}{"{}SearchEngine"{}} / \textcolor{stringliteral}{"{}WhooshIndex"{}})  }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00552}\mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_a332a0bfb1b7fa5a905a304c3239a2ace}{00552}}     json\_docs\_path = str(project\_root\_path / \textcolor{stringliteral}{"{}WebScraping"{}} / \textcolor{stringliteral}{"{}results"{}} / \textcolor{stringliteral}{"{}Docs\_cleaned.json"{}}) }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00553}00553     }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00554}00554     print(\textcolor{stringliteral}{"{}🚀 Avvio script Whoosh.py come main..."{}})}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00555}00555     print(f\textcolor{stringliteral}{"{}Percorso Indice Whoosh: \{index\_dir\_path\}"{}})}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00556}00556     print(f\textcolor{stringliteral}{"{}Percorso File JSON Documenti: \{json\_docs\_path\}"{}})}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00557}00557 }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00558}00558     \textcolor{comment}{\# Crea o ottieni l'indice. Forza la ricreazione per testare l'indicizzazione.}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00559}00559     \textcolor{comment}{\# Cambia force\_rebuild a False se vuoi solo aprire un indice esistente.}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00560}\mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_abe99f50492095b463d6b08cb0eca0b1c}{00560}}     ix = \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_ac235bdd90c709aa66ef5b2931d6cf56c}{create\_or\_get\_index}}(index\_dir\_path, json\_docs\_path, force\_rebuild=\textcolor{keyword}{True}) }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00561}00561     }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00562}00562     \textcolor{keywordflow}{if} ix:}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00563}00563         \textcolor{comment}{\# Verifica il numero di documenti nell'indice}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00564}00564         \textcolor{keyword}{with} ix.searcher() \textcolor{keyword}{as} searcher:}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00565}\mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_a6c6a63d6f977ceff0aacd913ccf7fd91}{00565}}             doc\_count = searcher.doc\_count()}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00566}00566             print(f\textcolor{stringliteral}{"{}📊 Numero totale di documenti nell'indice Whoosh: \{doc\_count\}"{}})}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00567}00567         }
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00568}00568         \textcolor{comment}{\# Esempio di ricerca di test}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00569}00569         \textcolor{keywordflow}{if} doc\_count > 0:}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00570}00570             print(\textcolor{stringliteral}{"{}\(\backslash\)n🔍 Esempio di ricerca di test su Whoosh:"{}})}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00571}\mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_a54177a1011db2447fa89d63dc8c1c3cf}{00571}}             test\_query = \textcolor{stringliteral}{"{}neural networks"{}} \textcolor{comment}{\# Sostituisci con una query rilevante per il tuo dataset}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00572}\mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_ad05757211a7ecb6b40786183d23b3a97}{00572}}             results = \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_a6ca85082d43993cae65946687d8214f6}{search\_documents}}(index\_dir\_path, test\_query, \textcolor{keyword}{True}, \textcolor{keyword}{True}, \textcolor{keyword}{True}, \textcolor{stringliteral}{"{}BM25F"{}})}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00573}00573             \textcolor{keywordflow}{if} results:}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00574}00574                 print(f\textcolor{stringliteral}{"{}Trovati \{len(results)\} risultati per '\{test\_query\}':"{}})}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00575}00575                 \textcolor{keywordflow}{for} r \textcolor{keywordflow}{in} results[:2]: \textcolor{comment}{\# Stampa i primi 2 risultati}}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00576}00576                     print(f\textcolor{stringliteral}{"{}  ID: \{r[0]\}, Titolo: \{r[1][:50]\}..., Score: \{r[5]\}"{}})}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00577}00577             \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00578}00578                 print(f\textcolor{stringliteral}{"{}Nessun risultato per '\{test\_query\}'."{}})}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00579}00579     \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{Whoosh_8py_source_l00580}00580         print(\textcolor{stringliteral}{"{}❌ Fallimento nella creazione/apertura dell'indice Whoosh."{}})}
+
+\end{DoxyCode}

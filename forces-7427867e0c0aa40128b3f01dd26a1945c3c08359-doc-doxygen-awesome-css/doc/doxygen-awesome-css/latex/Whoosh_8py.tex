@@ -1,0 +1,71 @@
+\hypertarget{Whoosh_8py}{}\doxysection{/root/\+Juri\+Scan/\+Search\+Engine/\+Whoosh.py File Reference}
+\label{Whoosh_8py}\index{/root/JuriScan/SearchEngine/Whoosh.py@{/root/JuriScan/SearchEngine/Whoosh.py}}
+
+
+Whoosh search engine implementation for Juri\+Scan.  
+
+
+\doxysubsection*{Namespaces}
+\begin{DoxyCompactItemize}
+\item 
+namespace \mbox{\hyperlink{namespaceSearchEngine}{Search\+Engine}}
+\item 
+namespace \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh}{Search\+Engine.\+Whoosh}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_a2abe52eb8e6476513e34f8e274587bcb}{Search\+Engine.\+Whoosh.\+setup\+\_\+nltk}} ()
+\begin{DoxyCompactList}\small\item\em Download and setup required NLTK resources. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_a6921413722748e5c81037e144ee86912}{Search\+Engine.\+Whoosh.\+create\+\_\+schema}} ()
+\begin{DoxyCompactList}\small\item\em Generate \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh}{Whoosh}} index schema for document structure. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_a6afc92eebd7d7cb8313c804bdfe38735}{Search\+Engine.\+Whoosh.\+create\+\_\+whoosh\+\_\+index\+\_\+internal}} (index\+\_\+dir)
+\begin{DoxyCompactList}\small\item\em Internal function to create new \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh}{Whoosh}} index structure. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_a3539d29b6b5695f37c9e246d6f4c07c7}{Search\+Engine.\+Whoosh.\+index\+\_\+documents}} (index\+\_\+dir, json\+\_\+file, batch\+\_\+size=1000)
+\begin{DoxyCompactList}\small\item\em Index documents from JSON file into \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh}{Whoosh}} index. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_af2e81655e82ca7c3977c24845da90795}{Search\+Engine.\+Whoosh.\+parse\+\_\+advanced\+\_\+query}} (query\+\_\+string, schema)
+\begin{DoxyCompactList}\small\item\em Parse complex query strings with field specifications and operators. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_a6ca85082d43993cae65946687d8214f6}{Search\+Engine.\+Whoosh.\+search\+\_\+documents}} (index\+\_\+dir, query\+\_\+string, title\+\_\+true, abstract\+\_\+true, corpus\+\_\+true, ranking\+\_\+type)
+\begin{DoxyCompactList}\small\item\em Main search function for \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh}{Whoosh}} engine. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_ae554a85cc85b15acdded53525af8d734}{Search\+Engine.\+Whoosh.\+index\+\_\+exists\+\_\+and\+\_\+valid}} (index\+\_\+dir)
+\begin{DoxyCompactList}\small\item\em Check if \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh}{Whoosh}} index exists and contains documents. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_ac235bdd90c709aa66ef5b2931d6cf56c}{Search\+Engine.\+Whoosh.\+create\+\_\+or\+\_\+get\+\_\+index}} (index\+\_\+dir, json\+\_\+file, force\+\_\+rebuild=False)
+\begin{DoxyCompactList}\small\item\em Create new index or open existing \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh}{Whoosh}} index. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_a3aed0cedf9d34e8217660149b16d19ca}{Search\+Engine.\+Whoosh.\+get\+\_\+wordnet\+\_\+pos}} (tag)
+\begin{DoxyCompactList}\small\item\em Map NLTK POS tag to Word\+Net POS tag for accurate lemmatization. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_ab003bd8fc6d4d63985bee0b694203286}{Search\+Engine.\+Whoosh.\+process\+\_\+natural\+\_\+query}} (query\+\_\+string)
+\begin{DoxyCompactList}\small\item\em Process natural language query with NLP techniques. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_a3ba69e9d37f81a463edd6b65e73deacc}{Search\+Engine.\+Whoosh.\+current\+\_\+script\+\_\+path}} = Path(\+\_\+\+\_\+file\+\_\+\+\_\+).resolve()
+\item 
+\mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_a9f51ef9db77956fe1e56efbbc18ca8f2}{Search\+Engine.\+Whoosh.\+project\+\_\+root\+\_\+path}} = current\+\_\+script\+\_\+path.\+parent.\+parent
+\item 
+\mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_aa1ea51c2bdb0e0b47eff89a8819b1659}{Search\+Engine.\+Whoosh.\+index\+\_\+dir\+\_\+path}} = str(project\+\_\+root\+\_\+path / \char`\"{}Search\+Engine\char`\"{} / \char`\"{}Whoosh\+Index\char`\"{})
+\item 
+\mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_a332a0bfb1b7fa5a905a304c3239a2ace}{Search\+Engine.\+Whoosh.\+json\+\_\+docs\+\_\+path}} = str(project\+\_\+root\+\_\+path / \char`\"{}Web\+Scraping\char`\"{} / \char`\"{}results\char`\"{} / \char`\"{}Docs\+\_\+cleaned.\+json\char`\"{})
+\item 
+def \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_abe99f50492095b463d6b08cb0eca0b1c}{Search\+Engine.\+Whoosh.\+ix}} = create\+\_\+or\+\_\+get\+\_\+index(index\+\_\+dir\+\_\+path, json\+\_\+docs\+\_\+path, force\+\_\+rebuild=True)
+\item 
+\mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_a6c6a63d6f977ceff0aacd913ccf7fd91}{Search\+Engine.\+Whoosh.\+doc\+\_\+count}} = searcher.\+doc\+\_\+count()
+\item 
+string \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_a54177a1011db2447fa89d63dc8c1c3cf}{Search\+Engine.\+Whoosh.\+test\+\_\+query}} = \char`\"{}neural networks\char`\"{}
+\item 
+def \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_ad05757211a7ecb6b40786183d23b3a97}{Search\+Engine.\+Whoosh.\+results}} = search\+\_\+documents(index\+\_\+dir\+\_\+path, test\+\_\+query, True, True, True, \char`\"{}BM25F\char`\"{})
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Whoosh search engine implementation for Juri\+Scan. 
+
+Pure Python search engine with advanced NLP features and semantic query expansion \begin{DoxyAuthor}{Author}
+Magni \&\& Testoni 
+\end{DoxyAuthor}
+\begin{DoxyDate}{Date}
+2025 
+\end{DoxyDate}
+
+
+Definition in file \mbox{\hyperlink{Whoosh_8py_source}{Whoosh.\+py}}.
+

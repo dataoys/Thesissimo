@@ -1,0 +1,388 @@
+\hypertarget{namespacecreate__pool}{}\doxysection{create\+\_\+pool Namespace Reference}
+\label{namespacecreate__pool}\index{create\_pool@{create\_pool}}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \mbox{\hyperlink{namespacecreate__pool_a3cb0162d333eb6672acb6d4bf3cbf7f1}{load\+\_\+queries\+\_\+from\+\_\+uin}} (uin\+\_\+file\+\_\+path)
+\begin{DoxyCompactList}\small\item\em Load queries from the UIN (User Information Need) file. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespacecreate__pool_a69f590e2d0bcc60a4216a8f73dca1e08}{get\+\_\+pylucene\+\_\+top\+\_\+n\+\_\+ids}} (query\+\_\+string, searcher, n=\mbox{\hyperlink{namespacecreate__pool_a48c606b043febb96ac3b0f5e9cd5e953}{TOP\+\_\+\+N\+\_\+\+FOR\+\_\+\+POOLING}}, ranking\+\_\+type=\char`\"{}BM25\char`\"{})
+\begin{DoxyCompactList}\small\item\em Retrieve top N document IDs from Py\+Lucene search engine. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespacecreate__pool_a4d74b9466fea66734c94b240e2efedd9}{get\+\_\+whoosh\+\_\+top\+\_\+n\+\_\+ids}} (query\+\_\+string, ix\+\_\+path\+\_\+str, n=\mbox{\hyperlink{namespacecreate__pool_a48c606b043febb96ac3b0f5e9cd5e953}{TOP\+\_\+\+N\+\_\+\+FOR\+\_\+\+POOLING}}, ranking\+\_\+type=\char`\"{}BM25F\char`\"{})
+\begin{DoxyCompactList}\small\item\em Retrieve top N document IDs from Whoosh search engine. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespacecreate__pool_a76b0501994829108a750d165f7261020}{get\+\_\+postgres\+\_\+top\+\_\+n\+\_\+ids}} (query\+\_\+string, n=\mbox{\hyperlink{namespacecreate__pool_a48c606b043febb96ac3b0f5e9cd5e953}{TOP\+\_\+\+N\+\_\+\+FOR\+\_\+\+POOLING}}, ranking\+\_\+type=\char`\"{}ts\+\_\+rank\+\_\+cd\char`\"{})
+\begin{DoxyCompactList}\small\item\em Retrieve top N document IDs from Postgre\+SQL search engine. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespacecreate__pool_a13f680e2515efd99e19469481f947ac6}{create\+\_\+relevance\+\_\+pool}} ()
+\begin{DoxyCompactList}\small\item\em Main function to create relevance pools for benchmark evaluation. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{namespacecreate__pool_a7548ba778b0fda96f5bb99e66609e311}{project\+\_\+root}} = \+\_\+current\+\_\+file\+\_\+path.\+parent.\+parent
+\item 
+bool \mbox{\hyperlink{namespacecreate__pool_a7d80d2d2d2f35d1d7bd93e1f8e60b0d0}{WHOOSH\+\_\+\+LIB\+\_\+\+AVAILABLE}} = True
+\item 
+\mbox{\hyperlink{namespacecreate__pool_a6b56e1304d6afb08764e5340ab767341}{whoosh\+\_\+open\+\_\+dir\+\_\+lib}} = None
+\item 
+\mbox{\hyperlink{namespacecreate__pool_a3d93a111670d41c9d07e6219adaff84c}{Whoosh\+Empty\+Index\+Error\+\_\+lib}} = None
+\item 
+bool \mbox{\hyperlink{namespacecreate__pool_abe2d2a91f8a84d1d200dcc93f20ebc52}{ENGINES\+\_\+\+MODULES\+\_\+\+AVAILABLE}} = True
+\item 
+\mbox{\hyperlink{namespacecreate__pool_ab48cdbde678b3d1b310e62fbdfda985f}{pylucene\+\_\+search\+\_\+documents}} = None
+\item 
+\mbox{\hyperlink{namespacecreate__pool_abfb3d3fa1fb4672361a9323d870d7561}{whoosh\+\_\+search\+\_\+documents}} = None
+\item 
+\mbox{\hyperlink{namespacecreate__pool_a2019377beed91d240ea0426cf361d237}{postgres\+\_\+search}} = None
+\item 
+\mbox{\hyperlink{namespacecreate__pool_add23085779480fb4a032d65902962f60}{PROJECT\+\_\+\+ROOT}} = \mbox{\hyperlink{namespacecreate__pool_a7548ba778b0fda96f5bb99e66609e311}{project\+\_\+root}}
+\item 
+string \mbox{\hyperlink{namespacecreate__pool_acbff462d7508ec2ab9140878b21e6a48}{PYLUCENE\+\_\+\+INDEX\+\_\+\+DIR}} = \mbox{\hyperlink{namespacecreate__pool_add23085779480fb4a032d65902962f60}{PROJECT\+\_\+\+ROOT}} / \char`\"{}Search\+Engine\char`\"{} / \char`\"{}index\char`\"{}
+\item 
+string \mbox{\hyperlink{namespacecreate__pool_a620d1a414472d482b097e4e7f153d83b}{WHOOSH\+\_\+\+INDEX\+\_\+\+DIR}} = \mbox{\hyperlink{namespacecreate__pool_add23085779480fb4a032d65902962f60}{PROJECT\+\_\+\+ROOT}} / \char`\"{}Search\+Engine\char`\"{} / \char`\"{}Whoosh\+Index\char`\"{}
+\item 
+string \mbox{\hyperlink{namespacecreate__pool_ae834795ae9815d127804278d16579f9a}{UIN\+\_\+\+FILE\+\_\+\+PATH}} = \mbox{\hyperlink{namespacecreate__pool_add23085779480fb4a032d65902962f60}{PROJECT\+\_\+\+ROOT}} / \char`\"{}uin.\+txt\char`\"{}
+\item 
+string \mbox{\hyperlink{namespacecreate__pool_a23eb106c87ff470c85a9530b8cb15e18}{POOL\+\_\+\+OUTPUT\+\_\+\+DIR}} = \mbox{\hyperlink{namespacecreate__pool_add23085779480fb4a032d65902962f60}{PROJECT\+\_\+\+ROOT}} / \char`\"{}Ground\+Truth\char`\"{}
+\item 
+string \mbox{\hyperlink{namespacecreate__pool_a418c5f1add6724444190c21dbdbbad24}{POOL\+\_\+\+JSON\+\_\+\+OUTPUT\+\_\+\+FILE}} = \mbox{\hyperlink{namespacecreate__pool_a23eb106c87ff470c85a9530b8cb15e18}{POOL\+\_\+\+OUTPUT\+\_\+\+DIR}} / \char`\"{}Pool.\+json\char`\"{}
+\item 
+int \mbox{\hyperlink{namespacecreate__pool_a48c606b043febb96ac3b0f5e9cd5e953}{TOP\+\_\+\+N\+\_\+\+FOR\+\_\+\+POOLING}} = 20
+\item 
+list \mbox{\hyperlink{namespacecreate__pool_a27ae921d54bfe7f584e915b1f9a05fd5}{PYLUCENE\+\_\+\+RANKING\+\_\+\+TYPES}} = \mbox{[}\char`\"{}BM25\char`\"{}, \char`\"{}TFIDF\char`\"{}\mbox{]}
+\item 
+list \mbox{\hyperlink{namespacecreate__pool_a899f91dd9cbea21660219a40d321fcb6}{WHOOSH\+\_\+\+RANKING\+\_\+\+TYPES}} = \mbox{[}\char`\"{}BM25F\char`\"{}, \char`\"{}TF\+\_\+\+IDF\char`\"{}\mbox{]}
+\item 
+list \mbox{\hyperlink{namespacecreate__pool_a6e4e41b1ce2ee989d4eb12a13ee24ca2}{POSTGRES\+\_\+\+RANKING\+\_\+\+TYPES}} = \mbox{[}\char`\"{}ts\+\_\+rank\char`\"{}, \char`\"{}ts\+\_\+rank\+\_\+cd\char`\"{}\mbox{]}
+\item 
+\mbox{\hyperlink{namespacecreate__pool_a93ee000758abb822906d78b9b1f59c25}{env}} = lucene.\+get\+VMEnv()
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{namespacecreate__pool_a13f680e2515efd99e19469481f947ac6}\label{namespacecreate__pool_a13f680e2515efd99e19469481f947ac6}} 
+\index{create\_pool@{create\_pool}!create\_relevance\_pool@{create\_relevance\_pool}}
+\index{create\_relevance\_pool@{create\_relevance\_pool}!create\_pool@{create\_pool}}
+\doxysubsubsection{\texorpdfstring{create\_relevance\_pool()}{create\_relevance\_pool()}}
+{\footnotesize\ttfamily def create\+\_\+pool.\+create\+\_\+relevance\+\_\+pool (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Main function to create relevance pools for benchmark evaluation. 
+
+Implements the pooling method by\+:
+\begin{DoxyEnumerate}
+\item Loading test queries from uin.\+txt
+\item Running queries on all available search engines with multiple ranking algorithms
+\item Collecting top N results from each engine/ranking combination
+\item Merging results into unique document sets per query
+\item Saving pooled results to Pool.\+json for manual relevance judgment \begin{DoxyReturn}{Returns}
+None 
+\end{DoxyReturn}
+
+\begin{DoxyExceptions}{Exceptions}
+{\em IOError} & if output file cannot be written \\
+\hline
+\end{DoxyExceptions}
+\begin{DoxyNote}{Note}
+Requires existing indices for all search engines to function properly 
+\end{DoxyNote}
+
+\end{DoxyEnumerate}
+
+Definition at line \mbox{\hyperlink{create__pool_8py_source_l00182}{182}} of file \mbox{\hyperlink{create__pool_8py_source}{create\+\_\+pool.\+py}}.
+
+\mbox{\Hypertarget{namespacecreate__pool_a76b0501994829108a750d165f7261020}\label{namespacecreate__pool_a76b0501994829108a750d165f7261020}} 
+\index{create\_pool@{create\_pool}!get\_postgres\_top\_n\_ids@{get\_postgres\_top\_n\_ids}}
+\index{get\_postgres\_top\_n\_ids@{get\_postgres\_top\_n\_ids}!create\_pool@{create\_pool}}
+\doxysubsubsection{\texorpdfstring{get\_postgres\_top\_n\_ids()}{get\_postgres\_top\_n\_ids()}}
+{\footnotesize\ttfamily def create\+\_\+pool.\+get\+\_\+postgres\+\_\+top\+\_\+n\+\_\+ids (\begin{DoxyParamCaption}\item[{}]{query\+\_\+string,  }\item[{}]{n = {\ttfamily \mbox{\hyperlink{namespacecreate__pool_a48c606b043febb96ac3b0f5e9cd5e953}{TOP\+\_\+\+N\+\_\+\+FOR\+\_\+\+POOLING}}},  }\item[{}]{ranking\+\_\+type = {\ttfamily \char`\"{}ts\+\_\+rank\+\_\+cd\char`\"{}} }\end{DoxyParamCaption})}
+
+
+
+Retrieve top N document IDs from Postgre\+SQL search engine. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em query\+\_\+string} & The search query to execute \\
+\hline
+{\em n} & Number of top results to retrieve (default\+: TOP\+\_\+\+N\+\_\+\+FOR\+\_\+\+POOLING) \\
+\hline
+{\em ranking\+\_\+type} & Postgre\+SQL ranking function (\char`\"{}ts\+\_\+rank\char`\"{} or \char`\"{}ts\+\_\+rank\+\_\+cd\char`\"{}) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+List of document IDs as strings
+\end{DoxyReturn}
+Executes full-\/text search on Postgre\+SQL database and extracts document IDs. Handles database connection and query execution errors. 
+
+Definition at line \mbox{\hyperlink{create__pool_8py_source_l00162}{162}} of file \mbox{\hyperlink{create__pool_8py_source}{create\+\_\+pool.\+py}}.
+
+\mbox{\Hypertarget{namespacecreate__pool_a69f590e2d0bcc60a4216a8f73dca1e08}\label{namespacecreate__pool_a69f590e2d0bcc60a4216a8f73dca1e08}} 
+\index{create\_pool@{create\_pool}!get\_pylucene\_top\_n\_ids@{get\_pylucene\_top\_n\_ids}}
+\index{get\_pylucene\_top\_n\_ids@{get\_pylucene\_top\_n\_ids}!create\_pool@{create\_pool}}
+\doxysubsubsection{\texorpdfstring{get\_pylucene\_top\_n\_ids()}{get\_pylucene\_top\_n\_ids()}}
+{\footnotesize\ttfamily def create\+\_\+pool.\+get\+\_\+pylucene\+\_\+top\+\_\+n\+\_\+ids (\begin{DoxyParamCaption}\item[{}]{query\+\_\+string,  }\item[{}]{searcher,  }\item[{}]{n = {\ttfamily \mbox{\hyperlink{namespacecreate__pool_a48c606b043febb96ac3b0f5e9cd5e953}{TOP\+\_\+\+N\+\_\+\+FOR\+\_\+\+POOLING}}},  }\item[{}]{ranking\+\_\+type = {\ttfamily \char`\"{}BM25\char`\"{}} }\end{DoxyParamCaption})}
+
+
+
+Retrieve top N document IDs from Py\+Lucene search engine. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em query\+\_\+string} & The search query to execute \\
+\hline
+{\em searcher} & Py\+Lucene Index\+Searcher object \\
+\hline
+{\em n} & Number of top results to retrieve (default\+: TOP\+\_\+\+N\+\_\+\+FOR\+\_\+\+POOLING) \\
+\hline
+{\em ranking\+\_\+type} & Ranking algorithm to use (\char`\"{}\+BM25\char`\"{} or \char`\"{}\+TFIDF\char`\"{}) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+List of document IDs as strings
+\end{DoxyReturn}
+Executes search across all fields and extracts document IDs from results. Handles search errors and returns empty list on failure. 
+
+Definition at line \mbox{\hyperlink{create__pool_8py_source_l00108}{108}} of file \mbox{\hyperlink{create__pool_8py_source}{create\+\_\+pool.\+py}}.
+
+\mbox{\Hypertarget{namespacecreate__pool_a4d74b9466fea66734c94b240e2efedd9}\label{namespacecreate__pool_a4d74b9466fea66734c94b240e2efedd9}} 
+\index{create\_pool@{create\_pool}!get\_whoosh\_top\_n\_ids@{get\_whoosh\_top\_n\_ids}}
+\index{get\_whoosh\_top\_n\_ids@{get\_whoosh\_top\_n\_ids}!create\_pool@{create\_pool}}
+\doxysubsubsection{\texorpdfstring{get\_whoosh\_top\_n\_ids()}{get\_whoosh\_top\_n\_ids()}}
+{\footnotesize\ttfamily def create\+\_\+pool.\+get\+\_\+whoosh\+\_\+top\+\_\+n\+\_\+ids (\begin{DoxyParamCaption}\item[{}]{query\+\_\+string,  }\item[{}]{ix\+\_\+path\+\_\+str,  }\item[{}]{n = {\ttfamily \mbox{\hyperlink{namespacecreate__pool_a48c606b043febb96ac3b0f5e9cd5e953}{TOP\+\_\+\+N\+\_\+\+FOR\+\_\+\+POOLING}}},  }\item[{}]{ranking\+\_\+type = {\ttfamily \char`\"{}BM25F\char`\"{}} }\end{DoxyParamCaption})}
+
+
+
+Retrieve top N document IDs from Whoosh search engine. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em query\+\_\+string} & The search query to execute \\
+\hline
+{\em ix\+\_\+path\+\_\+str} & Path to the Whoosh index directory as string \\
+\hline
+{\em n} & Number of top results to retrieve (default\+: TOP\+\_\+\+N\+\_\+\+FOR\+\_\+\+POOLING) \\
+\hline
+{\em ranking\+\_\+type} & Ranking algorithm to use (\char`\"{}\+BM25\+F\char`\"{} or \char`\"{}\+TF\+\_\+\+IDF\char`\"{}) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+List of document IDs as strings
+\end{DoxyReturn}
+Uses existing Whoosh index and custom search function. Handles empty index and search errors gracefully. 
+
+Definition at line \mbox{\hyperlink{create__pool_8py_source_l00137}{137}} of file \mbox{\hyperlink{create__pool_8py_source}{create\+\_\+pool.\+py}}.
+
+\mbox{\Hypertarget{namespacecreate__pool_a3cb0162d333eb6672acb6d4bf3cbf7f1}\label{namespacecreate__pool_a3cb0162d333eb6672acb6d4bf3cbf7f1}} 
+\index{create\_pool@{create\_pool}!load\_queries\_from\_uin@{load\_queries\_from\_uin}}
+\index{load\_queries\_from\_uin@{load\_queries\_from\_uin}!create\_pool@{create\_pool}}
+\doxysubsubsection{\texorpdfstring{load\_queries\_from\_uin()}{load\_queries\_from\_uin()}}
+{\footnotesize\ttfamily def create\+\_\+pool.\+load\+\_\+queries\+\_\+from\+\_\+uin (\begin{DoxyParamCaption}\item[{}]{uin\+\_\+file\+\_\+path }\end{DoxyParamCaption})}
+
+
+
+Load queries from the UIN (User Information Need) file. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em uin\+\_\+file\+\_\+path} & Path to the uin.\+txt file containing test queries \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+List of query strings extracted from the file
+\end{DoxyReturn}
+Parses the uin.\+txt file format where queries follow \char`\"{}\+Query\+:\char`\"{} markers on subsequent lines. Handles encoding and file not found errors. 
+
+Definition at line \mbox{\hyperlink{create__pool_8py_source_l00082}{82}} of file \mbox{\hyperlink{create__pool_8py_source}{create\+\_\+pool.\+py}}.
+
+
+
+\doxysubsection{Variable Documentation}
+\mbox{\Hypertarget{namespacecreate__pool_abe2d2a91f8a84d1d200dcc93f20ebc52}\label{namespacecreate__pool_abe2d2a91f8a84d1d200dcc93f20ebc52}} 
+\index{create\_pool@{create\_pool}!ENGINES\_MODULES\_AVAILABLE@{ENGINES\_MODULES\_AVAILABLE}}
+\index{ENGINES\_MODULES\_AVAILABLE@{ENGINES\_MODULES\_AVAILABLE}!create\_pool@{create\_pool}}
+\doxysubsubsection{\texorpdfstring{ENGINES\_MODULES\_AVAILABLE}{ENGINES\_MODULES\_AVAILABLE}}
+{\footnotesize\ttfamily bool create\+\_\+pool.\+ENGINES\+\_\+\+MODULES\+\_\+\+AVAILABLE = True}
+
+
+
+Definition at line \mbox{\hyperlink{create__pool_8py_source_l00047}{47}} of file \mbox{\hyperlink{create__pool_8py_source}{create\+\_\+pool.\+py}}.
+
+\mbox{\Hypertarget{namespacecreate__pool_a93ee000758abb822906d78b9b1f59c25}\label{namespacecreate__pool_a93ee000758abb822906d78b9b1f59c25}} 
+\index{create\_pool@{create\_pool}!env@{env}}
+\index{env@{env}!create\_pool@{create\_pool}}
+\doxysubsubsection{\texorpdfstring{env}{env}}
+{\footnotesize\ttfamily create\+\_\+pool.\+env = lucene.\+get\+VMEnv()}
+
+
+
+Definition at line \mbox{\hyperlink{create__pool_8py_source_l00342}{342}} of file \mbox{\hyperlink{create__pool_8py_source}{create\+\_\+pool.\+py}}.
+
+\mbox{\Hypertarget{namespacecreate__pool_a418c5f1add6724444190c21dbdbbad24}\label{namespacecreate__pool_a418c5f1add6724444190c21dbdbbad24}} 
+\index{create\_pool@{create\_pool}!POOL\_JSON\_OUTPUT\_FILE@{POOL\_JSON\_OUTPUT\_FILE}}
+\index{POOL\_JSON\_OUTPUT\_FILE@{POOL\_JSON\_OUTPUT\_FILE}!create\_pool@{create\_pool}}
+\doxysubsubsection{\texorpdfstring{POOL\_JSON\_OUTPUT\_FILE}{POOL\_JSON\_OUTPUT\_FILE}}
+{\footnotesize\ttfamily string create\+\_\+pool.\+POOL\+\_\+\+JSON\+\_\+\+OUTPUT\+\_\+\+FILE = \mbox{\hyperlink{namespacecreate__pool_a23eb106c87ff470c85a9530b8cb15e18}{POOL\+\_\+\+OUTPUT\+\_\+\+DIR}} / \char`\"{}Pool.\+json\char`\"{}}
+
+
+
+Definition at line \mbox{\hyperlink{create__pool_8py_source_l00071}{71}} of file \mbox{\hyperlink{create__pool_8py_source}{create\+\_\+pool.\+py}}.
+
+\mbox{\Hypertarget{namespacecreate__pool_a23eb106c87ff470c85a9530b8cb15e18}\label{namespacecreate__pool_a23eb106c87ff470c85a9530b8cb15e18}} 
+\index{create\_pool@{create\_pool}!POOL\_OUTPUT\_DIR@{POOL\_OUTPUT\_DIR}}
+\index{POOL\_OUTPUT\_DIR@{POOL\_OUTPUT\_DIR}!create\_pool@{create\_pool}}
+\doxysubsubsection{\texorpdfstring{POOL\_OUTPUT\_DIR}{POOL\_OUTPUT\_DIR}}
+{\footnotesize\ttfamily string create\+\_\+pool.\+POOL\+\_\+\+OUTPUT\+\_\+\+DIR = \mbox{\hyperlink{namespacecreate__pool_add23085779480fb4a032d65902962f60}{PROJECT\+\_\+\+ROOT}} / \char`\"{}Ground\+Truth\char`\"{}}
+
+
+
+Definition at line \mbox{\hyperlink{create__pool_8py_source_l00070}{70}} of file \mbox{\hyperlink{create__pool_8py_source}{create\+\_\+pool.\+py}}.
+
+\mbox{\Hypertarget{namespacecreate__pool_a6e4e41b1ce2ee989d4eb12a13ee24ca2}\label{namespacecreate__pool_a6e4e41b1ce2ee989d4eb12a13ee24ca2}} 
+\index{create\_pool@{create\_pool}!POSTGRES\_RANKING\_TYPES@{POSTGRES\_RANKING\_TYPES}}
+\index{POSTGRES\_RANKING\_TYPES@{POSTGRES\_RANKING\_TYPES}!create\_pool@{create\_pool}}
+\doxysubsubsection{\texorpdfstring{POSTGRES\_RANKING\_TYPES}{POSTGRES\_RANKING\_TYPES}}
+{\footnotesize\ttfamily list create\+\_\+pool.\+POSTGRES\+\_\+\+RANKING\+\_\+\+TYPES = \mbox{[}\char`\"{}ts\+\_\+rank\char`\"{}, \char`\"{}ts\+\_\+rank\+\_\+cd\char`\"{}\mbox{]}}
+
+
+
+Definition at line \mbox{\hyperlink{create__pool_8py_source_l00079}{79}} of file \mbox{\hyperlink{create__pool_8py_source}{create\+\_\+pool.\+py}}.
+
+\mbox{\Hypertarget{namespacecreate__pool_a2019377beed91d240ea0426cf361d237}\label{namespacecreate__pool_a2019377beed91d240ea0426cf361d237}} 
+\index{create\_pool@{create\_pool}!postgres\_search@{postgres\_search}}
+\index{postgres\_search@{postgres\_search}!create\_pool@{create\_pool}}
+\doxysubsubsection{\texorpdfstring{postgres\_search}{postgres\_search}}
+{\footnotesize\ttfamily create\+\_\+pool.\+postgres\+\_\+search = None}
+
+
+
+Definition at line \mbox{\hyperlink{create__pool_8py_source_l00061}{61}} of file \mbox{\hyperlink{create__pool_8py_source}{create\+\_\+pool.\+py}}.
+
+\mbox{\Hypertarget{namespacecreate__pool_a7548ba778b0fda96f5bb99e66609e311}\label{namespacecreate__pool_a7548ba778b0fda96f5bb99e66609e311}} 
+\index{create\_pool@{create\_pool}!project\_root@{project\_root}}
+\index{project\_root@{project\_root}!create\_pool@{create\_pool}}
+\doxysubsubsection{\texorpdfstring{project\_root}{project\_root}}
+{\footnotesize\ttfamily create\+\_\+pool.\+project\+\_\+root = \+\_\+current\+\_\+file\+\_\+path.\+parent.\+parent}
+
+
+
+Definition at line \mbox{\hyperlink{create__pool_8py_source_l00024}{24}} of file \mbox{\hyperlink{create__pool_8py_source}{create\+\_\+pool.\+py}}.
+
+\mbox{\Hypertarget{namespacecreate__pool_add23085779480fb4a032d65902962f60}\label{namespacecreate__pool_add23085779480fb4a032d65902962f60}} 
+\index{create\_pool@{create\_pool}!PROJECT\_ROOT@{PROJECT\_ROOT}}
+\index{PROJECT\_ROOT@{PROJECT\_ROOT}!create\_pool@{create\_pool}}
+\doxysubsubsection{\texorpdfstring{PROJECT\_ROOT}{PROJECT\_ROOT}}
+{\footnotesize\ttfamily create\+\_\+pool.\+PROJECT\+\_\+\+ROOT = \mbox{\hyperlink{namespacecreate__pool_a7548ba778b0fda96f5bb99e66609e311}{project\+\_\+root}}}
+
+
+
+Definition at line \mbox{\hyperlink{create__pool_8py_source_l00064}{64}} of file \mbox{\hyperlink{create__pool_8py_source}{create\+\_\+pool.\+py}}.
+
+\mbox{\Hypertarget{namespacecreate__pool_acbff462d7508ec2ab9140878b21e6a48}\label{namespacecreate__pool_acbff462d7508ec2ab9140878b21e6a48}} 
+\index{create\_pool@{create\_pool}!PYLUCENE\_INDEX\_DIR@{PYLUCENE\_INDEX\_DIR}}
+\index{PYLUCENE\_INDEX\_DIR@{PYLUCENE\_INDEX\_DIR}!create\_pool@{create\_pool}}
+\doxysubsubsection{\texorpdfstring{PYLUCENE\_INDEX\_DIR}{PYLUCENE\_INDEX\_DIR}}
+{\footnotesize\ttfamily string create\+\_\+pool.\+PYLUCENE\+\_\+\+INDEX\+\_\+\+DIR = \mbox{\hyperlink{namespacecreate__pool_add23085779480fb4a032d65902962f60}{PROJECT\+\_\+\+ROOT}} / \char`\"{}Search\+Engine\char`\"{} / \char`\"{}index\char`\"{}}
+
+
+
+Definition at line \mbox{\hyperlink{create__pool_8py_source_l00067}{67}} of file \mbox{\hyperlink{create__pool_8py_source}{create\+\_\+pool.\+py}}.
+
+\mbox{\Hypertarget{namespacecreate__pool_a27ae921d54bfe7f584e915b1f9a05fd5}\label{namespacecreate__pool_a27ae921d54bfe7f584e915b1f9a05fd5}} 
+\index{create\_pool@{create\_pool}!PYLUCENE\_RANKING\_TYPES@{PYLUCENE\_RANKING\_TYPES}}
+\index{PYLUCENE\_RANKING\_TYPES@{PYLUCENE\_RANKING\_TYPES}!create\_pool@{create\_pool}}
+\doxysubsubsection{\texorpdfstring{PYLUCENE\_RANKING\_TYPES}{PYLUCENE\_RANKING\_TYPES}}
+{\footnotesize\ttfamily list create\+\_\+pool.\+PYLUCENE\+\_\+\+RANKING\+\_\+\+TYPES = \mbox{[}\char`\"{}BM25\char`\"{}, \char`\"{}TFIDF\char`\"{}\mbox{]}}
+
+
+
+Definition at line \mbox{\hyperlink{create__pool_8py_source_l00077}{77}} of file \mbox{\hyperlink{create__pool_8py_source}{create\+\_\+pool.\+py}}.
+
+\mbox{\Hypertarget{namespacecreate__pool_ab48cdbde678b3d1b310e62fbdfda985f}\label{namespacecreate__pool_ab48cdbde678b3d1b310e62fbdfda985f}} 
+\index{create\_pool@{create\_pool}!pylucene\_search\_documents@{pylucene\_search\_documents}}
+\index{pylucene\_search\_documents@{pylucene\_search\_documents}!create\_pool@{create\_pool}}
+\doxysubsubsection{\texorpdfstring{pylucene\_search\_documents}{pylucene\_search\_documents}}
+{\footnotesize\ttfamily create\+\_\+pool.\+pylucene\+\_\+search\+\_\+documents = None}
+
+
+
+Definition at line \mbox{\hyperlink{create__pool_8py_source_l00059}{59}} of file \mbox{\hyperlink{create__pool_8py_source}{create\+\_\+pool.\+py}}.
+
+\mbox{\Hypertarget{namespacecreate__pool_a48c606b043febb96ac3b0f5e9cd5e953}\label{namespacecreate__pool_a48c606b043febb96ac3b0f5e9cd5e953}} 
+\index{create\_pool@{create\_pool}!TOP\_N\_FOR\_POOLING@{TOP\_N\_FOR\_POOLING}}
+\index{TOP\_N\_FOR\_POOLING@{TOP\_N\_FOR\_POOLING}!create\_pool@{create\_pool}}
+\doxysubsubsection{\texorpdfstring{TOP\_N\_FOR\_POOLING}{TOP\_N\_FOR\_POOLING}}
+{\footnotesize\ttfamily int create\+\_\+pool.\+TOP\+\_\+\+N\+\_\+\+FOR\+\_\+\+POOLING = 20}
+
+
+
+Definition at line \mbox{\hyperlink{create__pool_8py_source_l00074}{74}} of file \mbox{\hyperlink{create__pool_8py_source}{create\+\_\+pool.\+py}}.
+
+\mbox{\Hypertarget{namespacecreate__pool_ae834795ae9815d127804278d16579f9a}\label{namespacecreate__pool_ae834795ae9815d127804278d16579f9a}} 
+\index{create\_pool@{create\_pool}!UIN\_FILE\_PATH@{UIN\_FILE\_PATH}}
+\index{UIN\_FILE\_PATH@{UIN\_FILE\_PATH}!create\_pool@{create\_pool}}
+\doxysubsubsection{\texorpdfstring{UIN\_FILE\_PATH}{UIN\_FILE\_PATH}}
+{\footnotesize\ttfamily string create\+\_\+pool.\+UIN\+\_\+\+FILE\+\_\+\+PATH = \mbox{\hyperlink{namespacecreate__pool_add23085779480fb4a032d65902962f60}{PROJECT\+\_\+\+ROOT}} / \char`\"{}uin.\+txt\char`\"{}}
+
+
+
+Definition at line \mbox{\hyperlink{create__pool_8py_source_l00069}{69}} of file \mbox{\hyperlink{create__pool_8py_source}{create\+\_\+pool.\+py}}.
+
+\mbox{\Hypertarget{namespacecreate__pool_a620d1a414472d482b097e4e7f153d83b}\label{namespacecreate__pool_a620d1a414472d482b097e4e7f153d83b}} 
+\index{create\_pool@{create\_pool}!WHOOSH\_INDEX\_DIR@{WHOOSH\_INDEX\_DIR}}
+\index{WHOOSH\_INDEX\_DIR@{WHOOSH\_INDEX\_DIR}!create\_pool@{create\_pool}}
+\doxysubsubsection{\texorpdfstring{WHOOSH\_INDEX\_DIR}{WHOOSH\_INDEX\_DIR}}
+{\footnotesize\ttfamily string create\+\_\+pool.\+WHOOSH\+\_\+\+INDEX\+\_\+\+DIR = \mbox{\hyperlink{namespacecreate__pool_add23085779480fb4a032d65902962f60}{PROJECT\+\_\+\+ROOT}} / \char`\"{}Search\+Engine\char`\"{} / \char`\"{}Whoosh\+Index\char`\"{}}
+
+
+
+Definition at line \mbox{\hyperlink{create__pool_8py_source_l00068}{68}} of file \mbox{\hyperlink{create__pool_8py_source}{create\+\_\+pool.\+py}}.
+
+\mbox{\Hypertarget{namespacecreate__pool_a7d80d2d2d2f35d1d7bd93e1f8e60b0d0}\label{namespacecreate__pool_a7d80d2d2d2f35d1d7bd93e1f8e60b0d0}} 
+\index{create\_pool@{create\_pool}!WHOOSH\_LIB\_AVAILABLE@{WHOOSH\_LIB\_AVAILABLE}}
+\index{WHOOSH\_LIB\_AVAILABLE@{WHOOSH\_LIB\_AVAILABLE}!create\_pool@{create\_pool}}
+\doxysubsubsection{\texorpdfstring{WHOOSH\_LIB\_AVAILABLE}{WHOOSH\_LIB\_AVAILABLE}}
+{\footnotesize\ttfamily bool create\+\_\+pool.\+WHOOSH\+\_\+\+LIB\+\_\+\+AVAILABLE = True}
+
+
+
+Definition at line \mbox{\hyperlink{create__pool_8py_source_l00030}{30}} of file \mbox{\hyperlink{create__pool_8py_source}{create\+\_\+pool.\+py}}.
+
+\mbox{\Hypertarget{namespacecreate__pool_a6b56e1304d6afb08764e5340ab767341}\label{namespacecreate__pool_a6b56e1304d6afb08764e5340ab767341}} 
+\index{create\_pool@{create\_pool}!whoosh\_open\_dir\_lib@{whoosh\_open\_dir\_lib}}
+\index{whoosh\_open\_dir\_lib@{whoosh\_open\_dir\_lib}!create\_pool@{create\_pool}}
+\doxysubsubsection{\texorpdfstring{whoosh\_open\_dir\_lib}{whoosh\_open\_dir\_lib}}
+{\footnotesize\ttfamily create\+\_\+pool.\+whoosh\+\_\+open\+\_\+dir\+\_\+lib = None}
+
+
+
+Definition at line \mbox{\hyperlink{create__pool_8py_source_l00035}{35}} of file \mbox{\hyperlink{create__pool_8py_source}{create\+\_\+pool.\+py}}.
+
+\mbox{\Hypertarget{namespacecreate__pool_a899f91dd9cbea21660219a40d321fcb6}\label{namespacecreate__pool_a899f91dd9cbea21660219a40d321fcb6}} 
+\index{create\_pool@{create\_pool}!WHOOSH\_RANKING\_TYPES@{WHOOSH\_RANKING\_TYPES}}
+\index{WHOOSH\_RANKING\_TYPES@{WHOOSH\_RANKING\_TYPES}!create\_pool@{create\_pool}}
+\doxysubsubsection{\texorpdfstring{WHOOSH\_RANKING\_TYPES}{WHOOSH\_RANKING\_TYPES}}
+{\footnotesize\ttfamily list create\+\_\+pool.\+WHOOSH\+\_\+\+RANKING\+\_\+\+TYPES = \mbox{[}\char`\"{}BM25F\char`\"{}, \char`\"{}TF\+\_\+\+IDF\char`\"{}\mbox{]}}
+
+
+
+Definition at line \mbox{\hyperlink{create__pool_8py_source_l00078}{78}} of file \mbox{\hyperlink{create__pool_8py_source}{create\+\_\+pool.\+py}}.
+
+\mbox{\Hypertarget{namespacecreate__pool_abfb3d3fa1fb4672361a9323d870d7561}\label{namespacecreate__pool_abfb3d3fa1fb4672361a9323d870d7561}} 
+\index{create\_pool@{create\_pool}!whoosh\_search\_documents@{whoosh\_search\_documents}}
+\index{whoosh\_search\_documents@{whoosh\_search\_documents}!create\_pool@{create\_pool}}
+\doxysubsubsection{\texorpdfstring{whoosh\_search\_documents}{whoosh\_search\_documents}}
+{\footnotesize\ttfamily create\+\_\+pool.\+whoosh\+\_\+search\+\_\+documents = None}
+
+
+
+Definition at line \mbox{\hyperlink{create__pool_8py_source_l00060}{60}} of file \mbox{\hyperlink{create__pool_8py_source}{create\+\_\+pool.\+py}}.
+
+\mbox{\Hypertarget{namespacecreate__pool_a3d93a111670d41c9d07e6219adaff84c}\label{namespacecreate__pool_a3d93a111670d41c9d07e6219adaff84c}} 
+\index{create\_pool@{create\_pool}!WhooshEmptyIndexError\_lib@{WhooshEmptyIndexError\_lib}}
+\index{WhooshEmptyIndexError\_lib@{WhooshEmptyIndexError\_lib}!create\_pool@{create\_pool}}
+\doxysubsubsection{\texorpdfstring{WhooshEmptyIndexError\_lib}{WhooshEmptyIndexError\_lib}}
+{\footnotesize\ttfamily create\+\_\+pool.\+Whoosh\+Empty\+Index\+Error\+\_\+lib = None}
+
+
+
+Definition at line \mbox{\hyperlink{create__pool_8py_source_l00036}{36}} of file \mbox{\hyperlink{create__pool_8py_source}{create\+\_\+pool.\+py}}.
+

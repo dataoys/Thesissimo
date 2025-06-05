@@ -1,0 +1,88 @@
+\hypertarget{namespaceDocManipulation}{}\doxysection{Doc\+Manipulation Namespace Reference}
+\label{namespaceDocManipulation}\index{DocManipulation@{DocManipulation}}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \mbox{\hyperlink{namespaceDocManipulation_a6a630db33a56951086425b60546f11dc}{remove\+\_\+latex}} (text)
+\begin{DoxyCompactList}\small\item\em Remove La\+TeX expressions from text content. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceDocManipulation_a6bdb22f2324a6668655a567448b18bfd}{clean\+Text}} (text)
+\begin{DoxyCompactList}\small\item\em Comprehensive text cleaning for document content. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceDocManipulation_a0fd9a54a0a2c4f152fd7d63572ecb418}{add\+To\+Json}} (results, NOME\+\_\+\+FILE)
+\begin{DoxyCompactList}\small\item\em Add scraped documents to JSON file with incremental IDs. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{namespaceDocManipulation_a0fd9a54a0a2c4f152fd7d63572ecb418}\label{namespaceDocManipulation_a0fd9a54a0a2c4f152fd7d63572ecb418}} 
+\index{DocManipulation@{DocManipulation}!addToJson@{addToJson}}
+\index{addToJson@{addToJson}!DocManipulation@{DocManipulation}}
+\doxysubsubsection{\texorpdfstring{addToJson()}{addToJson()}}
+{\footnotesize\ttfamily def Doc\+Manipulation.\+add\+To\+Json (\begin{DoxyParamCaption}\item[{}]{results,  }\item[{}]{NOME\+\_\+\+FILE }\end{DoxyParamCaption})}
+
+
+
+Add scraped documents to JSON file with incremental IDs. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em results} & List of document dictionaries to add \\
+\hline
+{\em NOME\+\_\+\+FILE} & Path to the output JSON file\\
+\hline
+\end{DoxyParams}
+Creates structured JSON documents with auto-\/incremented IDs. Overwrites existing file with new complete dataset. \begin{DoxyReturn}{Returns}
+None 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{DocManipulation_8py_source_l00054}{54}} of file \mbox{\hyperlink{DocManipulation_8py_source}{Doc\+Manipulation.\+py}}.
+
+\mbox{\Hypertarget{namespaceDocManipulation_a6bdb22f2324a6668655a567448b18bfd}\label{namespaceDocManipulation_a6bdb22f2324a6668655a567448b18bfd}} 
+\index{DocManipulation@{DocManipulation}!cleanText@{cleanText}}
+\index{cleanText@{cleanText}!DocManipulation@{DocManipulation}}
+\doxysubsubsection{\texorpdfstring{cleanText()}{cleanText()}}
+{\footnotesize\ttfamily def Doc\+Manipulation.\+clean\+Text (\begin{DoxyParamCaption}\item[{}]{text }\end{DoxyParamCaption})}
+
+
+
+Comprehensive text cleaning for document content. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em text} & Raw text content to clean \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Cleaned and normalized text
+\end{DoxyReturn}
+Performs multiple cleaning operations\+:
+\begin{DoxyItemize}
+\item La\+TeX expression removal
+\item Control character filtering
+\item Whitespace normalization
+\item Newline cleanup 
+\end{DoxyItemize}
+
+Definition at line \mbox{\hyperlink{DocManipulation_8py_source_l00028}{28}} of file \mbox{\hyperlink{DocManipulation_8py_source}{Doc\+Manipulation.\+py}}.
+
+\mbox{\Hypertarget{namespaceDocManipulation_a6a630db33a56951086425b60546f11dc}\label{namespaceDocManipulation_a6a630db33a56951086425b60546f11dc}} 
+\index{DocManipulation@{DocManipulation}!remove\_latex@{remove\_latex}}
+\index{remove\_latex@{remove\_latex}!DocManipulation@{DocManipulation}}
+\doxysubsubsection{\texorpdfstring{remove\_latex()}{remove\_latex()}}
+{\footnotesize\ttfamily def Doc\+Manipulation.\+remove\+\_\+latex (\begin{DoxyParamCaption}\item[{}]{text }\end{DoxyParamCaption})}
+
+
+
+Remove La\+TeX expressions from text content. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em text} & Input text containing La\+TeX expressions \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Cleaned text with La\+TeX expressions removed
+\end{DoxyReturn}
+Removes La\+TeX commands starting with backslash and cleans whitespace. Performs light cleaning suitable for academic document processing. 
+
+Definition at line \mbox{\hyperlink{DocManipulation_8py_source_l00012}{12}} of file \mbox{\hyperlink{DocManipulation_8py_source}{Doc\+Manipulation.\+py}}.
+

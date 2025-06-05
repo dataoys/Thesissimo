@@ -1,0 +1,121 @@
+\hypertarget{namespaceWebScraping_1_1results_1_1CleanDocuments}{}\doxysection{Web\+Scraping.\+results.\+Clean\+Documents Namespace Reference}
+\label{namespaceWebScraping_1_1results_1_1CleanDocuments}\index{WebScraping.results.CleanDocuments@{WebScraping.results.CleanDocuments}}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \mbox{\hyperlink{namespaceWebScraping_1_1results_1_1CleanDocuments_a2a9a1c4c558cf8b06b382ad2cd1adda7}{clean\+\_\+mathematical\+\_\+text}} (text)
+\begin{DoxyCompactList}\small\item\em Clean text containing mathematical expressions and Unicode artifacts. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceWebScraping_1_1results_1_1CleanDocuments_ae2b76c901ef9977851fde720d1123c94}{remove\+\_\+control\+\_\+characters}} (text)
+\begin{DoxyCompactList}\small\item\em Remove invalid control characters from text. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceWebScraping_1_1results_1_1CleanDocuments_a60232ebf51589458d502264a1869f0d5}{clean\+\_\+documents\+\_\+in\+\_\+batches}} (\mbox{\hyperlink{namespaceWebScraping_1_1results_1_1CleanDocuments_a266096b2ec62ba7581bb19f13a6ac741}{input\+\_\+path}}, \mbox{\hyperlink{namespaceWebScraping_1_1results_1_1CleanDocuments_a5fc0fd9e78dfc0c5655cba12a2f7af74}{output\+\_\+path}}=\char`\"{}Web\+Scraping/results/Docs\+\_\+cleaned.\+json\char`\"{}, batch\+\_\+size=1000)
+\begin{DoxyCompactList}\small\item\em Process and clean documents in memory-\/efficient batches. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+string \mbox{\hyperlink{namespaceWebScraping_1_1results_1_1CleanDocuments_a266096b2ec62ba7581bb19f13a6ac741}{input\+\_\+path}} = \char`\"{}Web\+Scraping/results/Docs.\+json\char`\"{}
+\item 
+string \mbox{\hyperlink{namespaceWebScraping_1_1results_1_1CleanDocuments_a5fc0fd9e78dfc0c5655cba12a2f7af74}{output\+\_\+path}} = \char`\"{}Web\+Scraping/results/Docs\+\_\+cleaned.\+json\char`\"{}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{namespaceWebScraping_1_1results_1_1CleanDocuments_a60232ebf51589458d502264a1869f0d5}\label{namespaceWebScraping_1_1results_1_1CleanDocuments_a60232ebf51589458d502264a1869f0d5}} 
+\index{WebScraping.results.CleanDocuments@{WebScraping.results.CleanDocuments}!clean\_documents\_in\_batches@{clean\_documents\_in\_batches}}
+\index{clean\_documents\_in\_batches@{clean\_documents\_in\_batches}!WebScraping.results.CleanDocuments@{WebScraping.results.CleanDocuments}}
+\doxysubsubsection{\texorpdfstring{clean\_documents\_in\_batches()}{clean\_documents\_in\_batches()}}
+{\footnotesize\ttfamily def Web\+Scraping.\+results.\+Clean\+Documents.\+clean\+\_\+documents\+\_\+in\+\_\+batches (\begin{DoxyParamCaption}\item[{}]{input\+\_\+path,  }\item[{}]{output\+\_\+path = {\ttfamily \char`\"{}WebScraping/results/Docs\+\_\+cleaned.json\char`\"{}},  }\item[{}]{batch\+\_\+size = {\ttfamily 1000} }\end{DoxyParamCaption})}
+
+
+
+Process and clean documents in memory-\/efficient batches. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em input\+\_\+path} & Path to the input JSON file with raw documents \\
+\hline
+{\em output\+\_\+path} & Path to the output JSON file for cleaned documents \\
+\hline
+{\em batch\+\_\+size} & Number of documents to process in each batch (default\+: 1000)\\
+\hline
+\end{DoxyParams}
+Implements incremental JSON parsing and batch processing for large datasets. Provides progress tracking and error handling for robust document cleaning. \begin{DoxyReturn}{Returns}
+None 
+\end{DoxyReturn}
+
+\begin{DoxyExceptions}{Exceptions}
+{\em File\+Not\+Found\+Error} & if input file doesn\textquotesingle{}t exist \\
+\hline
+{\em OSError} & for file I/O errors \\
+\hline
+\end{DoxyExceptions}
+
+
+Definition at line \mbox{\hyperlink{CleanDocuments_8py_source_l00110}{110}} of file \mbox{\hyperlink{CleanDocuments_8py_source}{Clean\+Documents.\+py}}.
+
+\mbox{\Hypertarget{namespaceWebScraping_1_1results_1_1CleanDocuments_a2a9a1c4c558cf8b06b382ad2cd1adda7}\label{namespaceWebScraping_1_1results_1_1CleanDocuments_a2a9a1c4c558cf8b06b382ad2cd1adda7}} 
+\index{WebScraping.results.CleanDocuments@{WebScraping.results.CleanDocuments}!clean\_mathematical\_text@{clean\_mathematical\_text}}
+\index{clean\_mathematical\_text@{clean\_mathematical\_text}!WebScraping.results.CleanDocuments@{WebScraping.results.CleanDocuments}}
+\doxysubsubsection{\texorpdfstring{clean\_mathematical\_text()}{clean\_mathematical\_text()}}
+{\footnotesize\ttfamily def Web\+Scraping.\+results.\+Clean\+Documents.\+clean\+\_\+mathematical\+\_\+text (\begin{DoxyParamCaption}\item[{}]{text }\end{DoxyParamCaption})}
+
+
+
+Clean text containing mathematical expressions and Unicode artifacts. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em text} & Input text with mathematical notation and Unicode characters \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Cleaned text with mathematical expressions normalized
+\end{DoxyReturn}
+Removes specific Unicode characters, La\+TeX artifacts, HTML conversion errors, and mathematical notation while preserving readable content 
+
+Definition at line \mbox{\hyperlink{CleanDocuments_8py_source_l00023}{23}} of file \mbox{\hyperlink{CleanDocuments_8py_source}{Clean\+Documents.\+py}}.
+
+\mbox{\Hypertarget{namespaceWebScraping_1_1results_1_1CleanDocuments_ae2b76c901ef9977851fde720d1123c94}\label{namespaceWebScraping_1_1results_1_1CleanDocuments_ae2b76c901ef9977851fde720d1123c94}} 
+\index{WebScraping.results.CleanDocuments@{WebScraping.results.CleanDocuments}!remove\_control\_characters@{remove\_control\_characters}}
+\index{remove\_control\_characters@{remove\_control\_characters}!WebScraping.results.CleanDocuments@{WebScraping.results.CleanDocuments}}
+\doxysubsubsection{\texorpdfstring{remove\_control\_characters()}{remove\_control\_characters()}}
+{\footnotesize\ttfamily def Web\+Scraping.\+results.\+Clean\+Documents.\+remove\+\_\+control\+\_\+characters (\begin{DoxyParamCaption}\item[{}]{text }\end{DoxyParamCaption})}
+
+
+
+Remove invalid control characters from text. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em text} & Input text potentially containing control characters \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Text with control characters removed
+\end{DoxyReturn}
+Removes ASCII control characters (0x00-\/0x1F and 0x7F) that can cause issues in text processing and database storage 
+
+Definition at line \mbox{\hyperlink{CleanDocuments_8py_source_l00096}{96}} of file \mbox{\hyperlink{CleanDocuments_8py_source}{Clean\+Documents.\+py}}.
+
+
+
+\doxysubsection{Variable Documentation}
+\mbox{\Hypertarget{namespaceWebScraping_1_1results_1_1CleanDocuments_a266096b2ec62ba7581bb19f13a6ac741}\label{namespaceWebScraping_1_1results_1_1CleanDocuments_a266096b2ec62ba7581bb19f13a6ac741}} 
+\index{WebScraping.results.CleanDocuments@{WebScraping.results.CleanDocuments}!input\_path@{input\_path}}
+\index{input\_path@{input\_path}!WebScraping.results.CleanDocuments@{WebScraping.results.CleanDocuments}}
+\doxysubsubsection{\texorpdfstring{input\_path}{input\_path}}
+{\footnotesize\ttfamily string Web\+Scraping.\+results.\+Clean\+Documents.\+input\+\_\+path = \char`\"{}Web\+Scraping/results/Docs.\+json\char`\"{}}
+
+
+
+Definition at line \mbox{\hyperlink{CleanDocuments_8py_source_l00017}{17}} of file \mbox{\hyperlink{CleanDocuments_8py_source}{Clean\+Documents.\+py}}.
+
+\mbox{\Hypertarget{namespaceWebScraping_1_1results_1_1CleanDocuments_a5fc0fd9e78dfc0c5655cba12a2f7af74}\label{namespaceWebScraping_1_1results_1_1CleanDocuments_a5fc0fd9e78dfc0c5655cba12a2f7af74}} 
+\index{WebScraping.results.CleanDocuments@{WebScraping.results.CleanDocuments}!output\_path@{output\_path}}
+\index{output\_path@{output\_path}!WebScraping.results.CleanDocuments@{WebScraping.results.CleanDocuments}}
+\doxysubsubsection{\texorpdfstring{output\_path}{output\_path}}
+{\footnotesize\ttfamily string Web\+Scraping.\+results.\+Clean\+Documents.\+output\+\_\+path = \char`\"{}Web\+Scraping/results/Docs\+\_\+cleaned.\+json\char`\"{}}
+
+
+
+Definition at line \mbox{\hyperlink{CleanDocuments_8py_source_l00021}{21}} of file \mbox{\hyperlink{CleanDocuments_8py_source}{Clean\+Documents.\+py}}.
+

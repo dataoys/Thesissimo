@@ -1,0 +1,180 @@
+\hypertarget{namespaceScraper}{}\doxysection{Scraper Namespace Reference}
+\label{namespaceScraper}\index{Scraper@{Scraper}}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \mbox{\hyperlink{namespaceScraper_a42a7fb9af79a91977166babbf9e5c303}{get\+\_\+random\+\_\+user\+\_\+agent}} ()
+\begin{DoxyCompactList}\small\item\em Generate random user agent string for web requests. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceScraper_ac7748dde9a1dd0c69fba5c05849426df}{scraping}} (url)
+\begin{DoxyCompactList}\small\item\em Scrape document content from a single URL. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceScraper_a129c6bfa204ab00926a26e4e00197cf2}{process\+\_\+urls\+\_\+sequential}} (urls)
+\begin{DoxyCompactList}\small\item\em Process list of URLs sequentially with progress tracking. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceScraper_a5a2dcae287b75569325da055de68d97e}{monitor\+\_\+input}} ()
+\begin{DoxyCompactList}\small\item\em Monitor user input for pause/resume commands during scraping. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceScraper_a7b34aa7d7539730066c13ec5cff61ce0}{init}} ()
+\begin{DoxyCompactList}\small\item\em Initialize and orchestrate the complete web scraping pipeline. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{namespaceScraper_a251c9919ea85c21f3c1f2c214a3d4644}{project\+\_\+root}} = Path(\+\_\+\+\_\+file\+\_\+\+\_\+).parent.\+parent.\+parent
+\item 
+\mbox{\hyperlink{namespaceScraper_a79a83e2c78e490efcbf679269a5237fc}{NOME\+\_\+\+FILE}} = str(\mbox{\hyperlink{namespaceScraper_a251c9919ea85c21f3c1f2c214a3d4644}{project\+\_\+root}} / \char`\"{}Web\+Scraping/results/Docs.\+json\char`\"{})
+\item 
+\mbox{\hyperlink{namespaceScraper_a24115d9bfdfacbfcd06637bdef2430a9}{FILE\+\_\+\+PULITO}} = str(\mbox{\hyperlink{namespaceScraper_a251c9919ea85c21f3c1f2c214a3d4644}{project\+\_\+root}} / \char`\"{}Web\+Scraping/results/Docs\+\_\+cleaned.\+json\char`\"{})
+\item 
+\mbox{\hyperlink{namespaceScraper_ae665371eb84ffb0d3ccd6b17f3ee03d2}{pause\+\_\+event}} = threading.\+Event()
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{namespaceScraper_a42a7fb9af79a91977166babbf9e5c303}\label{namespaceScraper_a42a7fb9af79a91977166babbf9e5c303}} 
+\index{Scraper@{Scraper}!get\_random\_user\_agent@{get\_random\_user\_agent}}
+\index{get\_random\_user\_agent@{get\_random\_user\_agent}!Scraper@{Scraper}}
+\doxysubsubsection{\texorpdfstring{get\_random\_user\_agent()}{get\_random\_user\_agent()}}
+{\footnotesize\ttfamily def Scraper.\+get\+\_\+random\+\_\+user\+\_\+agent (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Generate random user agent string for web requests. 
+
+\begin{DoxyReturn}{Returns}
+Random user agent string from predefined list
+\end{DoxyReturn}
+Provides browser rotation to avoid detection and blocking. Includes Chrome, Firefox, and Safari user agents for different platforms. 
+
+Definition at line \mbox{\hyperlink{Scraper_8py_source_l00045}{45}} of file \mbox{\hyperlink{Scraper_8py_source}{Scraper.\+py}}.
+
+\mbox{\Hypertarget{namespaceScraper_a7b34aa7d7539730066c13ec5cff61ce0}\label{namespaceScraper_a7b34aa7d7539730066c13ec5cff61ce0}} 
+\index{Scraper@{Scraper}!init@{init}}
+\index{init@{init}!Scraper@{Scraper}}
+\doxysubsubsection{\texorpdfstring{init()}{init()}}
+{\footnotesize\ttfamily def Scraper.\+init (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Initialize and orchestrate the complete web scraping pipeline. 
+
+Main function that coordinates the entire scraping workflow\+:
+\begin{DoxyEnumerate}
+\item Creates necessary directories and files
+\item Generates URLs for scraping
+\item Starts monitoring thread for user commands
+\item Executes sequential scraping with progress tracking
+\item Processes and cleans scraped documents
+\item Imports cleaned data into Postgre\+SQL database \begin{DoxyReturn}{Returns}
+None 
+\end{DoxyReturn}
+
+\begin{DoxyExceptions}{Exceptions}
+{\em Exception} & if directory creation, file I/O, or database operations fail \\
+\hline
+\end{DoxyExceptions}
+
+\end{DoxyEnumerate}
+
+Definition at line \mbox{\hyperlink{Scraper_8py_source_l00176}{176}} of file \mbox{\hyperlink{Scraper_8py_source}{Scraper.\+py}}.
+
+\mbox{\Hypertarget{namespaceScraper_a5a2dcae287b75569325da055de68d97e}\label{namespaceScraper_a5a2dcae287b75569325da055de68d97e}} 
+\index{Scraper@{Scraper}!monitor\_input@{monitor\_input}}
+\index{monitor\_input@{monitor\_input}!Scraper@{Scraper}}
+\doxysubsubsection{\texorpdfstring{monitor\_input()}{monitor\_input()}}
+{\footnotesize\ttfamily def Scraper.\+monitor\+\_\+input (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Monitor user input for pause/resume commands during scraping. 
+
+Runs in separate thread to handle real-\/time pause/resume functionality. Accepts \textquotesingle{}pause\textquotesingle{} and \textquotesingle{}resume\textquotesingle{} commands to control scraping process. \begin{DoxyReturn}{Returns}
+None 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{Scraper_8py_source_l00159}{159}} of file \mbox{\hyperlink{Scraper_8py_source}{Scraper.\+py}}.
+
+\mbox{\Hypertarget{namespaceScraper_a129c6bfa204ab00926a26e4e00197cf2}\label{namespaceScraper_a129c6bfa204ab00926a26e4e00197cf2}} 
+\index{Scraper@{Scraper}!process\_urls\_sequential@{process\_urls\_sequential}}
+\index{process\_urls\_sequential@{process\_urls\_sequential}!Scraper@{Scraper}}
+\doxysubsubsection{\texorpdfstring{process\_urls\_sequential()}{process\_urls\_sequential()}}
+{\footnotesize\ttfamily def Scraper.\+process\+\_\+urls\+\_\+sequential (\begin{DoxyParamCaption}\item[{}]{urls }\end{DoxyParamCaption})}
+
+
+
+Process list of URLs sequentially with progress tracking. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em urls} & List of URLs to scrape \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+List of successfully scraped document dictionaries
+\end{DoxyReturn}
+Implements sequential processing with progress bar and error handling. Respects pause events and provides real-\/time feedback. 
+
+Definition at line \mbox{\hyperlink{Scraper_8py_source_l00141}{141}} of file \mbox{\hyperlink{Scraper_8py_source}{Scraper.\+py}}.
+
+\mbox{\Hypertarget{namespaceScraper_ac7748dde9a1dd0c69fba5c05849426df}\label{namespaceScraper_ac7748dde9a1dd0c69fba5c05849426df}} 
+\index{Scraper@{Scraper}!scraping@{scraping}}
+\index{scraping@{scraping}!Scraper@{Scraper}}
+\doxysubsubsection{\texorpdfstring{scraping()}{scraping()}}
+{\footnotesize\ttfamily def Scraper.\+scraping (\begin{DoxyParamCaption}\item[{}]{url }\end{DoxyParamCaption})}
+
+
+
+Scrape document content from a single URL. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em url} & The URL to scrape for document content \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Dictionary containing extracted document fields or None if failed
+\end{DoxyReturn}
+Extracts title, abstract, corpus, keywords, and URL from academic papers. Handles La\+TeX content, implements error recovery, and respects rate limiting. 
+
+Definition at line \mbox{\hyperlink{Scraper_8py_source_l00060}{60}} of file \mbox{\hyperlink{Scraper_8py_source}{Scraper.\+py}}.
+
+
+
+\doxysubsection{Variable Documentation}
+\mbox{\Hypertarget{namespaceScraper_a24115d9bfdfacbfcd06637bdef2430a9}\label{namespaceScraper_a24115d9bfdfacbfcd06637bdef2430a9}} 
+\index{Scraper@{Scraper}!FILE\_PULITO@{FILE\_PULITO}}
+\index{FILE\_PULITO@{FILE\_PULITO}!Scraper@{Scraper}}
+\doxysubsubsection{\texorpdfstring{FILE\_PULITO}{FILE\_PULITO}}
+{\footnotesize\ttfamily Scraper.\+FILE\+\_\+\+PULITO = str(\mbox{\hyperlink{namespaceScraper_a251c9919ea85c21f3c1f2c214a3d4644}{project\+\_\+root}} / \char`\"{}Web\+Scraping/results/Docs\+\_\+cleaned.\+json\char`\"{})}
+
+
+
+Definition at line \mbox{\hyperlink{Scraper_8py_source_l00036}{36}} of file \mbox{\hyperlink{Scraper_8py_source}{Scraper.\+py}}.
+
+\mbox{\Hypertarget{namespaceScraper_a79a83e2c78e490efcbf679269a5237fc}\label{namespaceScraper_a79a83e2c78e490efcbf679269a5237fc}} 
+\index{Scraper@{Scraper}!NOME\_FILE@{NOME\_FILE}}
+\index{NOME\_FILE@{NOME\_FILE}!Scraper@{Scraper}}
+\doxysubsubsection{\texorpdfstring{NOME\_FILE}{NOME\_FILE}}
+{\footnotesize\ttfamily Scraper.\+NOME\+\_\+\+FILE = str(\mbox{\hyperlink{namespaceScraper_a251c9919ea85c21f3c1f2c214a3d4644}{project\+\_\+root}} / \char`\"{}Web\+Scraping/results/Docs.\+json\char`\"{})}
+
+
+
+Definition at line \mbox{\hyperlink{Scraper_8py_source_l00032}{32}} of file \mbox{\hyperlink{Scraper_8py_source}{Scraper.\+py}}.
+
+\mbox{\Hypertarget{namespaceScraper_ae665371eb84ffb0d3ccd6b17f3ee03d2}\label{namespaceScraper_ae665371eb84ffb0d3ccd6b17f3ee03d2}} 
+\index{Scraper@{Scraper}!pause\_event@{pause\_event}}
+\index{pause\_event@{pause\_event}!Scraper@{Scraper}}
+\doxysubsubsection{\texorpdfstring{pause\_event}{pause\_event}}
+{\footnotesize\ttfamily Scraper.\+pause\+\_\+event = threading.\+Event()}
+
+
+
+Definition at line \mbox{\hyperlink{Scraper_8py_source_l00042}{42}} of file \mbox{\hyperlink{Scraper_8py_source}{Scraper.\+py}}.
+
+\mbox{\Hypertarget{namespaceScraper_a251c9919ea85c21f3c1f2c214a3d4644}\label{namespaceScraper_a251c9919ea85c21f3c1f2c214a3d4644}} 
+\index{Scraper@{Scraper}!project\_root@{project\_root}}
+\index{project\_root@{project\_root}!Scraper@{Scraper}}
+\doxysubsubsection{\texorpdfstring{project\_root}{project\_root}}
+{\footnotesize\ttfamily Scraper.\+project\+\_\+root = Path(\+\_\+\+\_\+file\+\_\+\+\_\+).parent.\+parent.\+parent}
+
+
+
+Definition at line \mbox{\hyperlink{Scraper_8py_source_l00024}{24}} of file \mbox{\hyperlink{Scraper_8py_source}{Scraper.\+py}}.
+

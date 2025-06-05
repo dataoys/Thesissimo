@@ -1,0 +1,256 @@
+\hypertarget{benchmark_8py_source}{}\doxysection{benchmark.\+py}
+\label{benchmark_8py_source}\index{/root/JuriScan/Benchmark/benchmark.py@{/root/JuriScan/Benchmark/benchmark.py}}
+\mbox{\hyperlink{benchmark_8py}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00001}\mbox{\hyperlink{namespacebenchmark}{00001}} \textcolor{stringliteral}{"{}"{}"{}!}}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00002}00002 \textcolor{stringliteral}{@file benchmark.py}}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00003}00003 \textcolor{stringliteral}{@brief Main benchmarking script for evaluating search engine performance}}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00004}00004 \textcolor{stringliteral}{@details Implements comprehensive evaluation of PyLucene, Whoosh, and PostgreSQL engines}}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00005}00005 \textcolor{stringliteral}{         using precision, recall, MAP metrics }\textcolor{keywordflow}{and} generates visualization plots}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00006}00006 \textcolor{preprocessor}{@author} Magni \&\& Testoni}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00007}00007 \textcolor{preprocessor}{@date} 2025}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00008}00008 \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00009}00009 \textcolor{stringliteral}{}}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00010}00010 \textcolor{stringliteral}{import numpy as np}}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00011}00011 \textcolor{stringliteral}{from pathlib import Path}}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00012}00012 \textcolor{stringliteral}{import sys}}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00013}00013 \textcolor{stringliteral}{import seaborn as sns}}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00014}00014 \textcolor{stringliteral}{import matplotlib.pyplot as plt}}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00015}00015 \textcolor{stringliteral}{}}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00016}00016 \textcolor{stringliteral}{\# Add the project root to Python path so we can import SearchEngine}}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00017}\mbox{\hyperlink{namespacebenchmark_ade5dd9f41308d6224b6d887be74eabbf}{00017}} \textcolor{stringliteral}{PROJECT\_ROOT = Path(\_\_file\_\_).parent.parent  }\textcolor{comment}{\# Benchmark/benchmark.py -\/> root project}}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00018}00018 sys.path.insert(0, str(PROJECT\_ROOT))}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00019}00019 }
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00020}00020 \textcolor{keyword}{import} lucene \textcolor{comment}{\# Import lucene here for the getVMEnv check}}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00021}00021 }
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00022}00022 \textcolor{comment}{\# Attempt to import your search engine modules}}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00023}00023 \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00024}00024     \textcolor{comment}{\# Using aliased imports from \_\_init\_\_.py for clarity}}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00025}00025     \textcolor{keyword}{from} SearchEngine \textcolor{keyword}{import} (}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00026}00026         pylucene\_search\_documents,}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00027}00027         pylucene\_create\_index,}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00028}00028         pylucene\_initialize\_jvm,}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00029}00029         whoosh\_search\_documents,}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00030}00030         whoosh\_create\_or\_get\_index, \textcolor{comment}{\# Assuming Whoosh index needs to be explicitly created/opened}}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00031}00031         postgres\_search}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00032}00032     )}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00033}\mbox{\hyperlink{namespacebenchmark_ae27e8e984f06b5474f603098252d2fd6}{00033}}     ENGINES\_AVAILABLE = \textcolor{keyword}{True}}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00034}00034 \textcolor{keywordflow}{except} ImportError \textcolor{keyword}{as} e:}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00035}00035     print(f\textcolor{stringliteral}{"{}Error importing search engine modules: \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00036}00036     print(\textcolor{stringliteral}{"{}Please ensure paths are correct and SearchEngine package is importable."{}})}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00037}00037     ENGINES\_AVAILABLE = \textcolor{keyword}{False}}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00038}00038     \textcolor{comment}{\# Define placeholders if import fails, so the script doesn't crash immediately}}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00039}\mbox{\hyperlink{namespacebenchmark_af9aca4dc2880fdf28a104b7b0c83074a}{00039}}     pylucene\_search\_documents = pylucene\_create\_index = pylucene\_initialize\_jvm = \textcolor{keywordtype}{None}}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00040}\mbox{\hyperlink{namespacebenchmark_ac24c73e32a41ee680a070578f6e7b69c}{00040}}     whoosh\_search\_documents = whoosh\_create\_or\_get\_index = \textcolor{keywordtype}{None}}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00041}\mbox{\hyperlink{namespacebenchmark_a0c1a166d3c28fbacb24d34ce5dfe275a}{00041}}     postgres\_search = \textcolor{keywordtype}{None}}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00042}00042 }
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00043}00043 \textcolor{comment}{\# Define root path for JuriScan project}}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00044}00044 PROJECT\_ROOT = Path(\_\_file\_\_).parent.parent  \textcolor{comment}{\# Benchmark/benchmark.py -\/> root project}}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00045}00045 }
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00046}00046 \textcolor{comment}{\# Define index paths relative to the project root}}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00047}\mbox{\hyperlink{namespacebenchmark_a727c73066939238c7e6ecc5e2308de3e}{00047}} PYLUCENE\_INDEX\_PATH = PROJECT\_ROOT / \textcolor{stringliteral}{"{}SearchEngine"{}} / \textcolor{stringliteral}{"{}index"{}}}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00048}\mbox{\hyperlink{namespacebenchmark_ada01010615f171bd633ddcf061b47e28}{00048}} WHOOSH\_INDEX\_PATH = PROJECT\_ROOT / \textcolor{stringliteral}{"{}WhooshIndex"{}}  \textcolor{comment}{\# Secondo .gitignore è nella root}}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00049}\mbox{\hyperlink{namespacebenchmark_a1a9921168dd050dfe4f12f2c58b48e64}{00049}} JSON\_DOCS\_FILE = PROJECT\_ROOT / \textcolor{stringliteral}{"{}WebScraping"{}} / \textcolor{stringliteral}{"{}results"{}} / \textcolor{stringliteral}{"{}Docs\_cleaned.json"{}}}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00050}00050 }
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00051}00051 \textcolor{comment}{\# Define plot directories}}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00052}\mbox{\hyperlink{namespacebenchmark_af7523f6e23687c3697e52e122d446c91}{00052}} PLOTS\_DIR = PROJECT\_ROOT / \textcolor{stringliteral}{"{}Plots"{}}}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00053}\mbox{\hyperlink{namespacebenchmark_a128073dcb9e2893e8386067738adb28c}{00053}} PYLUCENE\_PLOTS\_DIR = PLOTS\_DIR / \textcolor{stringliteral}{"{}Pylucene"{}}}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00054}\mbox{\hyperlink{namespacebenchmark_a06b666565439f085769e7202f349583c}{00054}} WHOOSH\_PLOTS\_DIR = PLOTS\_DIR / \textcolor{stringliteral}{"{}Whoosh"{}}  }
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00055}\mbox{\hyperlink{namespacebenchmark_a144f114e2b4664502c6d3e974d1ba4d8}{00055}} POSTGRES\_PLOTS\_DIR = PLOTS\_DIR / \textcolor{stringliteral}{"{}Postgres"{}}}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00056}00056 }
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00057}\mbox{\hyperlink{namespacebenchmark_a340ad747c3ddba1e27d167f8275878ca}{00057}} \textcolor{keyword}{def }\mbox{\hyperlink{namespacebenchmark_a340ad747c3ddba1e27d167f8275878ca}{create\_plot\_directories}}():}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00058}00058     \textcolor{stringliteral}{"{}"{}"{}!}}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00059}00059 \textcolor{stringliteral}{    }\textcolor{preprocessor}{@brief} Create plot directories \textcolor{keywordflow}{if} they don\textcolor{stringliteral}{'t exist}}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00060}00060 \textcolor{stringliteral}{    }\textcolor{preprocessor}{@details} Creates directory structure \textcolor{keywordflow}{for} storing engine-\/specific \textcolor{keywordflow}{and} comparative plots}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00061}00061     \textcolor{preprocessor}{@return} \textcolor{keywordtype}{None}}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00062}00062     \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00063}00063 \textcolor{stringliteral}{    PYLUCENE\_PLOTS\_DIR.mkdir(parents=}\textcolor{keyword}{True}, exist\_ok=\textcolor{keyword}{True})}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00064}00064     WHOOSH\_PLOTS\_DIR.mkdir(parents=\textcolor{keyword}{True}, exist\_ok=\textcolor{keyword}{True})}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00065}00065     POSTGRES\_PLOTS\_DIR.mkdir(parents=\textcolor{keyword}{True}, exist\_ok=\textcolor{keyword}{True})}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00066}00066 }
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00067}\mbox{\hyperlink{namespacebenchmark_a0fce438733cdf2a43de4ef5a47423996}{00067}} \textcolor{keyword}{def }\mbox{\hyperlink{namespacebenchmark_a0fce438733cdf2a43de4ef5a47423996}{plot\_precision\_recall\_metrics}}(engine\_metrics, engine\_name, k\_values):}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00068}00068     \textcolor{stringliteral}{"{}"{}"{}!}}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00069}00069 \textcolor{stringliteral}{    }\textcolor{preprocessor}{@brief} Generate \textcolor{keywordflow}{and} save precision-\/recall plots \textcolor{keywordflow}{for} an engine using Seaborn}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00070}00070     \textcolor{preprocessor}{@param} engine\_metrics Dictionary containing metrics data \textcolor{keywordflow}{for} the engine}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00071}00071     \textcolor{preprocessor}{@param} engine\_name Name of the search engine (PyLucene, Whoosh, PostgreSQL)}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00072}00072     \textcolor{preprocessor}{@param} k\_values List of k values used \textcolor{keywordflow}{for} P\textcolor{preprocessor}{@k} \textcolor{keywordflow}{and} R\textcolor{preprocessor}{@k} calculations}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00073}00073     \textcolor{preprocessor}{@details} Creates box plots, bar plots, histograms \textcolor{keywordflow}{and} scatter plots \textcolor{keywordflow}{for}:}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00074}00074              -\/ Precision\textcolor{preprocessor}{@k} distribution \textcolor{keywordflow}{and} means}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00075}00075              -\/ Recall\textcolor{preprocessor}{@k} distribution \textcolor{keywordflow}{and} means  }
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00076}00076              -\/ Average Precision distribution}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00077}00077              -\/ Response time analysis}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00078}00078     \textcolor{preprocessor}{@return} \textcolor{keywordtype}{None}}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00079}00079     \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00080}00080 \textcolor{stringliteral}{    }\textcolor{comment}{\# Determine plot directory based on engine name}}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00081}00081     \textcolor{keywordflow}{if} engine\_name.lower() == \textcolor{stringliteral}{"{}pylucene"{}}:}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00082}00082         plot\_dir = PYLUCENE\_PLOTS\_DIR}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00083}00083     \textcolor{keywordflow}{elif} engine\_name.lower() == \textcolor{stringliteral}{"{}whoosh"{}}:}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00084}00084         plot\_dir = WHOOSH\_PLOTS\_DIR}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00085}00085     \textcolor{keywordflow}{elif} engine\_name.lower() == \textcolor{stringliteral}{"{}postgresql"{}}:}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00086}00086         plot\_dir = POSTGRES\_PLOTS\_DIR}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00087}00087     \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00088}00088         plot\_dir = PLOTS\_DIR / engine\_name.lower()}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00089}00089         plot\_dir.mkdir(parents=\textcolor{keyword}{True}, exist\_ok=\textcolor{keyword}{True})}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00090}00090     }
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00091}00091     \textcolor{comment}{\# Set seaborn style}}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00092}00092     sns.set\_style(\textcolor{stringliteral}{"{}whitegrid"{}})}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00093}00093     sns.set\_palette(\textcolor{stringliteral}{"{}husl"{}})}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00094}00094     }
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00095}00095     \textcolor{comment}{\# 1. Plot Precision@k for all k values}}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00096}00096     plt.figure(figsize=(12, 8))}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00097}00097     }
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00098}00098     \textcolor{comment}{\# Prepare data for precision plot}}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00099}00099     precision\_data = []}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00100}00100     \textcolor{keywordflow}{for} k \textcolor{keywordflow}{in} k\_values:}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00101}00101         \textcolor{keywordflow}{for} query\_idx, precision \textcolor{keywordflow}{in} enumerate(engine\_metrics[\textcolor{stringliteral}{"{}P@k"{}}][k]):}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00102}00102             precision\_data.append(\{}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00103}00103                 \textcolor{stringliteral}{'Query'}: f\textcolor{stringliteral}{'Q\{query\_idx+1\}'},}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00104}00104                 \textcolor{stringliteral}{'K'}: f\textcolor{stringliteral}{'P@\{k\}'},}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00105}00105                 \textcolor{stringliteral}{'Precision'}: precision}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00106}00106             \})}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00107}00107     }
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00108}00108     \textcolor{keywordflow}{if} precision\_data:}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00109}00109         \textcolor{keyword}{import} pandas \textcolor{keyword}{as} pd}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00110}00110         df\_precision = pd.DataFrame(precision\_data)}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00111}00111         }
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00112}00112         plt.subplot(2, 2, 1)}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00113}00113         sns.boxplot(data=df\_precision, x=\textcolor{stringliteral}{'K'}, y=\textcolor{stringliteral}{'Precision'})}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00114}00114         plt.title(f\textcolor{stringliteral}{'\{engine\_name\} -\/ Precision@k Distribution'})}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00115}00115         plt.ylabel(\textcolor{stringliteral}{'Precision'})}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00116}00116         plt.ylim(0, 1)}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00117}00117         }
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00118}00118         plt.subplot(2, 2, 2)}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00119}00119         sns.barplot(data=df\_precision, x=\textcolor{stringliteral}{'K'}, y=\textcolor{stringliteral}{'Precision'}, estimator=np.mean, ci=95)}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00120}00120         plt.title(f\textcolor{stringliteral}{'\{engine\_name\} -\/ Mean Precision@k'})}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00121}00121         plt.ylabel(\textcolor{stringliteral}{'Mean Precision'})}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00122}00122         plt.ylim(0, 1)}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00123}00123     }
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00124}00124     \textcolor{comment}{\# 2. Plot Recall@k for all k values}}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00125}00125     recall\_data = []}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00126}00126     \textcolor{keywordflow}{for} k \textcolor{keywordflow}{in} k\_values:}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00127}00127         \textcolor{keywordflow}{for} query\_idx, recall \textcolor{keywordflow}{in} enumerate(engine\_metrics[\textcolor{stringliteral}{"{}R@k"{}}][k]):}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00128}00128             recall\_data.append(\{}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00129}00129                 \textcolor{stringliteral}{'Query'}: f\textcolor{stringliteral}{'Q\{query\_idx+1\}'},}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00130}00130                 \textcolor{stringliteral}{'K'}: f\textcolor{stringliteral}{'R@\{k\}'},}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00131}00131                 \textcolor{stringliteral}{'Recall'}: recall}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00132}00132             \})}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00133}00133     }
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00134}00134     \textcolor{keywordflow}{if} recall\_data:}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00135}00135         df\_recall = pd.DataFrame(recall\_data)}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00136}00136         }
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00137}00137         plt.subplot(2, 2, 3)}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00138}00138         sns.boxplot(data=df\_recall, x=\textcolor{stringliteral}{'K'}, y=\textcolor{stringliteral}{'Recall'})}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00139}00139         plt.title(f\textcolor{stringliteral}{'\{engine\_name\} -\/ Recall@k Distribution'})}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00140}00140         plt.ylabel(\textcolor{stringliteral}{'Recall'})}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00141}00141         plt.ylim(0, 1)}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00142}00142         }
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00143}00143         plt.subplot(2, 2, 4)}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00144}00144         sns.barplot(data=df\_recall, x=\textcolor{stringliteral}{'K'}, y=\textcolor{stringliteral}{'Recall'}, estimator=np.mean, ci=95)}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00145}00145         plt.title(f\textcolor{stringliteral}{'\{engine\_name\} -\/ Mean Recall@k'})}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00146}00146         plt.ylabel(\textcolor{stringliteral}{'Mean Recall'})}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00147}00147         plt.ylim(0, 1)}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00148}00148     }
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00149}00149     plt.tight\_layout()}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00150}00150     plt.savefig(plot\_dir / f\textcolor{stringliteral}{'\{engine\_name\}\_precision\_recall\_at\_k.png'}, dpi=300, bbox\_inches=\textcolor{stringliteral}{'tight'})}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00151}00151     plt.close()}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00152}00152     }
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00153}00153     \textcolor{comment}{\# 3. Plot Average Precision (AP) distribution}}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00154}00154     plt.figure(figsize=(10, 6))}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00155}00155     }
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00156}00156     \textcolor{keywordflow}{if} engine\_metrics[\textcolor{stringliteral}{"{}AP"{}}]:}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00157}00157         ap\_data = pd.DataFrame(\{}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00158}00158             \textcolor{stringliteral}{'Query'}: [f\textcolor{stringliteral}{'Q\{i+1\}'} \textcolor{keywordflow}{for} i \textcolor{keywordflow}{in} range(len(engine\_metrics[\textcolor{stringliteral}{"{}AP"{}}]))],}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00159}00159             \textcolor{stringliteral}{'Average\_Precision'}: engine\_metrics[\textcolor{stringliteral}{"{}AP"{}}]}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00160}00160         \})}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00161}00161         }
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00162}00162         plt.subplot(1, 2, 1)}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00163}00163         sns.histplot(data=ap\_data, x=\textcolor{stringliteral}{'Average\_Precision'}, bins=20, kde=\textcolor{keyword}{True})}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00164}00164         plt.title(f\textcolor{stringliteral}{'\{engine\_name\} -\/ Average Precision Distribution'})}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00165}00165         plt.xlabel(\textcolor{stringliteral}{'Average Precision'})}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00166}00166         plt.xlim(0, 1)}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00167}00167         }
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00168}00168         plt.subplot(1, 2, 2)}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00169}00169         sns.boxplot(data=ap\_data, y=\textcolor{stringliteral}{'Average\_Precision'})}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00170}00170         plt.title(f\textcolor{stringliteral}{'\{engine\_name\} -\/ AP Box Plot'})}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00171}00171         plt.ylabel(\textcolor{stringliteral}{'Average Precision'})}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00172}00172         plt.ylim(0, 1)}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00173}00173     }
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00174}00174     plt.tight\_layout()}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00175}00175     plt.savefig(plot\_dir / f\textcolor{stringliteral}{'\{engine\_name\}\_average\_precision.png'}, dpi=300, bbox\_inches=\textcolor{stringliteral}{'tight'})}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00176}00176     plt.close()}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00177}00177     }
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00178}00178     \textcolor{comment}{\# 4. Plot Response Times}}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00179}00179     plt.figure(figsize=(10, 6))}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00180}00180     }
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00181}00181     \textcolor{keywordflow}{if} engine\_metrics[\textcolor{stringliteral}{"{}ResponseTimes"{}}]:}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00182}00182         response\_data = pd.DataFrame(\{}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00183}00183             \textcolor{stringliteral}{'Query'}: [f\textcolor{stringliteral}{'Q\{i+1\}'} \textcolor{keywordflow}{for} i \textcolor{keywordflow}{in} range(len(engine\_metrics[\textcolor{stringliteral}{"{}ResponseTimes"{}}]))],}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00184}00184             \textcolor{stringliteral}{'Response\_Time'}: engine\_metrics[\textcolor{stringliteral}{"{}ResponseTimes"{}}]}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00185}00185         \})}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00186}00186         }
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00187}00187         plt.subplot(1, 2, 1)}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00188}00188         sns.histplot(data=response\_data, x=\textcolor{stringliteral}{'Response\_Time'}, bins=20, kde=\textcolor{keyword}{True})}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00189}00189         plt.title(f\textcolor{stringliteral}{'\{engine\_name\} -\/ Response Time Distribution'})}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00190}00190         plt.xlabel(\textcolor{stringliteral}{'Response Time (seconds)'})}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00191}00191         }
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00192}00192         plt.subplot(1, 2, 2)}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00193}00193         sns.scatterplot(data=response\_data, x=\textcolor{stringliteral}{'Query'}, y=\textcolor{stringliteral}{'Response\_Time'})}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00194}00194         plt.title(f\textcolor{stringliteral}{'\{engine\_name\} -\/ Response Time per Query'})}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00195}00195         plt.ylabel(\textcolor{stringliteral}{'Response Time (seconds)'})}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00196}00196         plt.xticks(rotation=45)}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00197}00197     }
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00198}00198     plt.tight\_layout()}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00199}00199     plt.savefig(plot\_dir / f\textcolor{stringliteral}{'\{engine\_name\}\_response\_times.png'}, dpi=300, bbox\_inches=\textcolor{stringliteral}{'tight'})}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00200}00200     plt.close()}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00201}00201     }
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00202}00202     print(f\textcolor{stringliteral}{"{}📊 Plots saved for \{engine\_name\} in \{plot\_dir\}"{}})}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00203}00203 }
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00204}\mbox{\hyperlink{namespacebenchmark_ab0e11565b53bab7de32917f4ad69f476}{00204}} \textcolor{keyword}{def }\mbox{\hyperlink{namespacebenchmark_ab0e11565b53bab7de32917f4ad69f476}{plot\_comparative\_analysis}}(all\_results, k\_values):}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00205}00205     \textcolor{stringliteral}{"{}"{}"{}!}}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00206}00206 \textcolor{stringliteral}{    }\textcolor{preprocessor}{@brief} Generate comparative plots across all search engines}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00207}00207     \textcolor{preprocessor}{@param} all\_results Dictionary containing aggregated results \textcolor{keywordflow}{for} all engines}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00208}00208     \textcolor{preprocessor}{@param} k\_values List of k values used \textcolor{keywordflow}{for} evaluation}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00209}00209     \textcolor{preprocessor}{@details} Creates comparative visualizations including:}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00210}00210              -\/ Precision \textcolor{keywordflow}{and} recall comparison bar charts}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00211}00211              -\/ MAP comparison across engines}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00212}00212              -\/ Response time comparison}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00213}00213              -\/ Performance heatmap}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00214}00214     \textcolor{preprocessor}{@return} \textcolor{keywordtype}{None}}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00215}00215     \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00216}00216 \textcolor{stringliteral}{    }\textcolor{keyword}{import} pandas \textcolor{keyword}{as} pd}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00217}00217     }
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00218}00218     comparative\_dir = PLOTS\_DIR / \textcolor{stringliteral}{"{}Comparative"{}}}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00219}00219     comparative\_dir.mkdir(parents=\textcolor{keyword}{True}, exist\_ok=\textcolor{keyword}{True})}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00220}00220     }
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00221}00221     \textcolor{comment}{\# Prepare data for comparative analysis}}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00222}00222     engines = list(all\_results.keys())}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00223}00223     metrics\_data = []}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00224}00224     }
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00225}00225     \textcolor{keywordflow}{for} engine \textcolor{keywordflow}{in} engines:}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00226}00226         metrics = all\_results[engine]}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00227}00227         \textcolor{keywordflow}{for} k \textcolor{keywordflow}{in} k\_values:}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00228}00228             metrics\_data.append(\{}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00229}00229                 \textcolor{stringliteral}{'Engine'}: engine,}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00230}00230                 \textcolor{stringliteral}{'Metric'}: f\textcolor{stringliteral}{'P@\{k\}'},}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00231}00231                 \textcolor{stringliteral}{'Value'}: metrics.get(f\textcolor{stringliteral}{'MeanP@\{k\}'}, 0)}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00232}00232             \})}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00233}00233             metrics\_data.append(\{}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00234}00234                 \textcolor{stringliteral}{'Engine'}: engine,}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00235}00235                 \textcolor{stringliteral}{'Metric'}: f\textcolor{stringliteral}{'R@\{k\}'},}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00236}00236                 \textcolor{stringliteral}{'Value'}: metrics.get(f\textcolor{stringliteral}{'MeanR@\{k\}'}, 0)}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00237}00237             \})}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00238}00238         }
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00239}00239         metrics\_data.append(\{}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00240}00240             \textcolor{stringliteral}{'Engine'}: engine,}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00241}00241             \textcolor{stringliteral}{'Metric'}: \textcolor{stringliteral}{'MAP'},}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00242}00242             \textcolor{stringliteral}{'Value'}: metrics.get(\textcolor{stringliteral}{'MAP'}, 0)}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00243}00243         \})}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00244}00244         }
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00245}00245         metrics\_data.append(\{}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00246}00246             \textcolor{stringliteral}{'Engine'}: engine,}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00247}00247             \textcolor{stringliteral}{'Metric'}: \textcolor{stringliteral}{'Avg Response Time'},}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00248}00248             \textcolor{stringliteral}{'Value'}: metrics.get(\textcolor{stringliteral}{'AvgResponseTime'}, 0)}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00249}00249         \})}
+\DoxyCodeLine{\Hypertarget{benchmark_8py_source_l00250}00250    }
+
+\end{DoxyCode}

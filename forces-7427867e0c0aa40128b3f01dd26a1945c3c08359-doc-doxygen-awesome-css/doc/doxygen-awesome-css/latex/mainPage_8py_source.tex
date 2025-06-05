@@ -1,0 +1,44 @@
+\hypertarget{mainPage_8py_source}{}\doxysection{main\+Page.\+py}
+\label{mainPage_8py_source}\index{/root/JuriScan/WebApp/mainPage.py@{/root/JuriScan/WebApp/mainPage.py}}
+\mbox{\hyperlink{mainPage_8py}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{mainPage_8py_source_l00001}\mbox{\hyperlink{namespaceWebApp}{00001}} \textcolor{stringliteral}{"{}"{}"{}!}}
+\DoxyCodeLine{\Hypertarget{mainPage_8py_source_l00002}00002 \textcolor{stringliteral}{@file mainPage.py}}
+\DoxyCodeLine{\Hypertarget{mainPage_8py_source_l00003}00003 \textcolor{stringliteral}{@brief Main entry point for JuriScan web application}}
+\DoxyCodeLine{\Hypertarget{mainPage_8py_source_l00004}00004 \textcolor{stringliteral}{@details Provides search engine selection interface and launches corresponding Streamlit apps}}
+\DoxyCodeLine{\Hypertarget{mainPage_8py_source_l00005}00005 \textcolor{stringliteral}{@author Magni \&\& Testoni}}
+\DoxyCodeLine{\Hypertarget{mainPage_8py_source_l00006}00006 \textcolor{stringliteral}{@date 2025}}
+\DoxyCodeLine{\Hypertarget{mainPage_8py_source_l00007}00007 \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{mainPage_8py_source_l00008}00008 }
+\DoxyCodeLine{\Hypertarget{mainPage_8py_source_l00009}00009 \textcolor{keyword}{import} streamlit \textcolor{keyword}{as} st}
+\DoxyCodeLine{\Hypertarget{mainPage_8py_source_l00010}00010 \textcolor{keyword}{import} subprocess}
+\DoxyCodeLine{\Hypertarget{mainPage_8py_source_l00011}00011 }
+\DoxyCodeLine{\Hypertarget{mainPage_8py_source_l00012}00012 \textcolor{comment}{\#Titolo}}
+\DoxyCodeLine{\Hypertarget{mainPage_8py_source_l00013}00013 st.title(\textcolor{stringliteral}{"{}THESISSIMO"{}})}
+\DoxyCodeLine{\Hypertarget{mainPage_8py_source_l00014}\mbox{\hyperlink{namespaceWebApp_1_1mainPage_ac8d74291bf9e71538191cb9605ee89d5}{00014}} motori\_di\_ricerca = [\textcolor{stringliteral}{"{}Postgres"{}}, \textcolor{stringliteral}{"{}Whoosh"{}}, \textcolor{stringliteral}{"{}PyLucene"{}}]}
+\DoxyCodeLine{\Hypertarget{mainPage_8py_source_l00015}00015 }
+\DoxyCodeLine{\Hypertarget{mainPage_8py_source_l00016}\mbox{\hyperlink{namespaceWebApp_1_1mainPage_ae3a8df3d9960d0ac8010f31993bd3b9f}{00016}} scelta = st.selectbox(\textcolor{stringliteral}{"{}Scegli un motore di ricerca:"{}}, motori\_di\_ricerca)}
+\DoxyCodeLine{\Hypertarget{mainPage_8py_source_l00017}00017 }
+\DoxyCodeLine{\Hypertarget{mainPage_8py_source_l00018}00018 }
+\DoxyCodeLine{\Hypertarget{mainPage_8py_source_l00019}\mbox{\hyperlink{namespaceWebApp_1_1mainPage_aee29a82f64112df9f7f586cd6852a97a}{00019}} \textcolor{keyword}{def }\mbox{\hyperlink{namespaceWebApp_1_1mainPage_aee29a82f64112df9f7f586cd6852a97a}{esegui\_streamlit}}(motore):}
+\DoxyCodeLine{\Hypertarget{mainPage_8py_source_l00020}00020     \textcolor{stringliteral}{"{}"{}"{}!}}
+\DoxyCodeLine{\Hypertarget{mainPage_8py_source_l00021}00021 \textcolor{stringliteral}{    }\textcolor{preprocessor}{@brief} Launch specific search engine UI application}
+\DoxyCodeLine{\Hypertarget{mainPage_8py_source_l00022}00022     \textcolor{preprocessor}{@param} motore String identifier \textcolor{keywordflow}{for} the chosen search engine}
+\DoxyCodeLine{\Hypertarget{mainPage_8py_source_l00023}00023     \textcolor{preprocessor}{@details} Starts subprocess \textcolor{keyword}{with} appropriate Streamlit application based on user selection.}
+\DoxyCodeLine{\Hypertarget{mainPage_8py_source_l00024}00024              Supports PostgreSQL, Whoosh, \textcolor{keywordflow}{and} PyLucene search engines.}
+\DoxyCodeLine{\Hypertarget{mainPage_8py_source_l00025}00025     \textcolor{preprocessor}{@return} \textcolor{keywordtype}{None}}
+\DoxyCodeLine{\Hypertarget{mainPage_8py_source_l00026}00026     \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{mainPage_8py_source_l00027}00027 \textcolor{stringliteral}{    }\textcolor{keywordflow}{if} motore == \textcolor{stringliteral}{"{}Postgres"{}}:}
+\DoxyCodeLine{\Hypertarget{mainPage_8py_source_l00028}00028         subprocess.Popen([\textcolor{stringliteral}{"{}streamlit"{}}, \textcolor{stringliteral}{"{}run"{}}, \textcolor{stringliteral}{"{}./WebApp/PostgresUI.py"{}}])  }
+\DoxyCodeLine{\Hypertarget{mainPage_8py_source_l00029}00029     \textcolor{keywordflow}{elif} motore == \textcolor{stringliteral}{"{}Whoosh"{}}:}
+\DoxyCodeLine{\Hypertarget{mainPage_8py_source_l00030}00030         subprocess.Popen([\textcolor{stringliteral}{"{}streamlit"{}}, \textcolor{stringliteral}{"{}run"{}}, \textcolor{stringliteral}{"{}./WebApp/WhooshUI.py"{}}])  }
+\DoxyCodeLine{\Hypertarget{mainPage_8py_source_l00031}00031     \textcolor{keywordflow}{elif} motore == \textcolor{stringliteral}{"{}PyLucene"{}}:}
+\DoxyCodeLine{\Hypertarget{mainPage_8py_source_l00032}00032         print(\textcolor{stringliteral}{"{}PyLucene"{}})}
+\DoxyCodeLine{\Hypertarget{mainPage_8py_source_l00033}00033         subprocess.Popen([\textcolor{stringliteral}{"{}streamlit"{}}, \textcolor{stringliteral}{"{}run"{}}, \textcolor{stringliteral}{"{}./WebApp/PyLuceneUI.py"{}}]) }
+\DoxyCodeLine{\Hypertarget{mainPage_8py_source_l00034}00034 }
+\DoxyCodeLine{\Hypertarget{mainPage_8py_source_l00035}00035 \textcolor{comment}{\# Esegui il file corrispondente}}
+\DoxyCodeLine{\Hypertarget{mainPage_8py_source_l00036}00036 \textcolor{keywordflow}{if} st.button(\textcolor{stringliteral}{"{}Esegui"{}}):}
+\DoxyCodeLine{\Hypertarget{mainPage_8py_source_l00037}00037     \mbox{\hyperlink{namespaceWebApp_1_1mainPage_aee29a82f64112df9f7f586cd6852a97a}{esegui\_streamlit}}(scelta)}
+\DoxyCodeLine{\Hypertarget{mainPage_8py_source_l00038}00038     st.success(f\textcolor{stringliteral}{"{}Applicazione per \{scelta\} avviata con successo!"{}})}
+
+\end{DoxyCode}

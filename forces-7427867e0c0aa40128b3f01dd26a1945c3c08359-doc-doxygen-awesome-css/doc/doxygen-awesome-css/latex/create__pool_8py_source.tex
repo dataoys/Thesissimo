@@ -1,0 +1,357 @@
+\hypertarget{create__pool_8py_source}{}\doxysection{create\+\_\+pool.\+py}
+\label{create__pool_8py_source}\index{/root/JuriScan/Benchmark/create\_pool.py@{/root/JuriScan/Benchmark/create\_pool.py}}
+\mbox{\hyperlink{create__pool_8py}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00001}\mbox{\hyperlink{namespacecreate__pool}{00001}} \textcolor{stringliteral}{"{}"{}"{}!}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00002}00002 \textcolor{stringliteral}{@file create\_pool.py}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00003}00003 \textcolor{stringliteral}{@brief Creates relevance pools by aggregating results from multiple search engines}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00004}00004 \textcolor{stringliteral}{@details This module implements the pooling method for information retrieval evaluation,}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00005}00005 \textcolor{stringliteral}{         collecting top results }\textcolor{keyword}{from} PyLucene, Whoosh, \textcolor{keywordflow}{and} PostgreSQL engines \textcolor{keywordflow}{for} manual relevance assessment}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00006}00006 \textcolor{preprocessor}{@authors} Magni \&\& Testoni}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00007}00007 \textcolor{preprocessor}{@date} 2024}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00008}00008 \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00009}00009 \textcolor{stringliteral}{}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00010}00010 \textcolor{stringliteral}{import json}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00011}00011 \textcolor{stringliteral}{from pathlib import Path}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00012}00012 \textcolor{stringliteral}{import lucene \# Import lucene here for the getVMEnv check}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00013}00013 \textcolor{stringliteral}{from org.apache.lucene.store import FSDirectory}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00014}00014 \textcolor{stringliteral}{from org.apache.lucene.index import DirectoryReader}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00015}00015 \textcolor{stringliteral}{from org.apache.lucene.search import IndexSearcher}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00016}00016 \textcolor{stringliteral}{from java.nio.file import Paths}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00017}00017 \textcolor{stringliteral}{import sys}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00018}00018 \textcolor{stringliteral}{import traceback}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00019}00019 \textcolor{stringliteral}{}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00020}00020 \textcolor{stringliteral}{\# Determine project\_root: assumes create\_pool.py is in JuriScan/Benchmark/}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00021}00021 \textcolor{stringliteral}{\_current\_file\_path = Path(\_\_file\_\_).resolve()}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00022}00022 \textcolor{stringliteral}{\# Assuming structure /root/JuriScan/Benchmark/create\_pool.py}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00023}00023 \textcolor{stringliteral}{\# then project\_root should be /root/JuriScan}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00024}\mbox{\hyperlink{namespacecreate__pool_a7548ba778b0fda96f5bb99e66609e311}{00024}} \textcolor{stringliteral}{project\_root = \_current\_file\_path.parent.parent}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00025}00025 \textcolor{stringliteral}{sys.path.append(str(project\_root))}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00026}00026 \textcolor{stringliteral}{}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00027}00027 \textcolor{stringliteral}{\# Import whoosh.index functions directly}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00028}00028 \textcolor{stringliteral}{try:}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00029}00029 \textcolor{stringliteral}{    }\textcolor{keyword}{from} whoosh.index \textcolor{keyword}{import} open\_dir \textcolor{keyword}{as} whoosh\_open\_dir\_lib, EmptyIndexError \textcolor{keyword}{as} WhooshEmptyIndexError\_lib \textcolor{comment}{\# Renamed for clarity}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00030}\mbox{\hyperlink{namespacecreate__pool_a7d80d2d2d2f35d1d7bd93e1f8e60b0d0}{00030}}     WHOOSH\_LIB\_AVAILABLE = \textcolor{keyword}{True}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00031}00031     print(\textcolor{stringliteral}{"{}Whoosh library (open\_dir, EmptyIndexError) imported successfully from whoosh.index."{}})}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00032}00032 \textcolor{keywordflow}{except} ImportError:}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00033}00033     print(\textcolor{stringliteral}{"{}Whoosh library (whoosh.index) not found. Whoosh functionality will be disabled."{}})}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00034}00034     WHOOSH\_LIB\_AVAILABLE = \textcolor{keyword}{False}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00035}\mbox{\hyperlink{namespacecreate__pool_a6b56e1304d6afb08764e5340ab767341}{00035}}     whoosh\_open\_dir\_lib = \textcolor{keywordtype}{None}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00036}\mbox{\hyperlink{namespacecreate__pool_a3d93a111670d41c9d07e6219adaff84c}{00036}}     WhooshEmptyIndexError\_lib = \textcolor{keywordtype}{None}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00037}00037 }
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00038}00038 }
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00039}00039 \textcolor{comment}{\# Attempt to import your search engine modules from SearchEngine package}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00040}00040 \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00041}00041     \textcolor{keyword}{from} SearchEngine \textcolor{keyword}{import} (}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00042}00042         pylucene\_search\_documents,}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00043}00043         pylucene\_initialize\_jvm,}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00044}00044         whoosh\_search\_documents, }
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00045}00045         postgres\_search}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00046}00046     )}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00047}\mbox{\hyperlink{namespacecreate__pool_abe2d2a91f8a84d1d200dcc93f20ebc52}{00047}}     ENGINES\_MODULES\_AVAILABLE = \textcolor{keyword}{True}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00048}00048     print(\textcolor{stringliteral}{"{}Successfully imported modules from SearchEngine package."{}})}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00049}00049     \textcolor{keywordflow}{if} whoosh\_search\_documents:}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00050}00050         print(\textcolor{stringliteral}{"{}SearchEngine.whoosh\_search\_documents (your custom function) imported successfully."{}})}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00051}00051     \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00052}00052         print(\textcolor{stringliteral}{"{}SearchEngine.whoosh\_search\_documents (your custom function) is None after import attempt from SearchEngine package."{}})}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00053}00053 }
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00054}00054 \textcolor{keywordflow}{except} ImportError \textcolor{keyword}{as} e:}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00055}00055     print(f\textcolor{stringliteral}{"{}Error importing SearchEngine modules: \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00056}00056     print(f\textcolor{stringliteral}{"{}Current sys.path: \{sys.path\}"{}})}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00057}00057     print(\textcolor{stringliteral}{"{}Please ensure JuriScan directory is in PYTHONPATH or script is run correctly."{}})}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00058}00058     ENGINES\_MODULES\_AVAILABLE = \textcolor{keyword}{False}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00059}\mbox{\hyperlink{namespacecreate__pool_ab48cdbde678b3d1b310e62fbdfda985f}{00059}}     pylucene\_search\_documents = pylucene\_initialize\_jvm = \textcolor{keywordtype}{None}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00060}\mbox{\hyperlink{namespacecreate__pool_abfb3d3fa1fb4672361a9323d870d7561}{00060}}     whoosh\_search\_documents = \textcolor{keywordtype}{None} }
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00061}\mbox{\hyperlink{namespacecreate__pool_a2019377beed91d240ea0426cf361d237}{00061}}     postgres\_search = \textcolor{keywordtype}{None}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00062}00062 }
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00063}00063 \textcolor{comment}{\# Define root path for JuriScan project}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00064}\mbox{\hyperlink{namespacecreate__pool_add23085779480fb4a032d65902962f60}{00064}} PROJECT\_ROOT = project\_root }
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00065}00065 }
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00066}00066 \textcolor{comment}{\# Define index paths and output file path}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00067}\mbox{\hyperlink{namespacecreate__pool_acbff462d7508ec2ab9140878b21e6a48}{00067}} PYLUCENE\_INDEX\_DIR = PROJECT\_ROOT / \textcolor{stringliteral}{"{}SearchEngine"{}} / \textcolor{stringliteral}{"{}index"{}}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00068}\mbox{\hyperlink{namespacecreate__pool_a620d1a414472d482b097e4e7f153d83b}{00068}} WHOOSH\_INDEX\_DIR = PROJECT\_ROOT / \textcolor{stringliteral}{"{}SearchEngine"{}} / \textcolor{stringliteral}{"{}WhooshIndex"{}}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00069}\mbox{\hyperlink{namespacecreate__pool_ae834795ae9815d127804278d16579f9a}{00069}} UIN\_FILE\_PATH = PROJECT\_ROOT / \textcolor{stringliteral}{"{}uin.txt"{}}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00070}\mbox{\hyperlink{namespacecreate__pool_a23eb106c87ff470c85a9530b8cb15e18}{00070}} POOL\_OUTPUT\_DIR = PROJECT\_ROOT / \textcolor{stringliteral}{"{}GroundTruth"{}}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00071}\mbox{\hyperlink{namespacecreate__pool_a418c5f1add6724444190c21dbdbbad24}{00071}} POOL\_JSON\_OUTPUT\_FILE = POOL\_OUTPUT\_DIR / \textcolor{stringliteral}{"{}Pool.json"{}}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00072}00072 }
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00073}00073 \textcolor{comment}{\# Number of top results to fetch from each engine for pooling}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00074}\mbox{\hyperlink{namespacecreate__pool_a48c606b043febb96ac3b0f5e9cd5e953}{00074}} TOP\_N\_FOR\_POOLING = 20}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00075}00075 }
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00076}00076 \textcolor{comment}{\# Define ranking types for each engine}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00077}\mbox{\hyperlink{namespacecreate__pool_a27ae921d54bfe7f584e915b1f9a05fd5}{00077}} PYLUCENE\_RANKING\_TYPES = [\textcolor{stringliteral}{"{}BM25"{}}, \textcolor{stringliteral}{"{}TFIDF"{}}] \textcolor{comment}{\# "{}TFIDF"{} will map to ClassicSimilarity in Pylucene.py}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00078}\mbox{\hyperlink{namespacecreate__pool_a899f91dd9cbea21660219a40d321fcb6}{00078}} WHOOSH\_RANKING\_TYPES = [\textcolor{stringliteral}{"{}BM25F"{}}, \textcolor{stringliteral}{"{}TF\_IDF"{}}]}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00079}\mbox{\hyperlink{namespacecreate__pool_a6e4e41b1ce2ee989d4eb12a13ee24ca2}{00079}} POSTGRES\_RANKING\_TYPES = [\textcolor{stringliteral}{"{}ts\_rank"{}}, \textcolor{stringliteral}{"{}ts\_rank\_cd"{}}]}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00080}00080 }
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00081}00081 }
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00082}\mbox{\hyperlink{namespacecreate__pool_a3cb0162d333eb6672acb6d4bf3cbf7f1}{00082}} \textcolor{keyword}{def }\mbox{\hyperlink{namespacecreate__pool_a3cb0162d333eb6672acb6d4bf3cbf7f1}{load\_queries\_from\_uin}}(uin\_file\_path):}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00083}00083     \textcolor{stringliteral}{"{}"{}"{}!}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00084}00084 \textcolor{stringliteral}{    }\textcolor{preprocessor}{@brief} Load queries \textcolor{keyword}{from} the UIN (User Information Need) file}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00085}00085     \textcolor{preprocessor}{@param} uin\_file\_path Path to the uin.txt file containing test queries}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00086}00086     \textcolor{preprocessor}{@return} List of query strings extracted \textcolor{keyword}{from} the file}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00087}00087     \textcolor{preprocessor}{@details} Parses the uin.txt file format where queries follow \textcolor{stringliteral}{"{}Query:"{}} markers}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00088}00088              on subsequent lines. Handles encoding \textcolor{keywordflow}{and} file \textcolor{keywordflow}{not} found errors.}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00089}00089     \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00090}00090 \textcolor{stringliteral}{    queries = []}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00091}00091 \textcolor{stringliteral}{    }\textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00092}00092         \textcolor{keyword}{with} open(uin\_file\_path, \textcolor{stringliteral}{'r'}, encoding=\textcolor{stringliteral}{'utf-\/8'}) \textcolor{keyword}{as} f:}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00093}00093             lines = f.readlines()}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00094}00094             i = 0}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00095}00095             \textcolor{keywordflow}{while} i < len(lines):}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00096}00096                 line = lines[i].strip()}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00097}00097                 \textcolor{keywordflow}{if} line.startswith(\textcolor{stringliteral}{"{}Query:"{}}):}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00098}00098                     \textcolor{keywordflow}{if} i + 1 < len(lines):}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00099}00099                         query\_text = lines[i+1].strip()}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00100}00100                         \textcolor{keywordflow}{if} query\_text:}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00101}00101                             queries.append(query\_text)}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00102}00102                         i += 1 }
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00103}00103                 i += 1}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00104}00104     \textcolor{keywordflow}{except} FileNotFoundError:}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00105}00105         print(f\textcolor{stringliteral}{"{}ERROR: uin.txt not found at \{uin\_file\_path\}"{}})}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00106}00106     \textcolor{keywordflow}{return} queries}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00107}00107 }
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00108}\mbox{\hyperlink{namespacecreate__pool_a69f590e2d0bcc60a4216a8f73dca1e08}{00108}} \textcolor{keyword}{def }\mbox{\hyperlink{namespacecreate__pool_a69f590e2d0bcc60a4216a8f73dca1e08}{get\_pylucene\_top\_n\_ids}}(query\_string, searcher, n=TOP\_N\_FOR\_POOLING, ranking\_type="{}BM25"{}):}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00109}00109     \textcolor{stringliteral}{"{}"{}"{}!}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00110}00110 \textcolor{stringliteral}{    }\textcolor{preprocessor}{@brief} Retrieve top N document IDs \textcolor{keyword}{from} PyLucene search engine}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00111}00111     \textcolor{preprocessor}{@param} query\_string The search query to execute}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00112}00112     \textcolor{preprocessor}{@param} searcher PyLucene IndexSearcher object}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00113}00113     \textcolor{preprocessor}{@param} n Number of top results to retrieve (default: TOP\_N\_FOR\_POOLING)}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00114}00114     \textcolor{preprocessor}{@param} ranking\_type Ranking algorithm to use (\textcolor{stringliteral}{"{}BM25"{}} \textcolor{keywordflow}{or} \textcolor{stringliteral}{"{}TFIDF"{}})}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00115}00115     \textcolor{preprocessor}{@return} List of document IDs \textcolor{keyword}{as} strings}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00116}00116     \textcolor{preprocessor}{@details} Executes search across all fields \textcolor{keywordflow}{and} extracts document IDs \textcolor{keyword}{from} results.}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00117}00117              Handles search errors \textcolor{keywordflow}{and} returns empty list on failure.}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00118}00118     \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00119}00119 \textcolor{stringliteral}{    }\textcolor{keywordflow}{if} \textcolor{keywordflow}{not} pylucene\_search\_documents \textcolor{keywordflow}{or} \textcolor{keywordflow}{not} searcher:}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00120}00120         \textcolor{keywordflow}{return} []}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00121}00121     \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00122}00122         results, \_, \_ = \mbox{\hyperlink{namespacecreate__pool_ab48cdbde678b3d1b310e62fbdfda985f}{pylucene\_search\_documents}}(searcher, \textcolor{keyword}{True}, \textcolor{keyword}{True}, \textcolor{keyword}{True}, query\_string, ranking\_type)}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00123}00123         doc\_ids = []}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00124}00124         \textcolor{keywordflow}{if} results:}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00125}00125             \textcolor{keywordflow}{for} i, hit \textcolor{keywordflow}{in} enumerate(results.scoreDocs):}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00126}00126                 \textcolor{keywordflow}{if} i >= n:}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00127}00127                     \textcolor{keywordflow}{break}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00128}00128                 doc = searcher.storedFields().document(hit.doc)}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00129}00129                 doc\_ids.append(str(doc.get(\textcolor{stringliteral}{"{}id"{}})))}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00130}00130         \textcolor{keywordflow}{return} doc\_ids}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00131}00131     \textcolor{keywordflow}{except} Exception \textcolor{keyword}{as} e:}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00132}00132         print(f\textcolor{stringliteral}{"{}Error during PyLucene search for query '\{query\_string\}': \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00133}00133         traceback.print\_exc()}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00134}00134         \textcolor{keywordflow}{return} []}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00135}00135 }
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00136}00136 }
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00137}\mbox{\hyperlink{namespacecreate__pool_a4d74b9466fea66734c94b240e2efedd9}{00137}} \textcolor{keyword}{def }\mbox{\hyperlink{namespacecreate__pool_a4d74b9466fea66734c94b240e2efedd9}{get\_whoosh\_top\_n\_ids}}(query\_string, ix\_path\_str, n=TOP\_N\_FOR\_POOLING, ranking\_type="{}BM25F"{}):}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00138}00138     \textcolor{stringliteral}{"{}"{}"{}!}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00139}00139 \textcolor{stringliteral}{    }\textcolor{preprocessor}{@brief} Retrieve top N document IDs \textcolor{keyword}{from} Whoosh search engine}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00140}00140     \textcolor{preprocessor}{@param} query\_string The search query to execute}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00141}00141     \textcolor{preprocessor}{@param} ix\_path\_str Path to the Whoosh index directory \textcolor{keyword}{as} string}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00142}00142     \textcolor{preprocessor}{@param} n Number of top results to retrieve (default: TOP\_N\_FOR\_POOLING)}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00143}00143     \textcolor{preprocessor}{@param} ranking\_type Ranking algorithm to use (\textcolor{stringliteral}{"{}BM25F"{}} \textcolor{keywordflow}{or} \textcolor{stringliteral}{"{}TF\_IDF"{}})}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00144}00144     \textcolor{preprocessor}{@return} List of document IDs \textcolor{keyword}{as} strings}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00145}00145     \textcolor{preprocessor}{@details} Uses existing Whoosh index \textcolor{keywordflow}{and} custom search function.}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00146}00146              Handles empty index \textcolor{keywordflow}{and} search errors gracefully.}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00147}00147     \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00148}00148 \textcolor{stringliteral}{    }\textcolor{keywordflow}{if} \textcolor{keywordflow}{not} whoosh\_search\_documents: }
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00149}00149         print(\textcolor{stringliteral}{"{}SearchEngine.whoosh\_search\_documents (custom function) not available in get\_whoosh\_top\_n\_ids."{}})}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00150}00150         \textcolor{keywordflow}{return} []}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00151}00151     \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00152}00152         results = \mbox{\hyperlink{namespacecreate__pool_abfb3d3fa1fb4672361a9323d870d7561}{whoosh\_search\_documents}}(ix\_path\_str, query\_string, \textcolor{keyword}{True}, \textcolor{keyword}{True}, \textcolor{keyword}{True}, ranking\_type)}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00153}00153         \textcolor{keywordflow}{return} [str(r[0]) \textcolor{keywordflow}{for} r \textcolor{keywordflow}{in} results[:n]]}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00154}00154     \textcolor{keywordflow}{except} WhooshEmptyIndexError\_lib: \textcolor{comment}{\# Use the aliased import}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00155}00155         print(f\textcolor{stringliteral}{"{}Whoosh index at \{ix\_path\_str\} is empty or invalid (caught by get\_whoosh\_top\_n\_ids)."{}})}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00156}00156         \textcolor{keywordflow}{return} []}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00157}00157     \textcolor{keywordflow}{except} Exception \textcolor{keyword}{as} e:}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00158}00158         print(f\textcolor{stringliteral}{"{}Error searching Whoosh index at \{ix\_path\_str\} for query '\{query\_string\}': \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00159}00159         traceback.print\_exc()}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00160}00160         \textcolor{keywordflow}{return} []}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00161}00161 }
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00162}\mbox{\hyperlink{namespacecreate__pool_a76b0501994829108a750d165f7261020}{00162}} \textcolor{keyword}{def }\mbox{\hyperlink{namespacecreate__pool_a76b0501994829108a750d165f7261020}{get\_postgres\_top\_n\_ids}}(query\_string, n=TOP\_N\_FOR\_POOLING, ranking\_type="{}ts\_rank\_cd"{}):}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00163}00163     \textcolor{stringliteral}{"{}"{}"{}!}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00164}00164 \textcolor{stringliteral}{    }\textcolor{preprocessor}{@brief} Retrieve top N document IDs \textcolor{keyword}{from} PostgreSQL search engine}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00165}00165     \textcolor{preprocessor}{@param} query\_string The search query to execute}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00166}00166     \textcolor{preprocessor}{@param} n Number of top results to retrieve (default: TOP\_N\_FOR\_POOLING)}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00167}00167     \textcolor{preprocessor}{@param} ranking\_type PostgreSQL ranking function (\textcolor{stringliteral}{"{}ts\_rank"{}} \textcolor{keywordflow}{or} \textcolor{stringliteral}{"{}ts\_rank\_cd"{}})}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00168}00168     \textcolor{preprocessor}{@return} List of document IDs \textcolor{keyword}{as} strings}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00169}00169     \textcolor{preprocessor}{@details} Executes full-\/text search on PostgreSQL database \textcolor{keywordflow}{and} extracts document IDs.}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00170}00170              Handles database connection \textcolor{keywordflow}{and} query execution errors.}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00171}00171     \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00172}00172 \textcolor{stringliteral}{    }\textcolor{keywordflow}{if} \textcolor{keywordflow}{not} postgres\_search:}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00173}00173         \textcolor{keywordflow}{return} []}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00174}00174     \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00175}00175         results = \mbox{\hyperlink{namespacecreate__pool_a2019377beed91d240ea0426cf361d237}{postgres\_search}}(query\_string, \textcolor{keyword}{True}, \textcolor{keyword}{True}, \textcolor{keyword}{True}, ranking\_type)}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00176}00176         \textcolor{keywordflow}{return} [str(r[0]) \textcolor{keywordflow}{for} r \textcolor{keywordflow}{in} results[:n]]}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00177}00177     \textcolor{keywordflow}{except} Exception \textcolor{keyword}{as} e:}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00178}00178         print(f\textcolor{stringliteral}{"{}Error during PostgreSQL search for query '\{query\_string\}': \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00179}00179         traceback.print\_exc()}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00180}00180         \textcolor{keywordflow}{return} []}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00181}00181 }
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00182}\mbox{\hyperlink{namespacecreate__pool_a13f680e2515efd99e19469481f947ac6}{00182}} \textcolor{keyword}{def }\mbox{\hyperlink{namespacecreate__pool_a13f680e2515efd99e19469481f947ac6}{create\_relevance\_pool}}():}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00183}00183     \textcolor{stringliteral}{"{}"{}"{}!}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00184}00184 \textcolor{stringliteral}{    }\textcolor{preprocessor}{@brief} Main function to create relevance pools \textcolor{keywordflow}{for} benchmark evaluation}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00185}00185     \textcolor{preprocessor}{@details} Implements the pooling method by:}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00186}00186              1. Loading test queries \textcolor{keyword}{from} uin.txt}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00187}00187              2. Running queries on all available search engines \textcolor{keyword}{with} multiple ranking algorithms}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00188}00188              3. Collecting top N results \textcolor{keyword}{from} each engine/ranking combination}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00189}00189              4. Merging results into unique document sets per query}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00190}00190              5. Saving pooled results to Pool.json \textcolor{keywordflow}{for} manual relevance judgment}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00191}00191     \textcolor{preprocessor}{@return} \textcolor{keywordtype}{None}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00192}00192     \textcolor{preprocessor}{@throws} IOError \textcolor{keywordflow}{if} output file cannot be written}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00193}00193     \textcolor{preprocessor}{@note} Requires existing indices \textcolor{keywordflow}{for} all search engines to function properly}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00194}00194     \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00195}00195 \textcolor{stringliteral}{    }\textcolor{keywordflow}{if} \textcolor{keywordflow}{not} ENGINES\_MODULES\_AVAILABLE:}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00196}00196         print(\textcolor{stringliteral}{"{}SearchEngine modules not available. Cannot create pool."{}})}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00197}00197         \textcolor{keywordflow}{return}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00198}00198 }
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00199}00199     queries = \mbox{\hyperlink{namespacecreate__pool_a3cb0162d333eb6672acb6d4bf3cbf7f1}{load\_queries\_from\_uin}}(UIN\_FILE\_PATH)}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00200}00200     \textcolor{keywordflow}{if} \textcolor{keywordflow}{not} queries:}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00201}00201         print(f\textcolor{stringliteral}{"{}No queries found in \{UIN\_FILE\_PATH\}. Exiting."{}})}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00202}00202         \textcolor{keywordflow}{return}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00203}00203 }
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00204}00204     \textcolor{comment}{\# Initialize PyLucene Searcher from EXISTING index}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00205}00205     pylucene\_searcher = \textcolor{keywordtype}{None}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00206}00206     \textcolor{keywordflow}{if} pylucene\_initialize\_jvm \textcolor{keywordflow}{and} pylucene\_search\_documents:}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00207}00207         \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00208}00208             \mbox{\hyperlink{namespacebenchmark_a7c54123ae5a870522adf1193167780ee}{pylucene\_initialize\_jvm}}()}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00209}00209             print(f\textcolor{stringliteral}{"{}Attempting to open existing PyLucene index at: \{PYLUCENE\_INDEX\_DIR\}"{}})}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00210}00210             \textcolor{keywordflow}{if} \textcolor{keywordflow}{not} PYLUCENE\_INDEX\_DIR.exists() \textcolor{keywordflow}{or} \textcolor{keywordflow}{not} PYLUCENE\_INDEX\_DIR.is\_dir():}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00211}00211                 print(f\textcolor{stringliteral}{"{}PyLucene index directory does not exist: \{PYLUCENE\_INDEX\_DIR\}"{}})}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00212}00212             \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00213}00213                 directory = FSDirectory.open(Paths.get(str(PYLUCENE\_INDEX\_DIR)))}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00214}00214                 \textcolor{keywordflow}{if} DirectoryReader.indexExists(directory):}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00215}00215                     reader = DirectoryReader.open(directory)}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00216}00216                     pylucene\_searcher = IndexSearcher(reader)}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00217}00217                     print(\textcolor{stringliteral}{"{}PyLucene Searcher opened successfully from existing index."{}})}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00218}00218                 \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00219}00219                     print(f\textcolor{stringliteral}{"{}No valid PyLucene index found at \{PYLUCENE\_INDEX\_DIR\}. Please create it first."{}})}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00220}00220         \textcolor{keywordflow}{except} Exception \textcolor{keyword}{as} e:}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00221}00221             print(f\textcolor{stringliteral}{"{}Error opening existing PyLucene index: \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00222}00222             traceback.print\_exc()}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00223}00223 }
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00224}00224     \textcolor{comment}{\# Verify Whoosh Index}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00225}00225     whoosh\_index\_verified = \textcolor{keyword}{False}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00226}00226     print(\textcolor{stringliteral}{"{}\(\backslash\)n-\/-\/-\/ Whoosh Index Verification (in create\_pool.py) -\/-\/-\/"{}})}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00227}00227     \textcolor{keywordflow}{if} WHOOSH\_LIB\_AVAILABLE:}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00228}00228         print(\textcolor{stringliteral}{"{}Whoosh library (whoosh\_open\_dir\_lib) is available."{}})}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00229}00229         \textcolor{comment}{\# Check if your custom search function from SearchEngine.Whoosh is available}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00230}00230         \textcolor{keywordflow}{if} \textcolor{stringliteral}{'whoosh\_search\_documents'} \textcolor{keywordflow}{in} globals() \textcolor{keywordflow}{and} whoosh\_search\_documents \textcolor{keywordflow}{is} \textcolor{keywordflow}{not} \textcolor{keywordtype}{None}:}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00231}00231             print(\textcolor{stringliteral}{"{}Your custom SearchEngine.whoosh\_search\_documents function is available."{}})}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00232}00232             print(f\textcolor{stringliteral}{"{}Verifying Whoosh index at path: \{WHOOSH\_INDEX\_DIR\}"{}})}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00233}00233             \textcolor{keywordflow}{if} WHOOSH\_INDEX\_DIR.exists():}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00234}00234                 print(f\textcolor{stringliteral}{"{}Directory \{WHOOSH\_INDEX\_DIR\} exists."{}})}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00235}00235                 \textcolor{keywordflow}{if} WHOOSH\_INDEX\_DIR.is\_dir():}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00236}00236                     print(f\textcolor{stringliteral}{"{}\{WHOOSH\_INDEX\_DIR\} is a directory."{}})}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00237}00237                     \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00238}00238                         \textcolor{comment}{\# Attempt to open the index to see if it's valid}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00239}00239                         print(f\textcolor{stringliteral}{"{}Attempting to open Whoosh index with whoosh\_open\_dir\_lib: \{str(WHOOSH\_INDEX\_DIR)\}"{}})}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00240}00240                         temp\_ix = \mbox{\hyperlink{namespacecreate__pool_a6b56e1304d6afb08764e5340ab767341}{whoosh\_open\_dir\_lib}}(str(WHOOSH\_INDEX\_DIR)) \textcolor{comment}{\# Use aliased import}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00241}00241                         print(f\textcolor{stringliteral}{"{}Successfully opened Whoosh index: \{temp\_ix\}"{}})}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00242}00242                         doc\_count = temp\_ix.doc\_count()}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00243}00243                         \textcolor{keywordflow}{if} doc\_count > 0:}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00244}00244                             print(f\textcolor{stringliteral}{"{}Whoosh index at \{WHOOSH\_INDEX\_DIR\} is valid and contains \{doc\_count\} documents."{}})}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00245}00245                             whoosh\_index\_verified = \textcolor{keyword}{True}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00246}00246                         \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00247}00247                             print(f\textcolor{stringliteral}{"{}Whoosh index at \{WHOOSH\_INDEX\_DIR\} is EMPTY (0 documents). Please ensure it's populated by running SearchEngine/Whoosh.py."{}})}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00248}00248                         temp\_ix.close()}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00249}00249                     \textcolor{keywordflow}{except} WhooshEmptyIndexError\_lib: \textcolor{comment}{\# Use the aliased import}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00250}00250                          print(f\textcolor{stringliteral}{"{}Whoosh index at \{WHOOSH\_INDEX\_DIR\} is reported as EMPTY by Whoosh during open\_dir. Please ensure it's populated by running SearchEngine/Whoosh.py."{}})}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00251}00251                     \textcolor{keywordflow}{except} Exception \textcolor{keyword}{as} e:}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00252}00252                         print(f\textcolor{stringliteral}{"{}Error during Whoosh index verification (e.g., not a valid index, permissions): \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00253}00253                         traceback.print\_exc()}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00254}00254                 \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00255}00255                     print(f\textcolor{stringliteral}{"{}Path \{WHOOSH\_INDEX\_DIR\} is not a directory."{}})}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00256}00256             \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00257}00257                 print(f\textcolor{stringliteral}{"{}Whoosh index directory does not exist: \{WHOOSH\_INDEX\_DIR\}. Please create it first by running SearchEngine/Whoosh.py."{}})}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00258}00258         \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00259}00259             print(\textcolor{stringliteral}{"{}Your custom SearchEngine.whoosh\_search\_documents function is NOT available (was None or not in globals)."{}})}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00260}00260     \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00261}00261         print(\textcolor{stringliteral}{"{}Whoosh library (whoosh.index open\_dir) itself is not available (import failed)."{}})}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00262}00262     print(f\textcolor{stringliteral}{"{}Whoosh index verified status (in create\_pool.py): \{whoosh\_index\_verified\}"{}})}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00263}00263     print(\textcolor{stringliteral}{"{}-\/-\/-\/ End Whoosh Index Verification -\/-\/-\/\(\backslash\)n"{}})}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00264}00264 }
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00265}00265 }
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00266}00266     pooled\_results = \{\}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00267}00267 }
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00268}00268     \textcolor{keywordflow}{for} query\_idx, query\_string \textcolor{keywordflow}{in} enumerate(queries):}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00269}00269         print(f\textcolor{stringliteral}{"{}\(\backslash\)nProcessing Query \{query\_idx + 1\}/\{len(queries)\}: \{query\_string[:60]\}..."{}})}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00270}00270         }
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00271}00271         unique\_doc\_ids\_for\_query = set()}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00272}00272 }
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00273}00273         \textcolor{comment}{\# PyLucene}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00274}00274         \textcolor{keywordflow}{if} pylucene\_searcher:}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00275}00275             \textcolor{keywordflow}{for} rank\_type \textcolor{keywordflow}{in} PYLUCENE\_RANKING\_TYPES:}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00276}00276                 print(f\textcolor{stringliteral}{"{}  Querying PyLucene with \{rank\_type\} ranking..."{}})}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00277}00277                 pyl\_ids = \mbox{\hyperlink{namespacecreate__pool_a69f590e2d0bcc60a4216a8f73dca1e08}{get\_pylucene\_top\_n\_ids}}(query\_string, pylucene\_searcher, ranking\_type=rank\_type)}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00278}00278                 unique\_doc\_ids\_for\_query.update(pyl\_ids)}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00279}00279                 print(f\textcolor{stringliteral}{"{}    PyLucene (\{rank\_type\}) returned \{len(pyl\_ids)\} IDs."{}})}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00280}00280         \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00281}00281             print(\textcolor{stringliteral}{"{}  PyLucene searcher not available for this query (ensure index exists and is valid)."{}})}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00282}00282 }
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00283}00283         \textcolor{comment}{\# Whoosh}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00284}00284         \textcolor{keywordflow}{if} whoosh\_index\_verified: }
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00285}00285             \textcolor{keywordflow}{for} rank\_type \textcolor{keywordflow}{in} WHOOSH\_RANKING\_TYPES:}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00286}00286                 print(f\textcolor{stringliteral}{"{}  Querying Whoosh with \{rank\_type\} ranking..."{}})}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00287}00287                 wh\_ids = \mbox{\hyperlink{namespacecreate__pool_a4d74b9466fea66734c94b240e2efedd9}{get\_whoosh\_top\_n\_ids}}(query\_string, str(WHOOSH\_INDEX\_DIR), ranking\_type=rank\_type)}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00288}00288                 unique\_doc\_ids\_for\_query.update(wh\_ids)}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00289}00289                 print(f\textcolor{stringliteral}{"{}    Whoosh (\{rank\_type\}) returned \{len(wh\_ids)\} IDs."{}})}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00290}00290         \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00291}00291             print(\textcolor{stringliteral}{"{}  Whoosh index not verified or search function not available for this query."{}})}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00292}00292             }
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00293}00293         \textcolor{comment}{\# PostgreSQL}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00294}00294         \textcolor{keywordflow}{if} postgres\_search:}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00295}00295             \textcolor{keywordflow}{for} rank\_type \textcolor{keywordflow}{in} POSTGRES\_RANKING\_TYPES:}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00296}00296                 print(f\textcolor{stringliteral}{"{}  Querying PostgreSQL with \{rank\_type\} ranking..."{}})}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00297}00297                 pg\_ids = \mbox{\hyperlink{namespacecreate__pool_a76b0501994829108a750d165f7261020}{get\_postgres\_top\_n\_ids}}(query\_string, ranking\_type=rank\_type)}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00298}00298                 unique\_doc\_ids\_for\_query.update(pg\_ids)}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00299}00299                 print(f\textcolor{stringliteral}{"{}    PostgreSQL (\{rank\_type\}) returned \{len(pg\_ids)\} IDs."{}})}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00300}00300         \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00301}00301             print(\textcolor{stringliteral}{"{}  PostgreSQL search function not available for this query."{}})}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00302}00302             }
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00303}00303         pooled\_results[query\_string] = sorted(list(unique\_doc\_ids\_for\_query))}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00304}00304         print(f\textcolor{stringliteral}{"{}  Total unique IDs pooled for this query: \{len(pooled\_results[query\_string])\}"{}})}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00305}00305 }
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00306}00306     \textcolor{comment}{\# Ensure the output directory exists}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00307}00307     POOL\_OUTPUT\_DIR.mkdir(parents=\textcolor{keyword}{True}, exist\_ok=\textcolor{keyword}{True})}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00308}00308 }
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00309}00309     \textcolor{comment}{\# Save the pooled results}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00310}00310     \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00311}00311         \textcolor{keyword}{with} open(POOL\_JSON\_OUTPUT\_FILE, \textcolor{stringliteral}{'w'}, encoding=\textcolor{stringliteral}{'utf-\/8'}) \textcolor{keyword}{as} f:}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00312}00312             json.dump(pooled\_results, f, indent=2, ensure\_ascii=\textcolor{keyword}{False})}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00313}00313         print(f\textcolor{stringliteral}{"{}\(\backslash\)nPooled document IDs saved to: \{POOL\_JSON\_OUTPUT\_FILE\}"{}})}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00314}00314         print(\textcolor{stringliteral}{"{}You can now manually review this file and create a new JSON file with relevance judgments."{}})}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00315}00315         print(\textcolor{stringliteral}{"{}The format for the judged file should be (e.g., GroundTruth/JudgedPool.json): "{}})}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00316}00316         print(\textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00317}00317 \textcolor{stringliteral}{        \{}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00318}00318 \textcolor{stringliteral}{            "{}query text from uin.txt"{}}: \{}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00319}00319                 \textcolor{stringliteral}{"{}doc\_id\_1"{}}: 1,  // 1 \textcolor{keywordflow}{for} relevant, 0 \textcolor{keywordflow}{for} \textcolor{keywordflow}{not} relevant}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00320}00320                 \textcolor{stringliteral}{"{}doc\_id\_2"{}}: 0,}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00321}00321                 ...}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00322}00322             \},}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00323}00323             \textcolor{stringliteral}{"{}... another query ..."{}}: \{ ... \}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00324}00324         \}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00325}00325         \textcolor{stringliteral}{"{}"{}"{})}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00326}00326 \textcolor{stringliteral}{    }\textcolor{keywordflow}{except} IOError \textcolor{keyword}{as} e:}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00327}00327         print(f\textcolor{stringliteral}{"{}Error writing pooled results to \{POOL\_JSON\_OUTPUT\_FILE\}: \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00328}00328 }
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00329}00329 }
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00330}00330 \textcolor{keywordflow}{if} \_\_name\_\_ == \textcolor{stringliteral}{"{}\_\_main\_\_"{}}:}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00331}00331     print(f\textcolor{stringliteral}{"{}Running create\_pool.py from: \{\_current\_file\_path\}"{}})}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00332}00332     print(f\textcolor{stringliteral}{"{}Project root set to: \{project\_root\}"{}})}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00333}00333     print(f\textcolor{stringliteral}{"{}Python sys.path includes: \{project\_root\}"{}})}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00334}00334 }
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00335}00335     \textcolor{keywordflow}{if} ENGINES\_MODULES\_AVAILABLE \textcolor{keywordflow}{and} pylucene\_initialize\_jvm:}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00336}00336         \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00337}00337             \textcolor{keywordflow}{if} \textcolor{keywordflow}{not} lucene.getVMEnv():}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00338}00338                  \mbox{\hyperlink{namespacebenchmark_a7c54123ae5a870522adf1193167780ee}{pylucene\_initialize\_jvm}}()}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00339}00339                  print(\textcolor{stringliteral}{"{}JVM initialized by create\_pool.py \_\_main\_\_ block."{}})}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00340}00340             \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00341}00341                 \textcolor{comment}{\# Ensure thread is attached even if VM is already initialized}}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00342}\mbox{\hyperlink{namespacecreate__pool_a93ee000758abb822906d78b9b1f59c25}{00342}}                 env = lucene.getVMEnv()}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00343}00343                 env.attachCurrentThread()}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00344}00344                 print(\textcolor{stringliteral}{"{}JVM was already initialized. Attached current thread."{}})}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00345}00345 }
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00346}00346         \textcolor{keywordflow}{except} Exception \textcolor{keyword}{as} e:}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00347}00347             print(f\textcolor{stringliteral}{"{}Could not initialize/attach JVM for PyLucene in \_\_main\_\_: \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00348}00348             traceback.print\_exc()}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00349}00349     }
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00350}00350     \mbox{\hyperlink{namespacecreate__pool_a13f680e2515efd99e19469481f947ac6}{create\_relevance\_pool}}()}
+\DoxyCodeLine{\Hypertarget{create__pool_8py_source_l00351}00351 }
+
+\end{DoxyCode}

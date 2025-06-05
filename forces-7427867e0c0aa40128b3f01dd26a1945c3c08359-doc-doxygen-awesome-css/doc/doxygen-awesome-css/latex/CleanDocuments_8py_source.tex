@@ -1,0 +1,200 @@
+\hypertarget{CleanDocuments_8py_source}{}\doxysection{Clean\+Documents.\+py}
+\label{CleanDocuments_8py_source}\index{/root/JuriScan/WebScraping/results/CleanDocuments.py@{/root/JuriScan/WebScraping/results/CleanDocuments.py}}
+\mbox{\hyperlink{CleanDocuments_8py}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00001}\mbox{\hyperlink{namespaceWebScraping_1_1results_1_1CleanDocuments}{00001}} \textcolor{stringliteral}{"{}"{}"{}!}}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00002}00002 \textcolor{stringliteral}{@file CleanDocuments.py}}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00003}00003 \textcolor{stringliteral}{@brief Advanced document cleaning module for mathematical and scientific text}}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00004}00004 \textcolor{stringliteral}{@details Implements batch processing for cleaning academic documents with mathematical content}}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00005}00005 \textcolor{stringliteral}{@author JuriScan Team}}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00006}00006 \textcolor{stringliteral}{@date 2024}}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00007}00007 \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00008}00008 }
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00009}00009 \textcolor{keyword}{import} os}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00010}00010 \textcolor{keyword}{import} ijson}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00011}00011 \textcolor{keyword}{import} json}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00012}00012 \textcolor{keyword}{import} re}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00013}00013 }
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00014}00014 \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00015}00015 \textcolor{stringliteral}{Path to the input JSON file.}}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00016}00016 \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00017}\mbox{\hyperlink{namespaceWebScraping_1_1results_1_1CleanDocuments_a266096b2ec62ba7581bb19f13a6ac741}{00017}} input\_path = \textcolor{stringliteral}{"{}WebScraping/results/Docs.json"{}}}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00018}00018 \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00019}00019 \textcolor{stringliteral}{Path to the output JSON file.}}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00020}00020 \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00021}\mbox{\hyperlink{namespaceWebScraping_1_1results_1_1CleanDocuments_a5fc0fd9e78dfc0c5655cba12a2f7af74}{00021}} output\_path = \textcolor{stringliteral}{"{}WebScraping/results/Docs\_cleaned.json"{}}}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00022}00022 }
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00023}\mbox{\hyperlink{namespaceWebScraping_1_1results_1_1CleanDocuments_a2a9a1c4c558cf8b06b382ad2cd1adda7}{00023}} \textcolor{keyword}{def }\mbox{\hyperlink{namespaceWebScraping_1_1results_1_1CleanDocuments_a2a9a1c4c558cf8b06b382ad2cd1adda7}{clean\_mathematical\_text}}(text):}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00024}00024     \textcolor{stringliteral}{"{}"{}"{}!}}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00025}00025 \textcolor{stringliteral}{    }\textcolor{preprocessor}{@brief} Clean text containing mathematical expressions \textcolor{keywordflow}{and} Unicode artifacts}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00026}00026     \textcolor{preprocessor}{@param} text Input text \textcolor{keyword}{with} mathematical notation \textcolor{keywordflow}{and} Unicode characters}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00027}00027     \textcolor{preprocessor}{@return} Cleaned text \textcolor{keyword}{with} mathematical expressions normalized}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00028}00028     \textcolor{preprocessor}{@details} Removes specific Unicode characters, LaTeX artifacts, HTML conversion errors,}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00029}00029              \textcolor{keywordflow}{and} mathematical notation \textcolor{keywordflow}{while} preserving readable content}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00030}00030     \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00031}00031 \textcolor{stringliteral}{    }\textcolor{keywordflow}{if} \textcolor{keywordflow}{not} isinstance(text, str):}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00032}00032         \textcolor{keywordflow}{return} text}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00033}00033         }
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00034}00034     \textcolor{comment}{\# Remove HTML conversion error message with flexible whitespace matching}}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00035}00035     error\_pattern = \textcolor{stringliteral}{r'HTML conversions sometimes display errors.*?best practices\(\backslash\).'}}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00036}00036     text = re.sub(error\_pattern, \textcolor{stringliteral}{''}, text, flags=re.IGNORECASE | re.DOTALL)}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00037}00037     }
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00038}00038     \textcolor{comment}{\# Remove any remaining artifacts from the error message}}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00039}00039     text = re.sub(\textcolor{stringliteral}{r'Authors:.*?supported packages\(\backslash\).'}, \textcolor{stringliteral}{''}, text, flags=re.IGNORECASE | re.DOTALL)}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00040}00040     \textcolor{comment}{\# Remove specific unicode characters}}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00041}00041     replacements = \{}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00042}00042         \textcolor{stringliteral}{'italic\_'}: \textcolor{stringliteral}{''},}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00043}00043         \textcolor{stringliteral}{'bold\_'}: \textcolor{stringliteral}{''},}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00044}00044         \textcolor{stringliteral}{'blackboard\_'}: \textcolor{stringliteral}{''},}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00045}00045         \textcolor{stringliteral}{'start\_POSTSUBSCRIPT'}: \textcolor{stringliteral}{'\_'},}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00046}00046         \textcolor{stringliteral}{'end\_POSTSUBSCRIPT'}: \textcolor{stringliteral}{''},}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00047}00047         \textcolor{stringliteral}{'start\_POSTSUPERSCRIPT'}: \textcolor{stringliteral}{'\string^'},}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00048}00048         \textcolor{stringliteral}{'end\_POSTSUPERSCRIPT'}: \textcolor{stringliteral}{''},}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00049}00049         \textcolor{stringliteral}{'start\_ARG'}: \textcolor{stringliteral}{''},}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00050}00050         \textcolor{stringliteral}{'end\_ARG'}: \textcolor{stringliteral}{''},}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00051}00051         \textcolor{stringliteral}{'divide'}: \textcolor{stringliteral}{'/'},}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00052}00052         \textcolor{stringliteral}{'\(\backslash\)u011f'}: \textcolor{stringliteral}{''},}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00053}00053         \textcolor{stringliteral}{'\(\backslash\)ufffd'}: \textcolor{stringliteral}{''},}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00054}00054         \textcolor{stringliteral}{'\(\backslash\)u2018'}: \textcolor{stringliteral}{''},}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00055}00055         \textcolor{stringliteral}{'\(\backslash\)u20ac'}: \textcolor{stringliteral}{''},}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00056}00056         \textcolor{stringliteral}{'\(\backslash\)u00e2'}: \textcolor{stringliteral}{''},}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00057}00057         \textcolor{stringliteral}{'\(\backslash\)u02c6'}: \textcolor{stringliteral}{''},}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00058}00058         \textcolor{stringliteral}{'\(\backslash\)u0152'}: \textcolor{stringliteral}{''},}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00059}00059         \textcolor{stringliteral}{'\(\backslash\)u201e'}: \textcolor{stringliteral}{''},}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00060}00060         \textcolor{stringliteral}{'\(\backslash\)u00b4'}: \textcolor{stringliteral}{''},}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00061}00061         \textcolor{stringliteral}{'\(\backslash\)u2013'}: \textcolor{stringliteral}{''},}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00062}00062         \textcolor{stringliteral}{'\(\backslash\)u2014'}: \textcolor{stringliteral}{''},}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00063}00063         \textcolor{stringliteral}{'\(\backslash\)u203a'}: \textcolor{stringliteral}{''},}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00064}00064         \textcolor{stringliteral}{'\(\backslash\)u0178'}: \textcolor{stringliteral}{''},}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00065}00065         \textcolor{stringliteral}{'\(\backslash\)u2019'}: \textcolor{stringliteral}{''},}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00066}00066         \textcolor{stringliteral}{'\(\backslash\)u00c2'}: \textcolor{stringliteral}{''},}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00067}00067         \textcolor{stringliteral}{'\(\backslash\)u00a2'}: \textcolor{stringliteral}{''},}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00068}00068         \textcolor{stringliteral}{'\(\backslash\)u02dc'}: \textcolor{stringliteral}{''},}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00069}00069         \textcolor{stringliteral}{'\(\backslash\)u0153'}: \textcolor{stringliteral}{''},}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00070}00070         \textcolor{stringliteral}{'\(\backslash\)u00b8'}: \textcolor{stringliteral}{''},}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00071}00071         \textcolor{stringliteral}{'\(\backslash\)u02dd'}: \textcolor{stringliteral}{''},}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00072}00072         \textcolor{stringliteral}{'\(\backslash\)u0161'}: \textcolor{stringliteral}{''},}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00073}00073         \textcolor{stringliteral}{'\(\backslash\)u2030'}: \textcolor{stringliteral}{''},}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00074}00074         \textcolor{stringliteral}{'\(\backslash\)u00CF'}: \textcolor{stringliteral}{''},}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00075}00075         \textcolor{stringliteral}{'\(\backslash\)u2021'}: \textcolor{stringliteral}{''}}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00076}00076     \}}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00077}00077     }
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00078}00078     \textcolor{comment}{\# Applica le sostituzioni}}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00079}00079     \textcolor{keywordflow}{for} old, new \textcolor{keywordflow}{in} replacements.items():}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00080}00080         text = text.replace(old, new)}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00081}00081     }
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00082}00082     \textcolor{comment}{\# Rimuove i pattern specifici}}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00083}00083     text = re.sub(\textcolor{stringliteral}{r'\(\backslash\)(⋅\(\backslash\))'}, \textcolor{stringliteral}{''}, text)}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00084}00084     }
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00085}00085     \textcolor{comment}{\# Rimuove le formule matematiche tra \$ \$}}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00086}00086     text = re.sub(\textcolor{stringliteral}{r'\(\backslash\)\$[\string^\(\backslash\)\$]*\(\backslash\)\$'}, \textcolor{stringliteral}{''}, text)}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00087}00087     }
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00088}00088     \textcolor{comment}{\# Rimuove spazi multipli}}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00089}00089     text = re.sub(\textcolor{stringliteral}{r'\(\backslash\)s+'}, \textcolor{stringliteral}{' '}, text)}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00090}00090     }
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00091}00091     \textcolor{comment}{\# Rimuove parentesi vuote}}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00092}00092     text = re.sub(\textcolor{stringliteral}{r'\(\backslash\)(\(\backslash\)s*\(\backslash\))'}, \textcolor{stringliteral}{''}, text)}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00093}00093     }
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00094}00094     \textcolor{keywordflow}{return} text.strip()}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00095}00095 }
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00096}\mbox{\hyperlink{namespaceWebScraping_1_1results_1_1CleanDocuments_ae2b76c901ef9977851fde720d1123c94}{00096}} \textcolor{keyword}{def }\mbox{\hyperlink{namespaceWebScraping_1_1results_1_1CleanDocuments_ae2b76c901ef9977851fde720d1123c94}{remove\_control\_characters}}(text):}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00097}00097     \textcolor{stringliteral}{"{}"{}"{}!}}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00098}00098 \textcolor{stringliteral}{    }\textcolor{preprocessor}{@brief} Remove invalid control characters \textcolor{keyword}{from} text}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00099}00099     \textcolor{preprocessor}{@param} text Input text potentially containing control characters}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00100}00100     \textcolor{preprocessor}{@return} Text \textcolor{keyword}{with} control characters removed}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00101}00101     \textcolor{preprocessor}{@details} Removes ASCII control characters (0x00-\/0x1F \textcolor{keywordflow}{and} 0x7F) that can}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00102}00102              cause issues \textcolor{keywordflow}{in} text processing \textcolor{keywordflow}{and} database storage}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00103}00103     \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00104}00104 \textcolor{stringliteral}{    }\textcolor{keywordflow}{if} \textcolor{keywordflow}{not} isinstance(text, str):}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00105}00105         \textcolor{keywordflow}{return} text}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00106}00106 }
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00107}00107     \textcolor{comment}{\# Rimuove i caratteri di controllo (da 0x00 a 0x1F e 0x7F)}}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00108}00108     \textcolor{keywordflow}{return} re.sub(\textcolor{stringliteral}{r'[\(\backslash\)x00-\/\(\backslash\)x1F\(\backslash\)x7F]'}, \textcolor{stringliteral}{''}, text)}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00109}00109 }
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00110}\mbox{\hyperlink{namespaceWebScraping_1_1results_1_1CleanDocuments_a60232ebf51589458d502264a1869f0d5}{00110}} \textcolor{keyword}{def }\mbox{\hyperlink{namespaceWebScraping_1_1results_1_1CleanDocuments_a60232ebf51589458d502264a1869f0d5}{clean\_documents\_in\_batches}}(input\_path, output\_path="{}WebScraping/results/Docs\_cleaned.json"{}, batch\_size=1000):}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00111}00111     \textcolor{stringliteral}{"{}"{}"{}!}}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00112}00112 \textcolor{stringliteral}{    }\textcolor{preprocessor}{@brief} Process \textcolor{keywordflow}{and} clean documents \textcolor{keywordflow}{in} memory-\/efficient batches}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00113}00113     \textcolor{preprocessor}{@param} input\_path Path to the input JSON file \textcolor{keyword}{with} raw documents}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00114}00114     \textcolor{preprocessor}{@param} output\_path Path to the output JSON file \textcolor{keywordflow}{for} cleaned documents}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00115}00115     \textcolor{preprocessor}{@param} batch\_size Number of documents to process \textcolor{keywordflow}{in} each batch (default: 1000)}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00116}00116     \textcolor{preprocessor}{@details} Implements incremental JSON parsing \textcolor{keywordflow}{and} batch processing \textcolor{keywordflow}{for} large datasets.}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00117}00117              Provides progress tracking \textcolor{keywordflow}{and} error handling \textcolor{keywordflow}{for} robust document cleaning.}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00118}00118     \textcolor{preprocessor}{@return} \textcolor{keywordtype}{None}}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00119}00119     \textcolor{preprocessor}{@throws} FileNotFoundError \textcolor{keywordflow}{if} input file doesn\textcolor{stringliteral}{'t exist}}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00120}00120 \textcolor{stringliteral}{    }\textcolor{preprocessor}{@throws} OSError \textcolor{keywordflow}{for} file I/O errors}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00121}00121     \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00122}00122 \textcolor{stringliteral}{    output\_dir = os.path.dirname(output\_path)}}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00123}00123 \textcolor{stringliteral}{    }\textcolor{keywordflow}{if} \textcolor{keywordflow}{not} os.path.exists(output\_dir):}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00124}00124         os.makedirs(output\_dir)}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00125}00125 }
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00126}00126     \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00127}00127         \textcolor{keyword}{with} open(input\_path, \textcolor{stringliteral}{'r'}, encoding=\textcolor{stringliteral}{'utf-\/8'}, errors=\textcolor{stringliteral}{"{}ignore"{}}) \textcolor{keyword}{as} infile, \(\backslash\)}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00128}00128              open(output\_path, \textcolor{stringliteral}{'w'}, encoding=\textcolor{stringliteral}{'utf-\/8'}) \textcolor{keyword}{as} outfile:}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00129}00129             }
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00130}00130             outfile.write(\textcolor{stringliteral}{"{}[\(\backslash\)n"{}})}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00131}00131             }
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00132}00132             batch = []}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00133}00133             first = \textcolor{keyword}{True}}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00134}00134             total\_docs = 0}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00135}00135             print(\textcolor{stringliteral}{"{}🔄 Inizio pulizia documenti..."{}})}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00136}00136             }
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00137}00137             \textcolor{comment}{\# Itera sui documenti nel file JSON}}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00138}00138             \textcolor{keywordflow}{for} document \textcolor{keywordflow}{in} ijson.items(infile, \textcolor{stringliteral}{"{}item"{}}):}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00139}00139                 total\_docs += 1}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00140}00140                 }
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00141}00141                 \textcolor{comment}{\# Stampa progresso ogni 50 documenti}}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00142}00142                 \textcolor{keywordflow}{if} total\_docs \% 50 == 0:}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00143}00143                     print(f\textcolor{stringliteral}{"{}📝 Processati \{total\_docs\} documenti..."{}})}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00144}00144                 }
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00145}00145                 \textcolor{comment}{\# Pulisci il documento}}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00146}00146                 \textcolor{keywordflow}{if} \textcolor{stringliteral}{'abstract'} \textcolor{keywordflow}{in} document:}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00147}00147                     document[\textcolor{stringliteral}{'abstract'}] = \mbox{\hyperlink{namespaceWebScraping_1_1results_1_1CleanDocuments_a2a9a1c4c558cf8b06b382ad2cd1adda7}{clean\_mathematical\_text}}(document[\textcolor{stringliteral}{'abstract'}])}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00148}00148                     document[\textcolor{stringliteral}{'abstract'}] = \mbox{\hyperlink{namespaceWebScraping_1_1results_1_1CleanDocuments_ae2b76c901ef9977851fde720d1123c94}{remove\_control\_characters}}(document[\textcolor{stringliteral}{'abstract'}])}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00149}00149                 \textcolor{keywordflow}{if} \textcolor{stringliteral}{'corpus'} \textcolor{keywordflow}{in} document:}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00150}00150                     document[\textcolor{stringliteral}{'corpus'}] = \mbox{\hyperlink{namespaceWebScraping_1_1results_1_1CleanDocuments_a2a9a1c4c558cf8b06b382ad2cd1adda7}{clean\_mathematical\_text}}(document[\textcolor{stringliteral}{'corpus'}])}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00151}00151                     document[\textcolor{stringliteral}{'corpus'}] = \mbox{\hyperlink{namespaceWebScraping_1_1results_1_1CleanDocuments_ae2b76c901ef9977851fde720d1123c94}{remove\_control\_characters}}(document[\textcolor{stringliteral}{'corpus'}])}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00152}00152                 }
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00153}00153                 batch.append(document)}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00154}00154                 }
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00155}00155                 \textcolor{comment}{\# Se il batch raggiunge la dimensione specificata, scrivilo}}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00156}00156                 \textcolor{keywordflow}{if} len(batch) >= batch\_size:}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00157}00157                     \textcolor{keywordflow}{if} \textcolor{keywordflow}{not} first:}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00158}00158                         outfile.write(\textcolor{stringliteral}{"{},\(\backslash\)n"{}})}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00159}00159                     json.dump(batch, outfile, indent=4, ensure\_ascii=\textcolor{keyword}{False})}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00160}00160                     print(f\textcolor{stringliteral}{"{}💾 Salvato batch di \{len(batch)\} documenti..."{}})}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00161}00161                     batch = []}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00162}00162                     first = \textcolor{keyword}{False}}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00163}00163             }
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00164}00164             \textcolor{comment}{\# Scrivi eventuali documenti rimanenti}}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00165}00165             \textcolor{keywordflow}{if} batch:}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00166}00166                 \textcolor{keywordflow}{if} \textcolor{keywordflow}{not} first:}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00167}00167                     outfile.write(\textcolor{stringliteral}{"{},\(\backslash\)n"{}})}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00168}00168                 json.dump(batch, outfile, indent=4, ensure\_ascii=\textcolor{keyword}{False})}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00169}00169                 print(f\textcolor{stringliteral}{"{}💾 Salvato ultimo batch di \{len(batch)\} documenti..."{}})}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00170}00170             }
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00171}00171             outfile.write(\textcolor{stringliteral}{"{}\(\backslash\)n]"{}})}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00172}00172             print(f\textcolor{stringliteral}{"{}✅ Completato! Totale documenti processati: \{total\_docs\}"{}})}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00173}00173             }
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00174}00174     \textcolor{keywordflow}{except} FileNotFoundError:}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00175}00175         print(f\textcolor{stringliteral}{"{}❌ Errore: Il file \{input\_path\} non è stato trovato"{}})}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00176}00176     \textcolor{keywordflow}{except} OSError \textcolor{keyword}{as} e:}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00177}00177         print(f\textcolor{stringliteral}{"{}❌ Errore durante l'apertura o la scrittura del file: \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00178}00178     \textcolor{keywordflow}{except} Exception \textcolor{keyword}{as} e:}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00179}00179         print(f\textcolor{stringliteral}{"{}❌ Si è verificato un errore: \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00180}00180 }
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00181}00181 \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00182}00182     print(f\textcolor{stringliteral}{"{}File pulito salvato in: \{output\_path\}"{}})}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00183}00183 }
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00184}00184 \textcolor{keywordflow}{except} FileNotFoundError:}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00185}00185     print(f\textcolor{stringliteral}{"{}Errore: Il file \{input\_path\} non è stato trovato"{}})}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00186}00186 \textcolor{keywordflow}{except} json.JSONDecodeError:}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00187}00187     print(f\textcolor{stringliteral}{"{}Errore: Il file \{input\_path\} non contiene un JSON valido"{}})}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00188}00188 \textcolor{keywordflow}{except} Exception \textcolor{keyword}{as} e:}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00189}00189     print(f\textcolor{stringliteral}{"{}Si è verificato un errore: \{str(e)\}"{}})}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00190}00190 }
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00191}00191 \textcolor{keywordflow}{if} \_\_name\_\_ == \textcolor{stringliteral}{"{}\_\_main\_\_"{}}:}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00192}00192     \textcolor{comment}{\# Esegui la funzione di pulizia}}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00193}00193     \mbox{\hyperlink{namespaceWebScraping_1_1results_1_1CleanDocuments_a60232ebf51589458d502264a1869f0d5}{clean\_documents\_in\_batches}}(input\_path, output\_path)}
+\DoxyCodeLine{\Hypertarget{CleanDocuments_8py_source_l00194}00194     print(f\textcolor{stringliteral}{"{}File pulito salvato in: \{output\_path\}"{}})}
+
+\end{DoxyCode}

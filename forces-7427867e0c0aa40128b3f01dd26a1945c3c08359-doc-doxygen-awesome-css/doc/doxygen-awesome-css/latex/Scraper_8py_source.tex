@@ -1,0 +1,229 @@
+\hypertarget{Scraper_8py_source}{}\doxysection{Scraper.\+py}
+\label{Scraper_8py_source}\index{/root/JuriScan/WebScraping/src/Scraper.py@{/root/JuriScan/WebScraping/src/Scraper.py}}
+\mbox{\hyperlink{Scraper_8py}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00001}\mbox{\hyperlink{namespaceScraper}{00001}} \textcolor{stringliteral}{"{}"{}"{}!}}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00002}00002 \textcolor{stringliteral}{@file Scraper.py}}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00003}00003 \textcolor{stringliteral}{@brief Main web scraping module for JuriScan document collection}}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00004}00004 \textcolor{stringliteral}{@details Implements automated document scraping from academic sources with pause/resume functionality}}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00005}00005 \textcolor{stringliteral}{@author Magni \&\& Testoni}}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00006}00006 \textcolor{stringliteral}{@date 2025}}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00007}00007 \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00008}00008 }
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00009}00009 \textcolor{keyword}{import} requests}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00010}00010 \textcolor{keyword}{from} bs4 \textcolor{keyword}{import} BeautifulSoup}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00011}00011 \textcolor{keyword}{from} UrlGenerator \textcolor{keyword}{import} UrlGenerators}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00012}00012 \textcolor{keyword}{from} DocManipualtion \textcolor{keyword}{import} addToJson, cleanText}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00013}00013 \textcolor{keyword}{import} sys}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00014}00014 \textcolor{keyword}{from} pathlib \textcolor{keyword}{import} Path}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00015}00015 \textcolor{keyword}{import} time}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00016}00016 \textcolor{keyword}{from} tqdm \textcolor{keyword}{import} tqdm}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00017}00017 \textcolor{keyword}{import} random}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00018}00018 \textcolor{keyword}{import} json}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00019}00019 \textcolor{keyword}{import} threading}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00020}00020 }
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00021}00021 \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00022}00022 \textcolor{stringliteral}{Path to the project root directory.}}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00023}00023 \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00024}\mbox{\hyperlink{namespaceScraper_a251c9919ea85c21f3c1f2c214a3d4644}{00024}} project\_root = Path(\_\_file\_\_).parent.parent.parent}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00025}00025 sys.path.append(str(project\_root))}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00026}00026 }
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00027}00027 \textcolor{keyword}{from} Queries \textcolor{keyword}{import} jsonToPG, resetTable}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00028}00028 \textcolor{keyword}{from} \mbox{\hyperlink{namespaceWebScraping_1_1results_1_1CleanDocuments}{WebScraping.results.CleanDocuments}} \textcolor{keyword}{import} clean\_documents\_in\_batches}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00029}00029 \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00030}00030 \textcolor{stringliteral}{Path to the JSON file containing the documents.}}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00031}00031 \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00032}\mbox{\hyperlink{namespaceScraper_a79a83e2c78e490efcbf679269a5237fc}{00032}} NOME\_FILE = str(project\_root / \textcolor{stringliteral}{"{}WebScraping/results/Docs.json"{}})}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00033}00033 \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00034}00034 \textcolor{stringliteral}{Path to the cleaned JSON file.}}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00035}00035 \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00036}\mbox{\hyperlink{namespaceScraper_a24115d9bfdfacbfcd06637bdef2430a9}{00036}} FILE\_PULITO = str(project\_root / \textcolor{stringliteral}{"{}WebScraping/results/Docs\_cleaned.json"{}})}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00037}00037 }
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00038}00038 }
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00039}00039 \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00040}00040 \textcolor{stringliteral}{Evento per mettere in pausa il thread di scraping.}}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00041}00041 \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00042}\mbox{\hyperlink{namespaceScraper_ae665371eb84ffb0d3ccd6b17f3ee03d2}{00042}} pause\_event = threading.Event()}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00043}00043 pause\_event.set()  \textcolor{comment}{\#Imposta inizialmente l'evento come "{}non in pausa"{}}}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00044}00044 }
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00045}\mbox{\hyperlink{namespaceScraper_a42a7fb9af79a91977166babbf9e5c303}{00045}} \textcolor{keyword}{def }\mbox{\hyperlink{namespaceScraper_a42a7fb9af79a91977166babbf9e5c303}{get\_random\_user\_agent}}():}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00046}00046     \textcolor{stringliteral}{"{}"{}"{}!}}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00047}00047 \textcolor{stringliteral}{    }\textcolor{preprocessor}{@brief} Generate random user agent string \textcolor{keywordflow}{for} web requests}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00048}00048     \textcolor{preprocessor}{@return} Random user agent string \textcolor{keyword}{from} predefined list}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00049}00049     \textcolor{preprocessor}{@details} Provides browser rotation to avoid detection \textcolor{keywordflow}{and} blocking.}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00050}00050              Includes Chrome, Firefox, \textcolor{keywordflow}{and} Safari user agents \textcolor{keywordflow}{for} different platforms.}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00051}00051     \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00052}00052 \textcolor{stringliteral}{    user\_agents = [}}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00053}00053 \textcolor{stringliteral}{        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'},}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00054}00054         \textcolor{stringliteral}{'Mozilla/5.0 (X11; Linux x86\_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36'},}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00055}00055         \textcolor{stringliteral}{'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:90.0) Gecko/20100101 Firefox/90.0'},}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00056}00056         \textcolor{stringliteral}{'Mozilla/5.0 (Macintosh; Intel Mac OS X 10\_15\_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.2 Safari/605.1.15'},}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00057}00057     ]}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00058}00058     \textcolor{keywordflow}{return} random.choice(user\_agents)}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00059}00059 }
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00060}\mbox{\hyperlink{namespaceScraper_ac7748dde9a1dd0c69fba5c05849426df}{00060}} \textcolor{keyword}{def }\mbox{\hyperlink{namespaceScraper_ac7748dde9a1dd0c69fba5c05849426df}{scraping}}(url):}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00061}00061     \textcolor{stringliteral}{"{}"{}"{}!}}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00062}00062 \textcolor{stringliteral}{    }\textcolor{preprocessor}{@brief} Scrape document content \textcolor{keyword}{from} a single URL}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00063}00063     \textcolor{preprocessor}{@param} url The URL to scrape \textcolor{keywordflow}{for} document content}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00064}00064     \textcolor{preprocessor}{@return} Dictionary containing extracted document fields \textcolor{keywordflow}{or} \textcolor{keywordtype}{None} \textcolor{keywordflow}{if} failed}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00065}00065     \textcolor{preprocessor}{@details} Extracts title, abstract, corpus, keywords, \textcolor{keywordflow}{and} URL \textcolor{keyword}{from} academic papers.}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00066}00066              Handles LaTeX content, implements error recovery, \textcolor{keywordflow}{and} respects rate limiting.}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00067}00067     \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00068}00068 \textcolor{stringliteral}{    }\textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00069}00069         print(f\textcolor{stringliteral}{"{}Scraping URL: \{url\}"{}})}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00070}00070         time.sleep(2)  \textcolor{comment}{\# Pausa tra le richieste}}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00071}00071         }
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00072}00072         \textcolor{comment}{\# Controllo per la pausa}}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00073}00073         pause\_event.wait()  \textcolor{comment}{\# Questo blocca il thread fino a quando non è stato rilasciato il flag di pausa}}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00074}00074         }
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00075}00075         headers = \{}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00076}00076             \textcolor{stringliteral}{'User-\/Agent'}: \mbox{\hyperlink{namespaceScraper_a42a7fb9af79a91977166babbf9e5c303}{get\_random\_user\_agent}}(),}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00077}00077             \textcolor{stringliteral}{'Accept'}: \textcolor{stringliteral}{'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'},}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00078}00078             \textcolor{stringliteral}{'Accept-\/Language'}: \textcolor{stringliteral}{'en-\/US,en;q=0.5'},}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00079}00079             \textcolor{stringliteral}{'Accept-\/Encoding'}: \textcolor{stringliteral}{'gzip, deflate, br'},}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00080}00080             \textcolor{stringliteral}{'Connection'}: \textcolor{stringliteral}{'keep-\/alive'},}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00081}00081             \textcolor{stringliteral}{'Upgrade-\/Insecure-\/Requests'}: \textcolor{stringliteral}{'1'},}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00082}00082             \textcolor{stringliteral}{'Cache-\/Control'}: \textcolor{stringliteral}{'no-\/cache'},}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00083}00083             \textcolor{stringliteral}{'Pragma'}: \textcolor{stringliteral}{'no-\/cache'},}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00084}00084             \textcolor{stringliteral}{'DNT'}: \textcolor{stringliteral}{'1'},}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00085}00085             \textcolor{stringliteral}{'Sec-\/GPC'}: \textcolor{stringliteral}{'1'}}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00086}00086         \}}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00087}00087         }
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00088}00088         response = requests.get(}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00089}00089             url,}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00090}00090             headers=headers,}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00091}00091             timeout=30,}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00092}00092             allow\_redirects=\textcolor{keyword}{True}}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00093}00093         )}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00094}00094         }
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00095}00095         \textcolor{keywordflow}{if} response.status\_code == 403:}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00096}00096             \textcolor{keywordflow}{raise} Exception(\textcolor{stringliteral}{"{}Access forbidden -\/ waiting longer before retry"{}})}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00097}00097         }
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00098}00098         response.raise\_for\_status()}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00099}00099         response.encoding = response.apparent\_encoding}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00100}00100         }
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00101}00101         soup = BeautifulSoup(response.text, \textcolor{stringliteral}{'html.parser'})}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00102}00102         }
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00103}00103         \textcolor{comment}{\# Estrai il titolo}}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00104}00104         h1\_tag = soup.find(\textcolor{stringliteral}{'h1'})}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00105}00105         \textcolor{keywordflow}{if} \textcolor{keywordflow}{not} h1\_tag:}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00106}00106             \textcolor{keywordflow}{return} \textcolor{keywordtype}{None}}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00107}00107             }
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00108}00108         titolo = h1\_tag.text.strip()}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00109}00109         }
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00110}00110         \textcolor{comment}{\# Estrazione dell'abstract}}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00111}00111         page\_div = soup.find(\textcolor{stringliteral}{'div'}, class\_=\textcolor{stringliteral}{'ltx\_abstract'})}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00112}00112         abstract = \textcolor{stringliteral}{"{}"{}}}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00113}00113         \textcolor{keywordflow}{if} page\_div:}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00114}00114             abstract = page\_div.get\_text(strip=\textcolor{keyword}{True})}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00115}00115         }
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00116}00116         \textcolor{comment}{\# Corpo del contenuto}}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00117}00117         corpo = \textcolor{stringliteral}{"{} "{}}.join([p.text.strip() \textcolor{keywordflow}{for} p \textcolor{keywordflow}{in} soup.find\_all(\textcolor{stringliteral}{'p'})])}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00118}00118         corpo = \mbox{\hyperlink{namespaceDocManipualtion_aa87b3063195af14f5f312c162c0f8927}{cleanText}}(corpo)}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00119}00119         }
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00120}00120         \textcolor{comment}{\# Estrazione delle parole chiave}}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00121}00121         ltx\_keywords = soup.find(\textcolor{stringliteral}{'div'}, class\_=\textcolor{stringliteral}{'ltx\_keywords'})}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00122}00122         \textcolor{keywordflow}{if} ltx\_keywords \textcolor{keywordflow}{is} \textcolor{keywordtype}{None}:}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00123}00123             ltx\_keywords = soup.find(\textcolor{stringliteral}{'div'}, class\_=\textcolor{stringliteral}{'ltx\_classification'})}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00124}00124 }
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00125}00125         keywords = ltx\_keywords.text.strip() \textcolor{keywordflow}{if} ltx\_keywords \textcolor{keywordflow}{else} \textcolor{stringliteral}{''}}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00126}00126 }
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00127}00127         result = \{}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00128}00128             \textcolor{stringliteral}{'title'}: titolo, }
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00129}00129             \textcolor{stringliteral}{'abstract'}: abstract, }
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00130}00130             \textcolor{stringliteral}{'corpus'}: corpo, }
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00131}00131             \textcolor{stringliteral}{'keywords'}: keywords,}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00132}00132             \textcolor{stringliteral}{'url'}: url}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00133}00133         \}}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00134}00134         }
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00135}00135         \textcolor{keywordflow}{return} result}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00136}00136     }
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00137}00137     \textcolor{keywordflow}{except} Exception \textcolor{keyword}{as} e:}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00138}00138         print(\textcolor{stringliteral}{"{}Link non trovato, passiamo al prossimo"{}})}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00139}00139     \textcolor{keywordflow}{return} \textcolor{keywordtype}{None}}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00140}00140 }
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00141}\mbox{\hyperlink{namespaceScraper_a129c6bfa204ab00926a26e4e00197cf2}{00141}} \textcolor{keyword}{def }\mbox{\hyperlink{namespaceScraper_a129c6bfa204ab00926a26e4e00197cf2}{process\_urls\_sequential}}(urls):}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00142}00142     \textcolor{stringliteral}{"{}"{}"{}!}}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00143}00143 \textcolor{stringliteral}{    }\textcolor{preprocessor}{@brief} Process list of URLs sequentially \textcolor{keyword}{with} progress tracking}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00144}00144     \textcolor{preprocessor}{@param} urls List of URLs to scrape}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00145}00145     \textcolor{preprocessor}{@return} List of successfully scraped document dictionaries}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00146}00146     \textcolor{preprocessor}{@details} Implements sequential processing \textcolor{keyword}{with} progress bar \textcolor{keywordflow}{and} error handling.}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00147}00147              Respects pause events \textcolor{keywordflow}{and} provides real-\/time feedback.}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00148}00148     \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00149}00149 \textcolor{stringliteral}{    results = []}}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00150}00150 \textcolor{stringliteral}{    }}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00151}00151 \textcolor{stringliteral}{    }\textcolor{keywordflow}{for} url \textcolor{keywordflow}{in} tqdm(urls):}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00152}00152         result = \mbox{\hyperlink{namespaceScraper_ac7748dde9a1dd0c69fba5c05849426df}{scraping}}(url)}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00153}00153         \textcolor{keywordflow}{if} result:}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00154}00154             print(f\textcolor{stringliteral}{"{}URL nel risultato: \{result['url']\}"{}})}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00155}00155             results.append(result)}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00156}00156 }
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00157}00157     \textcolor{keywordflow}{return} results}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00158}00158 }
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00159}\mbox{\hyperlink{namespaceScraper_a5a2dcae287b75569325da055de68d97e}{00159}} \textcolor{keyword}{def }\mbox{\hyperlink{namespaceScraper_a5a2dcae287b75569325da055de68d97e}{monitor\_input}}():}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00160}00160     \textcolor{stringliteral}{"{}"{}"{}!}}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00161}00161 \textcolor{stringliteral}{    }\textcolor{preprocessor}{@brief} Monitor user input \textcolor{keywordflow}{for} pause/resume commands during scraping}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00162}00162     \textcolor{preprocessor}{@details} Runs \textcolor{keywordflow}{in} separate thread to handle real-\/time pause/resume functionality.}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00163}00163              Accepts \textcolor{stringliteral}{'pause'} \textcolor{keywordflow}{and} \textcolor{stringliteral}{'resume'} commands to control scraping process.}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00164}00164     \textcolor{preprocessor}{@return} \textcolor{keywordtype}{None}}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00165}00165     \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00166}00166 \textcolor{stringliteral}{    }\textcolor{keyword}{global} pause\_event}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00167}00167     \textcolor{keywordflow}{while} \textcolor{keyword}{True}:}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00168}00168         user\_input = input(\textcolor{stringliteral}{"{}Enter 'pause' to pause scraping, 'resume' to resume scraping: "{}}).strip().lower()}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00169}00169         \textcolor{keywordflow}{if} user\_input == \textcolor{stringliteral}{"{}pause"{}}:}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00170}00170             print(\textcolor{stringliteral}{"{}Pausing scraping..."{}})}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00171}00171             pause\_event.clear()  \textcolor{comment}{\# Mette in pausa lo scraping}}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00172}00172         \textcolor{keywordflow}{elif} user\_input == \textcolor{stringliteral}{"{}resume"{}}:}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00173}00173             print(\textcolor{stringliteral}{"{}Resuming scraping..."{}})}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00174}00174             pause\_event.set()  \textcolor{comment}{\# Riprende lo scraping}}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00175}00175 }
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00176}\mbox{\hyperlink{namespaceScraper_a7b34aa7d7539730066c13ec5cff61ce0}{00176}} \textcolor{keyword}{def }\mbox{\hyperlink{namespaceScraper_a7b34aa7d7539730066c13ec5cff61ce0}{init}}():}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00177}00177     \textcolor{stringliteral}{"{}"{}"{}!}}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00178}00178 \textcolor{stringliteral}{    }\textcolor{preprocessor}{@brief} Initialize \textcolor{keywordflow}{and} orchestrate the complete web scraping pipeline}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00179}00179     \textcolor{preprocessor}{@details} Main function that coordinates the entire scraping workflow:}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00180}00180              1. Creates necessary directories \textcolor{keywordflow}{and} files}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00181}00181              2. Generates URLs \textcolor{keywordflow}{for} scraping}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00182}00182              3. Starts monitoring thread \textcolor{keywordflow}{for} user commands}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00183}00183              4. Executes sequential scraping \textcolor{keyword}{with} progress tracking}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00184}00184              5. Processes \textcolor{keywordflow}{and} cleans scraped documents}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00185}00185              6. Imports cleaned data into PostgreSQL database}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00186}00186     \textcolor{preprocessor}{@return} \textcolor{keywordtype}{None}}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00187}00187     \textcolor{preprocessor}{@throws} Exception \textcolor{keywordflow}{if} directory creation, file I/O, \textcolor{keywordflow}{or} database operations fail}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00188}00188     \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00189}00189 \textcolor{stringliteral}{    }\textcolor{comment}{\# Crea le directory se non esistono}}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00190}00190     results\_dir = project\_root / \textcolor{stringliteral}{"{}WebScraping/results"{}}}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00191}00191     results\_dir.mkdir(parents=\textcolor{keyword}{True}, exist\_ok=\textcolor{keyword}{True})}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00192}00192     }
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00193}00193     \textcolor{comment}{\# Crea il file Docs.json se non esiste}}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00194}00194     \textcolor{keywordflow}{if} \textcolor{keywordflow}{not} Path(NOME\_FILE).exists():}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00195}00195         \textcolor{keyword}{with} open(NOME\_FILE, \textcolor{stringliteral}{'w'}, encoding=\textcolor{stringliteral}{'utf-\/8'}) \textcolor{keyword}{as} f:}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00196}00196             json.dump([], f)}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00197}00197     }
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00198}00198     urls = list(\mbox{\hyperlink{namespaceUrlGenerator_a934e1ee0a3013d5fb29f25f089d60d0e}{UrlGenerators}}())}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00199}00199     print(f\textcolor{stringliteral}{"{}Inizio scraping di \{len(urls)\} URL..."{}})}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00200}00200     start\_time = time.time()}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00201}00201     }
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00202}00202     \textcolor{comment}{\# Inizia il thread di monitoraggio dell'input}}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00203}00203     input\_thread = threading.Thread(target=monitor\_input, daemon=\textcolor{keyword}{True})}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00204}00204     input\_thread.start()}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00205}00205 }
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00206}00206     \textcolor{comment}{\# Usa scraping sequenziale}}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00207}00207     results = \mbox{\hyperlink{namespaceScraper_a129c6bfa204ab00926a26e4e00197cf2}{process\_urls\_sequential}}(urls)}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00208}00208     }
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00209}00209     \mbox{\hyperlink{namespaceDocManipualtion_ab1e0b18e0c05c91102509a57e8278ec9}{addToJson}}(results, NOME\_FILE)}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00210}00210     }
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00211}00211     end\_time = time.time()}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00212}00212     print(f\textcolor{stringliteral}{"{}Scraping completato in \{end\_time -\/ start\_time:.2f\} secondi"{}})}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00213}00213     }
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00214}00214     cleaned\_docs = \mbox{\hyperlink{namespaceWebScraping_1_1results_1_1CleanDocuments_a60232ebf51589458d502264a1869f0d5}{clean\_documents\_in\_batches}}(NOME\_FILE,\textcolor{stringliteral}{"{}WebScraping/results/Docs\_cleaned.json"{}}, 1000)}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00215}00215     }
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00216}00216     \textcolor{keyword}{with} open(FILE\_PULITO, \textcolor{stringliteral}{'w'}, encoding=\textcolor{stringliteral}{'utf-\/8'}) \textcolor{keyword}{as} f:}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00217}00217         json.dump(cleaned\_docs, f, indent=4, ensure\_ascii=\textcolor{keyword}{False})}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00218}00218     }
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00219}00219     \mbox{\hyperlink{namespaceQueries_1_1PostgresQuery_a52b896a8b361b289c9309e18171bb3e7}{resetTable}}()}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00220}00220     \mbox{\hyperlink{namespaceQueries_1_1PostgresQuery_a0d2cd4efa8b9bc59f52dd6632c28437e}{jsonToPG}}(FILE\_PULITO)}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00221}00221 }
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00222}00222 \textcolor{keywordflow}{if} \_\_name\_\_ == \textcolor{stringliteral}{'\_\_main\_\_'}:}
+\DoxyCodeLine{\Hypertarget{Scraper_8py_source_l00223}00223     \mbox{\hyperlink{namespaceScraper_a7b34aa7d7539730066c13ec5cff61ce0}{init}}()}
+
+\end{DoxyCode}

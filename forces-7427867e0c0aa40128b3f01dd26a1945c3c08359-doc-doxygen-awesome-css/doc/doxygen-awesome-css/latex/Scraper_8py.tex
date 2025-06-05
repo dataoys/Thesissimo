@@ -1,0 +1,51 @@
+\hypertarget{Scraper_8py}{}\doxysection{/root/\+Juri\+Scan/\+Web\+Scraping/src/\+Scraper.py File Reference}
+\label{Scraper_8py}\index{/root/JuriScan/WebScraping/src/Scraper.py@{/root/JuriScan/WebScraping/src/Scraper.py}}
+
+
+Main web scraping module for Juri\+Scan document collection.  
+
+
+\doxysubsection*{Namespaces}
+\begin{DoxyCompactItemize}
+\item 
+namespace \mbox{\hyperlink{namespaceScraper}{Scraper}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \mbox{\hyperlink{namespaceScraper_a42a7fb9af79a91977166babbf9e5c303}{Scraper.\+get\+\_\+random\+\_\+user\+\_\+agent}} ()
+\begin{DoxyCompactList}\small\item\em Generate random user agent string for web requests. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceScraper_ac7748dde9a1dd0c69fba5c05849426df}{Scraper.\+scraping}} (url)
+\begin{DoxyCompactList}\small\item\em Scrape document content from a single URL. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceScraper_a129c6bfa204ab00926a26e4e00197cf2}{Scraper.\+process\+\_\+urls\+\_\+sequential}} (urls)
+\begin{DoxyCompactList}\small\item\em Process list of URLs sequentially with progress tracking. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceScraper_a5a2dcae287b75569325da055de68d97e}{Scraper.\+monitor\+\_\+input}} ()
+\begin{DoxyCompactList}\small\item\em Monitor user input for pause/resume commands during scraping. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceScraper_a7b34aa7d7539730066c13ec5cff61ce0}{Scraper.\+init}} ()
+\begin{DoxyCompactList}\small\item\em Initialize and orchestrate the complete web scraping pipeline. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{namespaceScraper_a251c9919ea85c21f3c1f2c214a3d4644}{Scraper.\+project\+\_\+root}} = Path(\+\_\+\+\_\+file\+\_\+\+\_\+).parent.\+parent.\+parent
+\item 
+\mbox{\hyperlink{namespaceScraper_a79a83e2c78e490efcbf679269a5237fc}{Scraper.\+NOME\+\_\+\+FILE}} = str(project\+\_\+root / \char`\"{}Web\+Scraping/results/Docs.\+json\char`\"{})
+\item 
+\mbox{\hyperlink{namespaceScraper_a24115d9bfdfacbfcd06637bdef2430a9}{Scraper.\+FILE\+\_\+\+PULITO}} = str(project\+\_\+root / \char`\"{}Web\+Scraping/results/Docs\+\_\+cleaned.\+json\char`\"{})
+\item 
+\mbox{\hyperlink{namespaceScraper_ae665371eb84ffb0d3ccd6b17f3ee03d2}{Scraper.\+pause\+\_\+event}} = threading.\+Event()
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Main web scraping module for Juri\+Scan document collection. 
+
+Implements automated document scraping from academic sources with pause/resume functionality \begin{DoxyAuthor}{Author}
+Magni \&\& Testoni 
+\end{DoxyAuthor}
+\begin{DoxyDate}{Date}
+2025 
+\end{DoxyDate}
+
+
+Definition in file \mbox{\hyperlink{Scraper_8py_source}{Scraper.\+py}}.
+

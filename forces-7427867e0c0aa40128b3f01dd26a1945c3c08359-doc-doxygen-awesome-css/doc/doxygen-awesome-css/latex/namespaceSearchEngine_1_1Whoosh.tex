@@ -1,0 +1,365 @@
+\hypertarget{namespaceSearchEngine_1_1Whoosh}{}\doxysection{Search\+Engine.\+Whoosh Namespace Reference}
+\label{namespaceSearchEngine_1_1Whoosh}\index{SearchEngine.Whoosh@{SearchEngine.Whoosh}}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_a2abe52eb8e6476513e34f8e274587bcb}{setup\+\_\+nltk}} ()
+\begin{DoxyCompactList}\small\item\em Download and setup required NLTK resources. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_a6921413722748e5c81037e144ee86912}{create\+\_\+schema}} ()
+\begin{DoxyCompactList}\small\item\em Generate \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh}{Whoosh}} index schema for document structure. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_a6afc92eebd7d7cb8313c804bdfe38735}{create\+\_\+whoosh\+\_\+index\+\_\+internal}} (index\+\_\+dir)
+\begin{DoxyCompactList}\small\item\em Internal function to create new \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh}{Whoosh}} index structure. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_a3539d29b6b5695f37c9e246d6f4c07c7}{index\+\_\+documents}} (index\+\_\+dir, json\+\_\+file, batch\+\_\+size=1000)
+\begin{DoxyCompactList}\small\item\em Index documents from JSON file into \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh}{Whoosh}} index. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_af2e81655e82ca7c3977c24845da90795}{parse\+\_\+advanced\+\_\+query}} (query\+\_\+string, schema)
+\begin{DoxyCompactList}\small\item\em Parse complex query strings with field specifications and operators. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_a6ca85082d43993cae65946687d8214f6}{search\+\_\+documents}} (index\+\_\+dir, query\+\_\+string, title\+\_\+true, abstract\+\_\+true, corpus\+\_\+true, ranking\+\_\+type)
+\begin{DoxyCompactList}\small\item\em Main search function for \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh}{Whoosh}} engine. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_ae554a85cc85b15acdded53525af8d734}{index\+\_\+exists\+\_\+and\+\_\+valid}} (index\+\_\+dir)
+\begin{DoxyCompactList}\small\item\em Check if \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh}{Whoosh}} index exists and contains documents. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_ac235bdd90c709aa66ef5b2931d6cf56c}{create\+\_\+or\+\_\+get\+\_\+index}} (index\+\_\+dir, json\+\_\+file, force\+\_\+rebuild=False)
+\begin{DoxyCompactList}\small\item\em Create new index or open existing \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh}{Whoosh}} index. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_a3aed0cedf9d34e8217660149b16d19ca}{get\+\_\+wordnet\+\_\+pos}} (tag)
+\begin{DoxyCompactList}\small\item\em Map NLTK POS tag to Word\+Net POS tag for accurate lemmatization. \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_ab003bd8fc6d4d63985bee0b694203286}{process\+\_\+natural\+\_\+query}} (query\+\_\+string)
+\begin{DoxyCompactList}\small\item\em Process natural language query with NLP techniques. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_a3ba69e9d37f81a463edd6b65e73deacc}{current\+\_\+script\+\_\+path}} = Path(\+\_\+\+\_\+file\+\_\+\+\_\+).resolve()
+\item 
+\mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_a9f51ef9db77956fe1e56efbbc18ca8f2}{project\+\_\+root\+\_\+path}} = current\+\_\+script\+\_\+path.\+parent.\+parent
+\item 
+\mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_aa1ea51c2bdb0e0b47eff89a8819b1659}{index\+\_\+dir\+\_\+path}} = str(\mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_a9f51ef9db77956fe1e56efbbc18ca8f2}{project\+\_\+root\+\_\+path}} / \char`\"{}Search\+Engine\char`\"{} / \char`\"{}Whoosh\+Index\char`\"{})
+\item 
+\mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_a332a0bfb1b7fa5a905a304c3239a2ace}{json\+\_\+docs\+\_\+path}} = str(\mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_a9f51ef9db77956fe1e56efbbc18ca8f2}{project\+\_\+root\+\_\+path}} / \char`\"{}Web\+Scraping\char`\"{} / \char`\"{}\mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_ad05757211a7ecb6b40786183d23b3a97}{results}}\char`\"{} / \char`\"{}Docs\+\_\+cleaned.\+json\char`\"{})
+\item 
+def \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_abe99f50492095b463d6b08cb0eca0b1c}{ix}} = \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_ac235bdd90c709aa66ef5b2931d6cf56c}{create\+\_\+or\+\_\+get\+\_\+index}}(\mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_aa1ea51c2bdb0e0b47eff89a8819b1659}{index\+\_\+dir\+\_\+path}}, \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_a332a0bfb1b7fa5a905a304c3239a2ace}{json\+\_\+docs\+\_\+path}}, force\+\_\+rebuild=True)
+\item 
+\mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_a6c6a63d6f977ceff0aacd913ccf7fd91}{doc\+\_\+count}} = searcher.\+doc\+\_\+count()
+\item 
+string \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_a54177a1011db2447fa89d63dc8c1c3cf}{test\+\_\+query}} = \char`\"{}neural networks\char`\"{}
+\item 
+def \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_ad05757211a7ecb6b40786183d23b3a97}{results}} = \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_a6ca85082d43993cae65946687d8214f6}{search\+\_\+documents}}(\mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_aa1ea51c2bdb0e0b47eff89a8819b1659}{index\+\_\+dir\+\_\+path}}, \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_a54177a1011db2447fa89d63dc8c1c3cf}{test\+\_\+query}}, True, True, True, \char`\"{}BM25F\char`\"{})
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{namespaceSearchEngine_1_1Whoosh_ac235bdd90c709aa66ef5b2931d6cf56c}\label{namespaceSearchEngine_1_1Whoosh_ac235bdd90c709aa66ef5b2931d6cf56c}} 
+\index{SearchEngine.Whoosh@{SearchEngine.Whoosh}!create\_or\_get\_index@{create\_or\_get\_index}}
+\index{create\_or\_get\_index@{create\_or\_get\_index}!SearchEngine.Whoosh@{SearchEngine.Whoosh}}
+\doxysubsubsection{\texorpdfstring{create\_or\_get\_index()}{create\_or\_get\_index()}}
+{\footnotesize\ttfamily def Search\+Engine.\+Whoosh.\+create\+\_\+or\+\_\+get\+\_\+index (\begin{DoxyParamCaption}\item[{}]{index\+\_\+dir,  }\item[{}]{json\+\_\+file,  }\item[{}]{force\+\_\+rebuild = {\ttfamily False} }\end{DoxyParamCaption})}
+
+
+
+Create new index or open existing \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh}{Whoosh}} index. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em index\+\_\+dir} & Path to the index directory \\
+\hline
+{\em json\+\_\+file} & Path to the JSON document file \\
+\hline
+{\em force\+\_\+rebuild} & Force recreation of index even if it exists (default\+: False) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Index object ready for searching
+\end{DoxyReturn}
+Manages index lifecycle with lock file cleanup and rebuilding options 
+
+Definition at line \mbox{\hyperlink{Whoosh_8py_source_l00409}{409}} of file \mbox{\hyperlink{Whoosh_8py_source}{Whoosh.\+py}}.
+
+\mbox{\Hypertarget{namespaceSearchEngine_1_1Whoosh_a6921413722748e5c81037e144ee86912}\label{namespaceSearchEngine_1_1Whoosh_a6921413722748e5c81037e144ee86912}} 
+\index{SearchEngine.Whoosh@{SearchEngine.Whoosh}!create\_schema@{create\_schema}}
+\index{create\_schema@{create\_schema}!SearchEngine.Whoosh@{SearchEngine.Whoosh}}
+\doxysubsubsection{\texorpdfstring{create\_schema()}{create\_schema()}}
+{\footnotesize\ttfamily def Search\+Engine.\+Whoosh.\+create\+\_\+schema (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Generate \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh}{Whoosh}} index schema for document structure. 
+
+\begin{DoxyReturn}{Returns}
+Schema object configured for document fields
+\end{DoxyReturn}
+Creates schema with ID, title, abstract, corpus, keywords, and URL fields. Uses stemming analyzer for text fields to improve search recall. 
+
+Definition at line \mbox{\hyperlink{Whoosh_8py_source_l00061}{61}} of file \mbox{\hyperlink{Whoosh_8py_source}{Whoosh.\+py}}.
+
+\mbox{\Hypertarget{namespaceSearchEngine_1_1Whoosh_a6afc92eebd7d7cb8313c804bdfe38735}\label{namespaceSearchEngine_1_1Whoosh_a6afc92eebd7d7cb8313c804bdfe38735}} 
+\index{SearchEngine.Whoosh@{SearchEngine.Whoosh}!create\_whoosh\_index\_internal@{create\_whoosh\_index\_internal}}
+\index{create\_whoosh\_index\_internal@{create\_whoosh\_index\_internal}!SearchEngine.Whoosh@{SearchEngine.Whoosh}}
+\doxysubsubsection{\texorpdfstring{create\_whoosh\_index\_internal()}{create\_whoosh\_index\_internal()}}
+{\footnotesize\ttfamily def Search\+Engine.\+Whoosh.\+create\+\_\+whoosh\+\_\+index\+\_\+internal (\begin{DoxyParamCaption}\item[{}]{index\+\_\+dir }\end{DoxyParamCaption})}
+
+
+
+Internal function to create new \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh}{Whoosh}} index structure. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em index\+\_\+dir} & Path to the index directory \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Index object for the newly created index
+\end{DoxyReturn}
+Creates directory if needed and initializes empty \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh}{Whoosh}} index with schema 
+
+Definition at line \mbox{\hyperlink{Whoosh_8py_source_l00079}{79}} of file \mbox{\hyperlink{Whoosh_8py_source}{Whoosh.\+py}}.
+
+\mbox{\Hypertarget{namespaceSearchEngine_1_1Whoosh_a3aed0cedf9d34e8217660149b16d19ca}\label{namespaceSearchEngine_1_1Whoosh_a3aed0cedf9d34e8217660149b16d19ca}} 
+\index{SearchEngine.Whoosh@{SearchEngine.Whoosh}!get\_wordnet\_pos@{get\_wordnet\_pos}}
+\index{get\_wordnet\_pos@{get\_wordnet\_pos}!SearchEngine.Whoosh@{SearchEngine.Whoosh}}
+\doxysubsubsection{\texorpdfstring{get\_wordnet\_pos()}{get\_wordnet\_pos()}}
+{\footnotesize\ttfamily def Search\+Engine.\+Whoosh.\+get\+\_\+wordnet\+\_\+pos (\begin{DoxyParamCaption}\item[{}]{tag }\end{DoxyParamCaption})}
+
+
+
+Map NLTK POS tag to Word\+Net POS tag for accurate lemmatization. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em tag} & NLTK part-\/of-\/speech tag \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Word\+Net POS constant (NOUN, VERB, ADJ, ADV)
+\end{DoxyReturn}
+Converts NLTK POS tags to Word\+Net format for proper lemmatization 
+
+Definition at line \mbox{\hyperlink{Whoosh_8py_source_l00442}{442}} of file \mbox{\hyperlink{Whoosh_8py_source}{Whoosh.\+py}}.
+
+\mbox{\Hypertarget{namespaceSearchEngine_1_1Whoosh_a3539d29b6b5695f37c9e246d6f4c07c7}\label{namespaceSearchEngine_1_1Whoosh_a3539d29b6b5695f37c9e246d6f4c07c7}} 
+\index{SearchEngine.Whoosh@{SearchEngine.Whoosh}!index\_documents@{index\_documents}}
+\index{index\_documents@{index\_documents}!SearchEngine.Whoosh@{SearchEngine.Whoosh}}
+\doxysubsubsection{\texorpdfstring{index\_documents()}{index\_documents()}}
+{\footnotesize\ttfamily def Search\+Engine.\+Whoosh.\+index\+\_\+documents (\begin{DoxyParamCaption}\item[{}]{index\+\_\+dir,  }\item[{}]{json\+\_\+file,  }\item[{}]{batch\+\_\+size = {\ttfamily 1000} }\end{DoxyParamCaption})}
+
+
+
+Index documents from JSON file into \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh}{Whoosh}} index. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em index\+\_\+dir} & Path to the index directory \\
+\hline
+{\em json\+\_\+file} & Path to the JSON document file \\
+\hline
+{\em batch\+\_\+size} & Number of documents to process in each batch (default\+: 1000) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Index object for the populated index
+\end{DoxyReturn}
+Forces rebuild of index, processes documents in batches for memory efficiency. Uses incremental JSON parsing to handle large files. 
+
+Definition at line \mbox{\hyperlink{Whoosh_8py_source_l00095}{95}} of file \mbox{\hyperlink{Whoosh_8py_source}{Whoosh.\+py}}.
+
+\mbox{\Hypertarget{namespaceSearchEngine_1_1Whoosh_ae554a85cc85b15acdded53525af8d734}\label{namespaceSearchEngine_1_1Whoosh_ae554a85cc85b15acdded53525af8d734}} 
+\index{SearchEngine.Whoosh@{SearchEngine.Whoosh}!index\_exists\_and\_valid@{index\_exists\_and\_valid}}
+\index{index\_exists\_and\_valid@{index\_exists\_and\_valid}!SearchEngine.Whoosh@{SearchEngine.Whoosh}}
+\doxysubsubsection{\texorpdfstring{index\_exists\_and\_valid()}{index\_exists\_and\_valid()}}
+{\footnotesize\ttfamily def Search\+Engine.\+Whoosh.\+index\+\_\+exists\+\_\+and\+\_\+valid (\begin{DoxyParamCaption}\item[{}]{index\+\_\+dir }\end{DoxyParamCaption})}
+
+
+
+Check if \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh}{Whoosh}} index exists and contains documents. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em index\+\_\+dir} & Path to the index directory \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+True if valid index with documents exists, False otherwise
+\end{DoxyReturn}
+Verifies directory existence, index validity, and document count 
+
+Definition at line \mbox{\hyperlink{Whoosh_8py_source_l00390}{390}} of file \mbox{\hyperlink{Whoosh_8py_source}{Whoosh.\+py}}.
+
+\mbox{\Hypertarget{namespaceSearchEngine_1_1Whoosh_af2e81655e82ca7c3977c24845da90795}\label{namespaceSearchEngine_1_1Whoosh_af2e81655e82ca7c3977c24845da90795}} 
+\index{SearchEngine.Whoosh@{SearchEngine.Whoosh}!parse\_advanced\_query@{parse\_advanced\_query}}
+\index{parse\_advanced\_query@{parse\_advanced\_query}!SearchEngine.Whoosh@{SearchEngine.Whoosh}}
+\doxysubsubsection{\texorpdfstring{parse\_advanced\_query()}{parse\_advanced\_query()}}
+{\footnotesize\ttfamily def Search\+Engine.\+Whoosh.\+parse\+\_\+advanced\+\_\+query (\begin{DoxyParamCaption}\item[{}]{query\+\_\+string,  }\item[{}]{schema }\end{DoxyParamCaption})}
+
+
+
+Parse complex query strings with field specifications and operators. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em query\+\_\+string} & Query string to parse (may contain field\+:term AND/\+OR operators) \\
+\hline
+{\em schema} & \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh}{Whoosh}} schema object for field validation \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Parsed Query object or None if parsing fails
+\end{DoxyReturn}
+Handles field-\/specific searches, phrase queries, and logical operators. Expands non-\/field queries to search across multiple fields. 
+
+Definition at line \mbox{\hyperlink{Whoosh_8py_source_l00178}{178}} of file \mbox{\hyperlink{Whoosh_8py_source}{Whoosh.\+py}}.
+
+\mbox{\Hypertarget{namespaceSearchEngine_1_1Whoosh_ab003bd8fc6d4d63985bee0b694203286}\label{namespaceSearchEngine_1_1Whoosh_ab003bd8fc6d4d63985bee0b694203286}} 
+\index{SearchEngine.Whoosh@{SearchEngine.Whoosh}!process\_natural\_query@{process\_natural\_query}}
+\index{process\_natural\_query@{process\_natural\_query}!SearchEngine.Whoosh@{SearchEngine.Whoosh}}
+\doxysubsubsection{\texorpdfstring{process\_natural\_query()}{process\_natural\_query()}}
+{\footnotesize\ttfamily def Search\+Engine.\+Whoosh.\+process\+\_\+natural\+\_\+query (\begin{DoxyParamCaption}\item[{}]{query\+\_\+string }\end{DoxyParamCaption})}
+
+
+
+Process natural language query with NLP techniques. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em query\+\_\+string} & The natural language query to process \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Processed query string with expanded terms
+\end{DoxyReturn}
+Uses YAKE keyword extraction, lemmatization, and Word\+Net expansion for synonyms, hypernyms, and hyponyms. Includes fallback mechanisms. 
+
+Definition at line \mbox{\hyperlink{Whoosh_8py_source_l00457}{457}} of file \mbox{\hyperlink{Whoosh_8py_source}{Whoosh.\+py}}.
+
+\mbox{\Hypertarget{namespaceSearchEngine_1_1Whoosh_a6ca85082d43993cae65946687d8214f6}\label{namespaceSearchEngine_1_1Whoosh_a6ca85082d43993cae65946687d8214f6}} 
+\index{SearchEngine.Whoosh@{SearchEngine.Whoosh}!search\_documents@{search\_documents}}
+\index{search\_documents@{search\_documents}!SearchEngine.Whoosh@{SearchEngine.Whoosh}}
+\doxysubsubsection{\texorpdfstring{search\_documents()}{search\_documents()}}
+{\footnotesize\ttfamily def Search\+Engine.\+Whoosh.\+search\+\_\+documents (\begin{DoxyParamCaption}\item[{}]{index\+\_\+dir,  }\item[{}]{query\+\_\+string,  }\item[{}]{title\+\_\+true,  }\item[{}]{abstract\+\_\+true,  }\item[{}]{corpus\+\_\+true,  }\item[{}]{ranking\+\_\+type }\end{DoxyParamCaption})}
+
+
+
+Main search function for \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh}{Whoosh}} engine. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em index\+\_\+dir} & Path to the \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh}{Whoosh}} index directory \\
+\hline
+{\em query\+\_\+string} & The search query string \\
+\hline
+{\em title\+\_\+true} & Boolean flag to search in title field \\
+\hline
+{\em abstract\+\_\+true} & Boolean flag to search in abstract field \\
+\hline
+{\em corpus\+\_\+true} & Boolean flag to search in corpus field \\
+\hline
+{\em ranking\+\_\+type} & Scoring algorithm (\char`\"{}\+TF\+\_\+\+IDF\char`\"{} or \char`\"{}\+BM25\+F\char`\"{}) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+List of tuples containing (id, title, abstract, corpus, keywords, score, url)
+\end{DoxyReturn}
+Supports both simple and advanced query parsing with natural language processing 
+
+Definition at line \mbox{\hyperlink{Whoosh_8py_source_l00287}{287}} of file \mbox{\hyperlink{Whoosh_8py_source}{Whoosh.\+py}}.
+
+\mbox{\Hypertarget{namespaceSearchEngine_1_1Whoosh_a2abe52eb8e6476513e34f8e274587bcb}\label{namespaceSearchEngine_1_1Whoosh_a2abe52eb8e6476513e34f8e274587bcb}} 
+\index{SearchEngine.Whoosh@{SearchEngine.Whoosh}!setup\_nltk@{setup\_nltk}}
+\index{setup\_nltk@{setup\_nltk}!SearchEngine.Whoosh@{SearchEngine.Whoosh}}
+\doxysubsubsection{\texorpdfstring{setup\_nltk()}{setup\_nltk()}}
+{\footnotesize\ttfamily def Search\+Engine.\+Whoosh.\+setup\+\_\+nltk (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Download and setup required NLTK resources. 
+
+Downloads Word\+Net, POS tagger, tokenizer, and stopwords if not available. Includes error handling and fallback mechanisms. \begin{DoxyReturn}{Returns}
+None 
+\end{DoxyReturn}
+
+\begin{DoxyExceptions}{Exceptions}
+{\em Exception} & if NLTK resources cannot be downloaded \\
+\hline
+\end{DoxyExceptions}
+
+
+Definition at line \mbox{\hyperlink{Whoosh_8py_source_l00029}{29}} of file \mbox{\hyperlink{Whoosh_8py_source}{Whoosh.\+py}}.
+
+
+
+\doxysubsection{Variable Documentation}
+\mbox{\Hypertarget{namespaceSearchEngine_1_1Whoosh_a3ba69e9d37f81a463edd6b65e73deacc}\label{namespaceSearchEngine_1_1Whoosh_a3ba69e9d37f81a463edd6b65e73deacc}} 
+\index{SearchEngine.Whoosh@{SearchEngine.Whoosh}!current\_script\_path@{current\_script\_path}}
+\index{current\_script\_path@{current\_script\_path}!SearchEngine.Whoosh@{SearchEngine.Whoosh}}
+\doxysubsubsection{\texorpdfstring{current\_script\_path}{current\_script\_path}}
+{\footnotesize\ttfamily Search\+Engine.\+Whoosh.\+current\+\_\+script\+\_\+path = Path(\+\_\+\+\_\+file\+\_\+\+\_\+).resolve()}
+
+
+
+Definition at line \mbox{\hyperlink{Whoosh_8py_source_l00547}{547}} of file \mbox{\hyperlink{Whoosh_8py_source}{Whoosh.\+py}}.
+
+\mbox{\Hypertarget{namespaceSearchEngine_1_1Whoosh_a6c6a63d6f977ceff0aacd913ccf7fd91}\label{namespaceSearchEngine_1_1Whoosh_a6c6a63d6f977ceff0aacd913ccf7fd91}} 
+\index{SearchEngine.Whoosh@{SearchEngine.Whoosh}!doc\_count@{doc\_count}}
+\index{doc\_count@{doc\_count}!SearchEngine.Whoosh@{SearchEngine.Whoosh}}
+\doxysubsubsection{\texorpdfstring{doc\_count}{doc\_count}}
+{\footnotesize\ttfamily Search\+Engine.\+Whoosh.\+doc\+\_\+count = searcher.\+doc\+\_\+count()}
+
+
+
+Definition at line \mbox{\hyperlink{Whoosh_8py_source_l00565}{565}} of file \mbox{\hyperlink{Whoosh_8py_source}{Whoosh.\+py}}.
+
+\mbox{\Hypertarget{namespaceSearchEngine_1_1Whoosh_aa1ea51c2bdb0e0b47eff89a8819b1659}\label{namespaceSearchEngine_1_1Whoosh_aa1ea51c2bdb0e0b47eff89a8819b1659}} 
+\index{SearchEngine.Whoosh@{SearchEngine.Whoosh}!index\_dir\_path@{index\_dir\_path}}
+\index{index\_dir\_path@{index\_dir\_path}!SearchEngine.Whoosh@{SearchEngine.Whoosh}}
+\doxysubsubsection{\texorpdfstring{index\_dir\_path}{index\_dir\_path}}
+{\footnotesize\ttfamily Search\+Engine.\+Whoosh.\+index\+\_\+dir\+\_\+path = str(\mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_a9f51ef9db77956fe1e56efbbc18ca8f2}{project\+\_\+root\+\_\+path}} / \char`\"{}Search\+Engine\char`\"{} / \char`\"{}Whoosh\+Index\char`\"{})}
+
+
+
+Definition at line \mbox{\hyperlink{Whoosh_8py_source_l00551}{551}} of file \mbox{\hyperlink{Whoosh_8py_source}{Whoosh.\+py}}.
+
+\mbox{\Hypertarget{namespaceSearchEngine_1_1Whoosh_abe99f50492095b463d6b08cb0eca0b1c}\label{namespaceSearchEngine_1_1Whoosh_abe99f50492095b463d6b08cb0eca0b1c}} 
+\index{SearchEngine.Whoosh@{SearchEngine.Whoosh}!ix@{ix}}
+\index{ix@{ix}!SearchEngine.Whoosh@{SearchEngine.Whoosh}}
+\doxysubsubsection{\texorpdfstring{ix}{ix}}
+{\footnotesize\ttfamily def Search\+Engine.\+Whoosh.\+ix = \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_ac235bdd90c709aa66ef5b2931d6cf56c}{create\+\_\+or\+\_\+get\+\_\+index}}(\mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_aa1ea51c2bdb0e0b47eff89a8819b1659}{index\+\_\+dir\+\_\+path}}, \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_a332a0bfb1b7fa5a905a304c3239a2ace}{json\+\_\+docs\+\_\+path}}, force\+\_\+rebuild=True)}
+
+
+
+Definition at line \mbox{\hyperlink{Whoosh_8py_source_l00560}{560}} of file \mbox{\hyperlink{Whoosh_8py_source}{Whoosh.\+py}}.
+
+\mbox{\Hypertarget{namespaceSearchEngine_1_1Whoosh_a332a0bfb1b7fa5a905a304c3239a2ace}\label{namespaceSearchEngine_1_1Whoosh_a332a0bfb1b7fa5a905a304c3239a2ace}} 
+\index{SearchEngine.Whoosh@{SearchEngine.Whoosh}!json\_docs\_path@{json\_docs\_path}}
+\index{json\_docs\_path@{json\_docs\_path}!SearchEngine.Whoosh@{SearchEngine.Whoosh}}
+\doxysubsubsection{\texorpdfstring{json\_docs\_path}{json\_docs\_path}}
+{\footnotesize\ttfamily Search\+Engine.\+Whoosh.\+json\+\_\+docs\+\_\+path = str(\mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_a9f51ef9db77956fe1e56efbbc18ca8f2}{project\+\_\+root\+\_\+path}} / \char`\"{}Web\+Scraping\char`\"{} / \char`\"{}\mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_ad05757211a7ecb6b40786183d23b3a97}{results}}\char`\"{} / \char`\"{}Docs\+\_\+cleaned.\+json\char`\"{})}
+
+
+
+Definition at line \mbox{\hyperlink{Whoosh_8py_source_l00552}{552}} of file \mbox{\hyperlink{Whoosh_8py_source}{Whoosh.\+py}}.
+
+\mbox{\Hypertarget{namespaceSearchEngine_1_1Whoosh_a9f51ef9db77956fe1e56efbbc18ca8f2}\label{namespaceSearchEngine_1_1Whoosh_a9f51ef9db77956fe1e56efbbc18ca8f2}} 
+\index{SearchEngine.Whoosh@{SearchEngine.Whoosh}!project\_root\_path@{project\_root\_path}}
+\index{project\_root\_path@{project\_root\_path}!SearchEngine.Whoosh@{SearchEngine.Whoosh}}
+\doxysubsubsection{\texorpdfstring{project\_root\_path}{project\_root\_path}}
+{\footnotesize\ttfamily Search\+Engine.\+Whoosh.\+project\+\_\+root\+\_\+path = current\+\_\+script\+\_\+path.\+parent.\+parent}
+
+
+
+Definition at line \mbox{\hyperlink{Whoosh_8py_source_l00549}{549}} of file \mbox{\hyperlink{Whoosh_8py_source}{Whoosh.\+py}}.
+
+\mbox{\Hypertarget{namespaceSearchEngine_1_1Whoosh_ad05757211a7ecb6b40786183d23b3a97}\label{namespaceSearchEngine_1_1Whoosh_ad05757211a7ecb6b40786183d23b3a97}} 
+\index{SearchEngine.Whoosh@{SearchEngine.Whoosh}!results@{results}}
+\index{results@{results}!SearchEngine.Whoosh@{SearchEngine.Whoosh}}
+\doxysubsubsection{\texorpdfstring{results}{results}}
+{\footnotesize\ttfamily def Search\+Engine.\+Whoosh.\+results = \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_a6ca85082d43993cae65946687d8214f6}{search\+\_\+documents}}(\mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_aa1ea51c2bdb0e0b47eff89a8819b1659}{index\+\_\+dir\+\_\+path}}, \mbox{\hyperlink{namespaceSearchEngine_1_1Whoosh_a54177a1011db2447fa89d63dc8c1c3cf}{test\+\_\+query}}, True, True, True, \char`\"{}BM25F\char`\"{})}
+
+
+
+Definition at line \mbox{\hyperlink{Whoosh_8py_source_l00572}{572}} of file \mbox{\hyperlink{Whoosh_8py_source}{Whoosh.\+py}}.
+
+\mbox{\Hypertarget{namespaceSearchEngine_1_1Whoosh_a54177a1011db2447fa89d63dc8c1c3cf}\label{namespaceSearchEngine_1_1Whoosh_a54177a1011db2447fa89d63dc8c1c3cf}} 
+\index{SearchEngine.Whoosh@{SearchEngine.Whoosh}!test\_query@{test\_query}}
+\index{test\_query@{test\_query}!SearchEngine.Whoosh@{SearchEngine.Whoosh}}
+\doxysubsubsection{\texorpdfstring{test\_query}{test\_query}}
+{\footnotesize\ttfamily string Search\+Engine.\+Whoosh.\+test\+\_\+query = \char`\"{}neural networks\char`\"{}}
+
+
+
+Definition at line \mbox{\hyperlink{Whoosh_8py_source_l00571}{571}} of file \mbox{\hyperlink{Whoosh_8py_source}{Whoosh.\+py}}.
+
