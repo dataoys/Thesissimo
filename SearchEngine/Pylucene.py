@@ -59,37 +59,118 @@ def initialize_jvm():
     env = lucene.getVMEnv()
     env.attachCurrentThread()
 
-def calculate_precision_recall(searcher, query_string, ranking_type="BM25", threshold=0.5):
+# Rinominata da expand_query e leggermente affinata
+def expand_natural_language_query(natural_language_string):
     """!
-    @brief Calculate precision and recall metrics for a given query
-    @param searcher The Lucene IndexSearcher object
-    @param query_string The search query string
-    @param ranking_type Ranking algorithm to use ("BM25" or "Classic")
-    @param threshold Score threshold for relevance determination (default: 0.5)
-    @return Tuple containing (precision_values, recall_values, normalized_scores)
-    @details Executes search across all fields and calculates precision-recall metrics
-             using adaptive threshold based on score distribution
+    @brief Expand a natural language phrase using NLP techniques.
+    @param natural_language_string The natural language phrase to expand.
+    @return Expanded query string formatted for Lucene, OR-ing terms.
+    @details Uses YAKE for keyword extraction, NLTK for NLP processing, and WordNet
+             for semantic expansion with synonyms. Hypernyms and hyponyms are generally excluded for precision.
     """
     try:
-        # Esegui la ricerca
+        # 1. Keyword extraction with YAKE
+        kw_extractor = yake.KeywordExtractor(
+            lan="en",
+            n=3,
+            dedupLim=0.9,
+            dedupFunc='seqm',
+            windowsSize=1,
+            top=5, # Extract top 5 keywords
+            features=None
+        )
+        yake_keywords_with_scores = kw_extractor.extract_keywords(natural_language_string)
+        yake_keywords = [kw[0].lower() for kw in yake_keywords_with_scores]
+
+        # 2. NLP Processing for WordNet expansion
+        lemmatizer = WordNetLemmatizer()
+        stop_words = set(stopwords.words('english'))
+        
+        tokens = word_tokenize(natural_language_string.lower())
+        # Filter out stopwords, non-alphanumeric, and common Lucene operators if they appear as simple tokens
+        lucene_operators_as_tokens = {'and', 'or', 'not', 'to'} 
+        processed_tokens = [
+            token for token in tokens 
+            if token.isalnum() and token not in stop_words and token not in lucene_operators_as_tokens
+        ]
+        
+        pos_tags = pos_tag(processed_tokens)
+        lemmatized_terms_for_wordnet = [lemmatizer.lemmatize(word, get_wordnet_pos(tag)) 
+                                       for word, tag in pos_tags]
+
+        # 3. Semantic Expansion using WordNet (focus on synonyms from the first synset)
+        wordnet_expanded_terms = set()
+        for term in lemmatized_terms_for_wordnet:
+            synsets = wordnet.synsets(term)
+            if synsets: # Check if synsets are found
+                first_synset = synsets[0] # Use only the first, most relevant synset
+                for lemma in first_synset.lemmas():
+                    synonym = lemma.name().lower().replace('_', ' ') # Replace underscores with spaces for phrases
+                    if synonym not in stop_words and len(synonym) > 2: # Basic cleaning for synonyms
+                        wordnet_expanded_terms.add(synonym)
+        
+        # 4. Combine and Clean Terms
+        final_terms_set = set(yake_keywords) # Start with YAKE keywords
+        final_terms_set.update(lemmatized_terms_for_wordnet) # Add lemmatized original terms
+        final_terms_set.update(wordnet_expanded_terms) # Add WordNet synonyms
+        
+        # Final cleaning of all collected terms
+        final_cleaned_terms = {
+            term for term in final_terms_set
+            if term not in stop_words and len(term) > 2 and term.strip() # Ensure not empty after strip
+        }
+
+        # 5. Build Lucene Query string
+        query_parts = []
+        # Add YAKE keywords with higher boost, handle phrases by quoting
+        for kw in yake_keywords:
+            if kw in final_cleaned_terms: 
+                query_parts.append(f'("{kw}")^2' if ' ' in kw else f'({kw})^2')
+                final_cleaned_terms.discard(kw) # Avoid re-adding
+
+        # Add remaining cleaned terms (original lemmatized, synonyms) with default boost
+        for term in final_cleaned_terms:
+            query_parts.append(f'"{term}"' if ' ' in term else term) # Quote phrases
+        
+        if not query_parts:
+            print(f"Warning: Query expansion for '{natural_language_string}' resulted in no terms. Falling back to escaped original.")
+            return QueryParser.escape(natural_language_string)
+
+        expanded_lucene_query = ' OR '.join(query_parts)
+        return expanded_lucene_query
+
+    except Exception as e:
+        print(f"Errore nell'espansione della query (NL) '{natural_language_string}': {e}")
+        return QueryParser.escape(natural_language_string) # Fallback to escaped original query
+
+
+def calculate_precision_recall(searcher, query_string_for_search, ranking_type="BM25", threshold=0.5):
+    """!
+    @brief Calculate precision and recall metrics for a given query (INTERNAL HEURISTIC)
+    @note This function's output (precision/recall values based on score threshold)
+          is NOT directly used by benchmark.py for its final P@k, R@k, MAP metrics,
+          as benchmark.py uses JudgedPool.json. This is more for internal diagnostics if needed.
+          Uses the provided query_string_for_search directly.
+    """
+    try:
         if ranking_type == "BM25":
             searcher.setSimilarity(BM25Similarity())
         else:
             searcher.setSimilarity(ClassicSimilarity())
             
-        # Crea una query su tutti i campi
         query_builder = BooleanQuery.Builder()
         analyzer = StandardAnalyzer()
-        expanded_query = expand_query(query_string)
         
-        # Cerca in tutti i campi per le metriche
-        title_query = QueryParser("title", analyzer).parse(expanded_query)
-        abstract_query = QueryParser("abstract", analyzer).parse(expanded_query)
-        corpus_query = QueryParser("corpus", analyzer).parse(expanded_query)
+        # This internal P/R uses the query_string_for_search as is (already expanded if it was NL).
+        # It builds a SHOULD query across standard fields for its heuristic P/R.
+        # This part is not critical for benchmark.py's metrics.
+        q_title = QueryParser("title", analyzer).parse(query_string_for_search)
+        q_abstract = QueryParser("abstract", analyzer).parse(query_string_for_search)
+        q_corpus = QueryParser("corpus", analyzer).parse(query_string_for_search)
         
-        query_builder.add(title_query, BooleanClause.Occur.SHOULD)
-        query_builder.add(abstract_query, BooleanClause.Occur.SHOULD)
-        query_builder.add(corpus_query, BooleanClause.Occur.SHOULD)
+        query_builder.add(q_title, BooleanClause.Occur.SHOULD)
+        query_builder.add(q_abstract, BooleanClause.Occur.SHOULD)
+        query_builder.add(q_corpus, BooleanClause.Occur.SHOULD)
         
         query = query_builder.build()
         results = searcher.search(query, 100)
@@ -97,145 +178,116 @@ def calculate_precision_recall(searcher, query_string, ranking_type="BM25", thre
         if not results or results.totalHits.value == 0:
             return [], [], []
 
-        # Normalizza gli scores in modo più robusto
         scores = np.array([scoreDoc.score for scoreDoc in results.scoreDocs])
-        if len(scores) == 0:
-            return [], [], []
+        if len(scores) == 0: return [], [], []
             
-        # Normalizzazione min-max invece che solo max
         min_score = np.min(scores)
         max_score = np.max(scores)
-        if max_score == min_score:
-            normalized_scores = np.ones_like(scores)
+        if max_score == min_score: # Avoid division by zero; handle all same scores
+            normalized_scores = np.ones_like(scores) if max_score > 0 else np.zeros_like(scores)
         else:
             normalized_scores = (scores - min_score) / (max_score - min_score)
 
-        # Usa una soglia adattiva basata sulla distribuzione degli scores
-        if threshold is None:
-            threshold = np.percentile(normalized_scores, 70)  # top 30% come rilevanti
-            
-        # Calcola y_true
-        y_true = np.where(normalized_scores >= threshold, 1, 0)
+        current_threshold = threshold if threshold is not None else np.percentile(normalized_scores, 70)
+        y_true = np.where(normalized_scores >= current_threshold, 1, 0)
         
-        if not (np.any(y_true == 1) and np.any(y_true == 0)):
-            return [], [], []
+        if not (np.any(y_true == 1) and np.any(y_true == 0)): # Need both classes for curve
+            return [], [], [] 
         
-        # Calcola precision-recall
         precision_values, recall_values, _ = precision_recall_curve(y_true, normalized_scores)
         
-        # Filtro i valori per rimuovere duplicati e ordinare
-        unique_idx = np.unique(recall_values, return_index=True)[1]
-        precision_values = precision_values[unique_idx]
-        recall_values = recall_values[unique_idx]
-        
-        return precision_values.tolist(), recall_values.tolist(), normalized_scores.tolist()
+        if len(recall_values) > 0:
+            unique_idx = np.unique(recall_values, return_index=True)[1]
+            return precision_values[unique_idx].tolist(), recall_values[unique_idx].tolist(), normalized_scores.tolist()
+        else:
+            return [], [], []
 
     except Exception as e:
-        print(f"Errore nel calcolo precision-recall: {str(e)}")
+        # Be more specific about where this error is coming from
+        print(f"Errore nel calcolo precision-recall (interno Pylucene.py, query='{query_string_for_search}'): {str(e)}")
         return [], [], []
-
-#def plot_precision_recall_curve(precision_values, recall_values, query_string):
-    """
-    Genera il grafico precision-recall.
-    """
-    try:
-        plt.figure(figsize=(10, 6))
-        
-        # Ordina i valori per recall crescente per una curva più pulita
-        sorting_idx = np.argsort(recall_values)
-        recall_values = np.array(recall_values)[sorting_idx]
-        precision_values = np.array(precision_values)[sorting_idx]
-        
-        # Plotting
-        plt.plot(recall_values, precision_values, 'b-', label='P/R curve')
-        
-        # Aggiungi media precision e recall come linee tratteggiate
-        avg_precision = np.mean(precision_values)
-        avg_recall = np.mean(recall_values)
-        
-        plt.axhline(y=avg_precision, color='r', linestyle='--', 
-                   label=f'Avg Precision: {avg_precision:.3f}')
-        plt.axvline(x=avg_recall, color='g', linestyle='--', 
-                   label=f'Avg Recall: {avg_recall:.3f}')
-        
-        # Configurazione del grafico
-        plt.xlabel('Recall')
-        plt.ylabel('Precision')
-        plt.title(f'Precision-Recall Curve\nQuery: "{query_string}"')
-        plt.grid(True, linestyle='--', alpha=0.7)
-        plt.legend(loc='lower left')
-        
-        # Imposta i limiti degli assi da 0 a 1
-        plt.xlim([-0.05, 1.05])
-        plt.ylim([-0.05, 1.05])
-
-        # Salva il grafico
-        with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as tmp:
-            plt.savefig(tmp.name, bbox_inches='tight', dpi=300)
-            plt.close()
-            return tmp.name
-
-    except Exception as e:
-        print(f"Errore nella generazione del grafico: {str(e)}")
-        return None
 
 def search_documents(searcher, title_true, abstract_true, corpus_true, query_string, ranking_type):
     """!
     @brief Main search function for PyLucene engine
     @param searcher The Lucene IndexSearcher object
-    @param title_true Boolean flag to search in title field
-    @param abstract_true Boolean flag to search in abstract field  
-    @param corpus_true Boolean flag to search in corpus field
-    @param query_string The search query string
-    @param ranking_type Ranking algorithm to use ("BM25" or "TFIDF")
-    @return Tuple containing (results, precision_recall_data, plot_path)
-    @details Supports both field-specific and checkbox-based searches with
-             logical operators (AND/OR) across all fields. Includes precision-recall analysis.
+    @param title_true Boolean flag to search in title field (used if query is natural language)
+    @param abstract_true Boolean flag to search in abstract field (used if query is natural language)
+    @param corpus_true Boolean flag to search in corpus field (used if query is natural language)
+    @param query_string The search query string. Can be natural language or Lucene syntax.
+    @param ranking_type Ranking algorithm to use ("BM25" or "TFIDF" which maps to ClassicSimilarity)
+    @return Tuple containing (results_object, precision_recall_data_tuple_or_None, None_for_plot_path)
     """
-    if not query_string.strip() or not any([title_true, abstract_true, corpus_true]):
+    if not query_string.strip():
         return None, None, None
     
     try:
-        # Esegui la ricerca normale
-        expanded_query = expand_query(query_string)
-        
         if ranking_type == "BM25":
             searcher.setSimilarity(BM25Similarity())
-        else:
+        else: 
             searcher.setSimilarity(ClassicSimilarity())
             
-        query_builder = BooleanQuery.Builder()
         analyzer = StandardAnalyzer()
         
-        if title_true:
-            title_query = QueryParser("title", analyzer).parse(expanded_query)
-            query_builder.add(title_query, BooleanClause.Occur.SHOULD)
-        if abstract_true:
-            abstract_query = QueryParser("abstract", analyzer).parse(expanded_query)
-            query_builder.add(abstract_query, BooleanClause.Occur.SHOULD)
-        if corpus_true:
-            corpus_query = QueryParser("corpus", analyzer).parse(expanded_query)
-            query_builder.add(corpus_query, BooleanClause.Occur.SHOULD)
-            
-        query = query_builder.build()
-        results = searcher.search(query, 100)
+        # Heuristic to detect if query_string is likely Lucene syntax
+        # This check can be refined, but covers common cases.
+        is_lucene_syntax_query = any(op in query_string for op in [':', ' AND ', ' OR ', ' NOT ', '(', ')', '"', '*', '?']) or \
+                                 any(op in query_string.upper() for op in [' AND ', ' OR ', ' NOT '])
 
-        # Calcola precision-recall
-        precision_values, recall_values, scores = calculate_precision_recall(
-            searcher, query_string, ranking_type
+        query_for_internal_pr = query_string # For the heuristic P/R calculation
+
+        if not is_lucene_syntax_query and (title_true or abstract_true or corpus_true):
+            # Query seems to be natural language, and specific fields are targeted for search
+            expanded_nl_query = expand_natural_language_query(query_string)
+            query_for_internal_pr = expanded_nl_query # Use expanded for internal P/R
+            
+            query_builder = BooleanQuery.Builder()
+            # Build a SHOULD query across the selected fields for the expanded natural language query
+            if title_true:
+                q_title = QueryParser("title", analyzer).parse(expanded_nl_query)
+                query_builder.add(q_title, BooleanClause.Occur.SHOULD)
+            if abstract_true:
+                q_abstract = QueryParser("abstract", analyzer).parse(expanded_nl_query)
+                query_builder.add(q_abstract, BooleanClause.Occur.SHOULD)
+            if corpus_true: # Default to corpus if no other field is true, or if it's selected
+                q_corpus = QueryParser("corpus", analyzer).parse(expanded_nl_query)
+                query_builder.add(q_corpus, BooleanClause.Occur.SHOULD)
+            
+            # Ensure at least one clause was added if fields were true
+            if not (title_true or abstract_true or corpus_true):
+                 print(f"Warning: Natural language query '{query_string}' but no fields selected for search.")
+                 return None, None, None # Or search a default field
+
+            final_query_obj = query_builder.build()
+            if not final_query_obj.clauses(): # Check if any clauses were actually added
+                print(f"Warning: No clauses built for natural language query '{query_string}'. Defaulting to corpus search.")
+                # Fallback: search expanded query against corpus if builder is empty for some reason
+                final_query_obj = QueryParser("corpus", analyzer).parse(expanded_nl_query)
+
+        else:
+            # Query is likely Lucene syntax, or it's a general query without specific field flags for NL expansion
+            # Parse it directly. QueryParser uses "corpus" as default field for terms without explicit field.
+            # Fields specified in query_string (e.g., title:term) will be respected.
+            query_parser = QueryParser("corpus", analyzer) # Default field for terms without specifier
+            # query_parser.setAllowLeadingWildcard(True) # Consider if needed
+            # query_parser.setEnablePositionIncrements(True) # Good default
+            final_query_obj = query_parser.parse(query_string)
+            # query_for_internal_pr remains original query_string
+
+        results = searcher.search(final_query_obj, 100) # Max 100 results
+
+        # Internal P/R calculation (heuristic, not benchmark's final metrics)
+        # Pass the query string that was effectively used or representative for internal P/R
+        pr_values, rc_values, _ = calculate_precision_recall(
+            searcher, query_for_internal_pr, ranking_type
         )
         
-        # Genera il grafico
-        plot_path = None
-        if precision_values and recall_values:
-            plot_path = plot_precision_recall_curve(
-                precision_values, recall_values, query_string
-            )
-
-        return results, (precision_values, recall_values), plot_path
+        return results, (pr_values, rc_values), None
         
     except Exception as e:
-        print(f"Errore durante la ricerca: {e}")
+        print(f"Errore durante la ricerca (query: '{query_string}'): {e}")
+        # import traceback # Uncomment for debugging
+        # traceback.print_exc()
         return None, None, None
 
 def get_wordnet_pos(tag):
@@ -252,101 +304,6 @@ def get_wordnet_pos(tag):
         'J': wordnet.ADJ
     }
     return tag_dict.get(tag[0], wordnet.NOUN)
-
-def expand_query(query_string):
-    """!
-    @brief Expand natural language query using NLP techniques
-    @param query_string The natural language query to expand
-    @return Expanded query string formatted for Lucene
-    @details Uses YAKE for keyword extraction, NLTK for NLP processing, and WordNet
-             for semantic expansion with synonyms, hypernyms, and hyponyms
-    """
-    try:
-        # 1. Keyword extraction with YAKE
-        kw_extractor = yake.KeywordExtractor(
-            lan="en",
-            n=3,
-            dedupLim=0.9,
-            dedupFunc='seqm',
-            windowsSize=1,
-            top=5,
-            features=None
-        )
-        keywords = [kw[0].lower() for kw in kw_extractor.extract_keywords(query_string)]
-
-        # 2. NLP Processing
-        # Initialize tools
-        lemmatizer = WordNetLemmatizer()
-        stop_words = set(stopwords.words('english'))
-        
-        # Tokenization and initial cleaning
-        tokens = word_tokenize(query_string.lower())
-        tokens = [token for token in tokens if token.isalnum() and token not in stop_words]
-        
-        # POS tagging for better lemmatization
-        pos_tags = pos_tag(tokens)
-        
-        # Lemmatization with POS tags
-        lemmatized = [lemmatizer.lemmatize(word, get_wordnet_pos(tag)) 
-                     for word, tag in pos_tags]
-
-        # 3. Semantic Expansion
-        expanded_terms = set()
-        
-        # Add original terms
-        expanded_terms.update(lemmatized)
-        expanded_terms.update(keywords)
-        
-        # Add WordNet expansions
-        for term in lemmatized:
-            # Get synsets
-            synsets = wordnet.synsets(term)
-            
-            for synset in synsets[:2]:  # Limit to top 2 synsets per term
-                # Add synonyms
-                expanded_terms.update(lemma.name().lower() 
-                                   for lemma in synset.lemmas())
-                
-                # Add hypernyms (more general terms)
-                expanded_terms.update(
-                    lemma.name().lower()
-                    for hypernym in synset.hypernyms()
-                    for lemma in hypernym.lemmas()
-                )
-                
-                # Add hyponyms (more specific terms)
-                expanded_terms.update(
-                    lemma.name().lower()
-                    for hyponym in synset.hyponyms()[:2]  # Limit hyponyms
-                    for lemma in hyponym.lemmas()
-                )
-
-        # 4. Clean and format expanded terms
-        # Remove underscores, stopwords, and short terms
-        cleaned_terms = {
-            term.replace('_', ' ') 
-            for term in expanded_terms 
-            if term not in stop_words and len(term) > 2
-        }
-
-        # 5. Build Lucene query
-        # Combine terms with OR operator and boost important terms
-        query_parts = []
-        
-        # Boost original keywords
-        for keyword in keywords:
-            query_parts.append(f'({keyword})^2')
-            
-        # Add other terms
-        query_parts.extend(list(cleaned_terms - set(keywords)))
-        
-        final_query = ' OR '.join(query_parts)
-        
-        return final_query
-
-    except Exception as e:
-        print(f"Errore nell'espansione della query: {e}")
-        return query_string  # Fallback to original query
 
 # Percorsi base
 project_root = Path(__file__).parent.parent
@@ -451,7 +408,7 @@ def create_index():
     return directory, searcher
 
 #RIMUOVERE COMMENTO ED ESEGUIRE PER GENERARE INDICE
-#if __name__ == "__main__":
+if __name__ == "__main__":
     print("Avvio indicizzazione...")
     directory, searcher = create_index()
     print("Indice creato e pronto per la ricerca")

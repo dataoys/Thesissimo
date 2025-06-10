@@ -141,7 +141,7 @@ def plot_precision_recall_metrics(engine_metrics, engine_name, k_values):
         plt.ylim(0, 1)
         
         plt.subplot(2, 2, 2)
-        sns.barplot(data=df_precision, x='K', y='Precision', estimator=np.mean, ci=95)
+        sns.barplot(data=df_precision, x='K', y='Precision', estimator=np.mean, errorbar=('ci', 95)) # MODIFICATO: ci -> errorbar
         plt.title(f'{engine_name} - Mean Precision@k')
         plt.ylabel('Mean Precision')
         plt.ylim(0, 1)
@@ -166,7 +166,7 @@ def plot_precision_recall_metrics(engine_metrics, engine_name, k_values):
         plt.ylim(0, 1)
         
         plt.subplot(2, 2, 4)
-        sns.barplot(data=df_recall, x='K', y='Recall', estimator=np.mean, ci=95)
+        sns.barplot(data=df_recall, x='K', y='Recall', estimator=np.mean, errorbar=('ci', 95)) # MODIFICATO: ci -> errorbar
         plt.title(f'{engine_name} - Mean Recall@k')
         plt.ylabel('Mean Recall')
         plt.ylim(0, 1)
@@ -280,14 +280,14 @@ def plot_comparative_analysis(all_results, k_values):
         plt.figure(figsize=(14, 8))
         
         plt.subplot(1, 2, 1)
-        sns.barplot(data=df_metrics[df_metrics['Metric'].str.startswith('P@')], x='Metric', y='Value', hue='Engine', ci=None)
+        sns.barplot(data=df_metrics[df_metrics['Metric'].str.startswith('P@')], x='Metric', y='Value', hue='Engine', errorbar=None) # MODIFICATO: ci -> errorbar
         plt.title('Precision@k Comparison')
         plt.ylabel('Precision')
         plt.ylim(0, 1)
         plt.xticks(rotation=45)
         
         plt.subplot(1, 2, 2)
-        sns.barplot(data=df_metrics[df_metrics['Metric'].str.startswith('R@')], x='Metric', y='Value', hue='Engine', ci=None)
+        sns.barplot(data=df_metrics[df_metrics['Metric'].str.startswith('R@')], x='Metric', y='Value', hue='Engine', errorbar=None) # MODIFICATO: ci -> errorbar
         plt.title('Recall@k Comparison')
         plt.ylabel('Recall')
         plt.ylim(0, 1)
@@ -300,7 +300,7 @@ def plot_comparative_analysis(all_results, k_values):
         # 2. MAP and Avg Response Time Comparison
         plt.figure(figsize=(10, 6))
         
-        sns.barplot(data=df_metrics[df_metrics['Metric'].isin(['MAP', 'Avg Response Time'])], x='Metric', y='Value', hue='Engine', ci=None)
+        sns.barplot(data=df_metrics[df_metrics['Metric'].isin(['MAP', 'Avg Response Time'])], x='Metric', y='Value', hue='Engine', errorbar=None) # MODIFICATO: ci -> errorbar
         plt.title('MAP and Avg Response Time Comparison')
         plt.ylabel('Value')
         plt.xticks(rotation=45)
@@ -452,13 +452,15 @@ def run_benchmarks():
     if pylucene_search_documents and pylucene_searcher:
         print("\n--- Benchmarking PyLucene ---")
         engine_name = "PyLucene"
-        # Using BM25 as default, can be made configurable
         ranking_type = "BM25" 
         
-        query_aps = []
-        query_response_times = []
-        query_precisions = {k: [] for k in k_values}
-        query_recalls = {k: [] for k in k_values}
+        per_query_metrics_list = [] # To store detailed metrics for each query
+
+        # These lists are for the plot_precision_recall_metrics function
+        all_query_aps = []
+        all_query_response_times = []
+        all_query_precisions_at_k = {k: [] for k in k_values}
+        all_query_recalls_at_k = {k: [] for k in k_values}
 
         for query_idx, query_string in enumerate(queries):
             print(f"  Query {query_idx+1}/{len(queries)}: {query_string[:60]}...")
@@ -469,39 +471,51 @@ def run_benchmarks():
                 print(f"    Warning: No relevant documents found for query '{query_string}' in judgments. Metrics might be 0 or undefined.")
 
             start_time = time.time()
-            # Assuming pylucene_search_documents returns (results_obj, time_taken_internal, error_msg)
-            # and results_obj has .scoreDocs
-            # The boolean flags are for searching in content, title, description respectively.
-            search_results_obj, _, _ = pylucene_search_documents(pylucene_searcher, True, True, True, query_string, ranking_type)
+            search_results_obj, pr_data, _ = pylucene_search_documents(pylucene_searcher, True, True, True, query_string, ranking_type)
             response_time = time.time() - start_time
-            query_response_times.append(response_time)
+            
+            current_query_metrics = {
+                "query_string": query_string,
+                "response_time": response_time
+            }
+            all_query_response_times.append(response_time)
 
             retrieved_doc_ids = []
+            num_hits = 0
             if search_results_obj and hasattr(search_results_obj, 'scoreDocs'):
+                num_hits = len(search_results_obj.scoreDocs)
                 for hit in search_results_obj.scoreDocs:
                     doc = pylucene_searcher.storedFields().document(hit.doc)
                     retrieved_doc_ids.append(str(doc.get("id")))
             
+            print(f"    PyLucene Search: Retrieved {num_hits} documents. Response time: {response_time:.4f}s")
+
             ap = calculate_average_precision(retrieved_doc_ids, true_relevant_ids_set)
-            query_aps.append(ap)
+            current_query_metrics["AP"] = ap
+            all_query_aps.append(ap)
 
             for k in k_values:
                 p_at_k = calculate_precision_at_k(retrieved_doc_ids, true_relevant_ids_set, k)
                 r_at_k = calculate_recall_at_k(retrieved_doc_ids, true_relevant_ids_set, k)
-                query_precisions[k].append(p_at_k)
-                query_recalls[k].append(r_at_k)
+                current_query_metrics[f"P@{k}"] = p_at_k
+                current_query_metrics[f"R@{k}"] = r_at_k
+                all_query_precisions_at_k[k].append(p_at_k)
+                all_query_recalls_at_k[k].append(r_at_k)
+            
+            per_query_metrics_list.append(current_query_metrics)
 
-        # Aggregate metrics for PyLucene
+        # Aggregate metrics for PyLucene for summary and comparative plots
         all_engine_results_summary[engine_name] = {
-            "MAP": np.mean(query_aps) if query_aps else 0.0,
-            "AvgResponseTime": np.mean(query_response_times) if query_response_times else 0.0,
+            "MAP": np.mean(all_query_aps) if all_query_aps else 0.0,
+            "AvgResponseTime": np.mean(all_query_response_times) if all_query_response_times else 0.0,
+            "PerQueryMetrics": per_query_metrics_list # Store detailed per-query metrics
         }
         for k in k_values:
-            all_engine_results_summary[engine_name][f"MeanP@{k}"] = np.mean(query_precisions[k]) if query_precisions[k] else 0.0
-            all_engine_results_summary[engine_name][f"MeanR@{k}"] = np.mean(query_recalls[k]) if query_recalls[k] else 0.0
+            all_engine_results_summary[engine_name][f"MeanP@{k}"] = np.mean(all_query_precisions_at_k[k]) if all_query_precisions_at_k[k] else 0.0
+            all_engine_results_summary[engine_name][f"MeanR@{k}"] = np.mean(all_query_recalls_at_k[k]) if all_query_recalls_at_k[k] else 0.0
         
-        pylucene_plot_metrics = {"AP": query_aps, "ResponseTimes": query_response_times, "P@k": query_precisions, "R@k": query_recalls}
-        plot_precision_recall_metrics(pylucene_plot_metrics, engine_name, k_values)
+        pylucene_plot_metrics_for_function = {"AP": all_query_aps, "ResponseTimes": all_query_response_times, "P@k": all_query_precisions_at_k, "R@k": all_query_recalls_at_k}
+        plot_precision_recall_metrics(pylucene_plot_metrics_for_function, engine_name, k_values)
     else:
         print("\nSkipping PyLucene benchmark: searcher or search function not available.")
 
@@ -529,14 +543,15 @@ def run_benchmarks():
     if whoosh_search_documents and whoosh_ix:
         print("\n--- Benchmarking Whoosh ---")
         engine_name = "Whoosh"
-        ranking_type = "BM25F" # Default for Whoosh
+        ranking_type = "BM25F"
 
-        query_aps = []
-        query_response_times = []
-        query_precisions = {k: [] for k in k_values}
-        query_recalls = {k: [] for k in k_values}
+        per_query_metrics_list = []
+        all_query_aps = []
+        all_query_response_times = []
+        all_query_precisions_at_k = {k: [] for k in k_values}
+        all_query_recalls_at_k = {k: [] for k in k_values}
 
-        with whoosh_ix.searcher() as whoosh_searcher_obj: # Ensure searcher is closed
+        with whoosh_ix.searcher() as whoosh_searcher_obj: 
             for query_idx, query_string in enumerate(queries):
                 print(f"  Query {query_idx+1}/{len(queries)}: {query_string[:60]}...")
                 true_relevant_docs_map = judgments.get(query_string, {})
@@ -546,36 +561,43 @@ def run_benchmarks():
                      print(f"    Warning: No relevant documents found for query '{query_string}' in judgments.")
 
                 start_time = time.time()
-                # whoosh_search_documents is expected to take index path string or searcher object.
-                # Let's assume it's designed like in create_pool.py (takes index path string)
-                # If it takes a searcher, adjust call: whoosh_search_documents(whoosh_searcher_obj, ...)
-                # The boolean flags are for searching in content, title, description respectively.
-                # The function in create_pool.py returns list of (id, title, score)
                 search_results_list = whoosh_search_documents(str(WHOOSH_INDEX_PATH), query_string, True, True, True, ranking_type)
                 response_time = time.time() - start_time
-                query_response_times.append(response_time)
-
+                
+                current_query_metrics = {
+                    "query_string": query_string,
+                    "response_time": response_time
+                }
+                all_query_response_times.append(response_time)
+                
                 retrieved_doc_ids = [str(r[0]) for r in search_results_list] if search_results_list else []
+                print(f"    Whoosh Search: Retrieved {len(retrieved_doc_ids)} documents. Response time: {response_time:.4f}s")
                 
                 ap = calculate_average_precision(retrieved_doc_ids, true_relevant_ids_set)
-                query_aps.append(ap)
+                current_query_metrics["AP"] = ap
+                all_query_aps.append(ap)
 
                 for k in k_values:
                     p_at_k = calculate_precision_at_k(retrieved_doc_ids, true_relevant_ids_set, k)
                     r_at_k = calculate_recall_at_k(retrieved_doc_ids, true_relevant_ids_set, k)
-                    query_precisions[k].append(p_at_k)
-                    query_recalls[k].append(r_at_k)
+                    current_query_metrics[f"P@{k}"] = p_at_k
+                    current_query_metrics[f"R@{k}"] = r_at_k
+                    all_query_precisions_at_k[k].append(p_at_k)
+                    all_query_recalls_at_k[k].append(r_at_k)
+                
+                per_query_metrics_list.append(current_query_metrics)
 
         all_engine_results_summary[engine_name] = {
-            "MAP": np.mean(query_aps) if query_aps else 0.0,
-            "AvgResponseTime": np.mean(query_response_times) if query_response_times else 0.0,
+            "MAP": np.mean(all_query_aps) if all_query_aps else 0.0,
+            "AvgResponseTime": np.mean(all_query_response_times) if all_query_response_times else 0.0,
+            "PerQueryMetrics": per_query_metrics_list
         }
         for k in k_values:
-            all_engine_results_summary[engine_name][f"MeanP@{k}"] = np.mean(query_precisions[k]) if query_precisions[k] else 0.0
-            all_engine_results_summary[engine_name][f"MeanR@{k}"] = np.mean(query_recalls[k]) if query_recalls[k] else 0.0
+            all_engine_results_summary[engine_name][f"MeanP@{k}"] = np.mean(all_query_precisions_at_k[k]) if all_query_precisions_at_k[k] else 0.0
+            all_engine_results_summary[engine_name][f"MeanR@{k}"] = np.mean(all_query_recalls_at_k[k]) if all_query_recalls_at_k[k] else 0.0
         
-        whoosh_plot_metrics = {"AP": query_aps, "ResponseTimes": query_response_times, "P@k": query_precisions, "R@k": query_recalls}
-        plot_precision_recall_metrics(whoosh_plot_metrics, engine_name, k_values)
+        whoosh_plot_metrics_for_function = {"AP": all_query_aps, "ResponseTimes": all_query_response_times, "P@k": all_query_precisions_at_k, "R@k": all_query_recalls_at_k}
+        plot_precision_recall_metrics(whoosh_plot_metrics_for_function, engine_name, k_values)
     else:
         print("\nSkipping Whoosh benchmark: index or search function not available.")
 
@@ -583,12 +605,13 @@ def run_benchmarks():
     if postgres_search:
         print("\n--- Benchmarking PostgreSQL ---")
         engine_name = "PostgreSQL"
-        ranking_type = "ts_rank_cd" # Default for PostgreSQL
+        ranking_type = "ts_rank_cd"
 
-        query_aps = []
-        query_response_times = []
-        query_precisions = {k: [] for k in k_values}
-        query_recalls = {k: [] for k in k_values}
+        per_query_metrics_list = []
+        all_query_aps = []
+        all_query_response_times = []
+        all_query_precisions_at_k = {k: [] for k in k_values}
+        all_query_recalls_at_k = {k: [] for k in k_values}
 
         for query_idx, query_string in enumerate(queries):
             print(f"  Query {query_idx+1}/{len(queries)}: {query_string[:60]}...")
@@ -599,33 +622,45 @@ def run_benchmarks():
                  print(f"    Warning: No relevant documents found for query '{query_string}' in judgments.")
 
             start_time = time.time()
-            # postgres_search is expected to return list of (id, title, score, date)
-            # The boolean flags are for searching in content, title, description respectively.
             search_results_list = postgres_search(query_string, True, True, True, ranking_type)
             response_time = time.time() - start_time
-            query_response_times.append(response_time)
+
+            current_query_metrics = {
+                "query_string": query_string,
+                "response_time": response_time
+            }
+            all_query_response_times.append(response_time)
 
             retrieved_doc_ids = [str(r[0]) for r in search_results_list] if search_results_list else []
+            # PostgreSQL already prints debug info, so an additional print here might be redundant unless specifically desired
+            # print(f"    PostgreSQL Search: Retrieved {len(retrieved_doc_ids)} documents. Response time: {response_time:.4f}s")
+
 
             ap = calculate_average_precision(retrieved_doc_ids, true_relevant_ids_set)
-            query_aps.append(ap)
+            current_query_metrics["AP"] = ap
+            all_query_aps.append(ap)
 
             for k in k_values:
                 p_at_k = calculate_precision_at_k(retrieved_doc_ids, true_relevant_ids_set, k)
                 r_at_k = calculate_recall_at_k(retrieved_doc_ids, true_relevant_ids_set, k)
-                query_precisions[k].append(p_at_k)
-                query_recalls[k].append(r_at_k)
+                current_query_metrics[f"P@{k}"] = p_at_k
+                current_query_metrics[f"R@{k}"] = r_at_k
+                all_query_precisions_at_k[k].append(p_at_k)
+                all_query_recalls_at_k[k].append(r_at_k)
+            
+            per_query_metrics_list.append(current_query_metrics)
         
         all_engine_results_summary[engine_name] = {
-            "MAP": np.mean(query_aps) if query_aps else 0.0,
-            "AvgResponseTime": np.mean(query_response_times) if query_response_times else 0.0,
+            "MAP": np.mean(all_query_aps) if all_query_aps else 0.0,
+            "AvgResponseTime": np.mean(all_query_response_times) if all_query_response_times else 0.0,
+            "PerQueryMetrics": per_query_metrics_list
         }
         for k in k_values:
-            all_engine_results_summary[engine_name][f"MeanP@{k}"] = np.mean(query_precisions[k]) if query_precisions[k] else 0.0
-            all_engine_results_summary[engine_name][f"MeanR@{k}"] = np.mean(query_recalls[k]) if query_recalls[k] else 0.0
+            all_engine_results_summary[engine_name][f"MeanP@{k}"] = np.mean(all_query_precisions_at_k[k]) if all_query_precisions_at_k[k] else 0.0
+            all_engine_results_summary[engine_name][f"MeanR@{k}"] = np.mean(all_query_recalls_at_k[k]) if all_query_recalls_at_k[k] else 0.0
 
-        postgres_plot_metrics = {"AP": query_aps, "ResponseTimes": query_response_times, "P@k": query_precisions, "R@k": query_recalls}
-        plot_precision_recall_metrics(postgres_plot_metrics, engine_name, k_values)
+        postgres_plot_metrics_for_function = {"AP": all_query_aps, "ResponseTimes": all_query_response_times, "P@k": all_query_precisions_at_k, "R@k": all_query_recalls_at_k}
+        plot_precision_recall_metrics(postgres_plot_metrics_for_function, engine_name, k_values)
     else:
         print("\nSkipping PostgreSQL benchmark: search function not available.")
 

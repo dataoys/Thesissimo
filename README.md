@@ -171,15 +171,20 @@ Per valutare oggettivamente le performance dei motori di ricerca, è stato imple
 
 *   **User Information Needs (`uin.txt`)**:
     *   Contiene un set di 10 query di test rappresentative di diverse aree scientifiche. Ogni UIN è accompagnata da una query strutturata di esempio (es. `abstract:"symmetry" AND corpus:"field theory"`).
-*   **Creazione del Ground Truth (`create_pool.py`)**:
-    *   Implementa il **pooling method**.
-    *   Carica le query da `uin.txt`.
-    *   Esegue ogni query su tutti e tre i motori di ricerca (PyLucene, Whoosh, PostgreSQL) utilizzando i loro diversi algoritmi di ranking (es. BM25, TF-IDF per PyLucene/Whoosh; ts_rank, ts_rank_cd per PostgreSQL).
-    *   Colleziona i **top N risultati** (default `TOP_N_FOR_POOLING = 20`) da ogni combinazione motore/ranking.
-    *   Unisce tutti i documenti recuperati per una data query in un set unico (`unique_doc_ids_for_query`).
-    *   Salva questi "pool" di documenti in `GroundTruth/Pool.json`. Questo file serve come base per la **valutazione manuale della rilevanza** da parte di un esperto, che creerà un file `JudgedPool.json`
+*   **Creazione del Ground Truth (Processo a Due Fasi)**:
+    1.  **Generazione del Pool Iniziale (`create_pool.py`)**:
+        *   Implementa il **pooling method**.
+        *   Carica le query da `uin.txt`.
+        *   Esegue ogni query su tutti e tre i motori di ricerca (PyLucene, Whoosh, PostgreSQL) utilizzando i loro diversi algoritmi di ranking (es. BM25, TF-IDF per PyLucene/Whoosh; ts_rank, ts_rank_cd per PostgreSQL).
+        *   Colleziona i **top N risultati** (default `TOP_N_FOR_POOLING = 20`) da ogni combinazione motore/ranking.
+        *   Unisce tutti i documenti recuperati per una data query in un set unico (`unique_doc_ids_for_query`).
+        *   Salva questi "pool" di documenti in `GroundTruth/Pool.json`. Questo file contiene la lista dei documenti da giudicare.
+    2.  **Creazione dei Giudizi di Rilevanza (Manuale)**:
+        *   Il file `GroundTruth/Pool.json` deve essere **revisionato manualmente** da un esperto.
+        *   Per ogni query nel `Pool.json`, l'esperto deve giudicare la rilevanza di ciascun documento associato.
+        *   I risultati di questa valutazione manuale devono essere salvati in un nuovo file chiamato `GroundTruth/JudgedPool.json`. Questo file conterrà, per ogni query, una mappa di ID documento e il relativo giudizio di rilevanza (es. 1 per rilevante, 0 per non rilevante).
 *   **Esecuzione dei Benchmark (`benchmark.py`)**:
-    *   Carica le query da `uin.txt` e i giudizi di rilevanza da un file `JudgedPool.json` 
+    *   Carica le query da `uin.txt` e i giudizi di rilevanza dal file `GroundTruth/JudgedPool.json` (creato manualmente).
     *   Per ogni query e per ogni motore/algoritmo di ranking:
         *   Esegue la ricerca.
         *   Misura il tempo di risposta.
@@ -283,16 +288,29 @@ streamlit run WebApp/mainPage.py
 Questo avvierà la pagina principale da cui potrai selezionare e lanciare le interfacce dei singoli motori di ricerca.
 
 ### **4. Esecuzione dei Benchmark**
-1.  **Crea il Pool per il Ground Truth**:
+1.  **Crea il Pool Iniziale per il Ground Truth**:
     ```bash
     python Benchmark/create_pool.py
     ```
-    Questo genererà `GroundTruth/Pool.json`. Dovrai quindi creare manualmente `GroundTruth/JudgedPool.json` con i giudizi di rilevanza.
-2.  **Esegui i Benchmark**:
+    Questo genererà `GroundTruth/Pool.json`.
+2.  **Crea Manualmente `JudgedPool.json`**:
+    Dopo aver eseguito `create_pool.py`, apri `GroundTruth/Pool.json`. Per ogni query, valuta la rilevanza dei documenti elencati. Crea un nuovo file, `GroundTruth/JudgedPool.json`, e inserisci i tuoi giudizi seguendo il formato:
+    ```json
+    {
+        "query text from uin.txt": {
+            "doc_id_1": 1,  // 1 per rilevante, 0 per non rilevante
+            "doc_id_2": 0
+        },
+        "altra query...": {
+            "doc_id_x": 1
+        }
+    }
+    ```
+3.  **Esegui i Benchmark**:
     ```bash
     python Benchmark/benchmark.py
     ```
-    Questo calcolerà le metriche e genererà i grafici comparativi e specifici per motore in `Plots/` e i risultati numerici in `Benchmark/Results/benchmark_results.json`.
+    Questo script utilizzerà `JudgedPool.json` per calcolare le metriche e genererà i grafici comparativi e specifici per motore in `Plots/` e i risultati numerici dettagliati (incluse le metriche per query) in `Benchmark/Results/benchmark_results.json`.
  
 
 ---
