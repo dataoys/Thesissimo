@@ -1,9 +1,9 @@
 """!
 @file judge_pool.py
 @brief Creates a relevance judgment file from a pool of documents.
-@details Reads Pool.json and Docs_cleaned.json to generate JudgedPool.json.
-         It attempts to automatically assess relevance based on keyword matching
-         between the query and document content (title/abstract).
+@details Reads Pool.json and fetches document content from PostgreSQL to generate 
+         JudgedPool.json. It attempts to automatically assess relevance based on 
+         keyword matching between the query and document content (title/abstract).
          This file is intended to be manually reviewed and updated.
 @authors Magni && Testoni
 @date 2024
@@ -13,6 +13,7 @@ import json
 from pathlib import Path
 import sys
 import re
+import traceback
 
 # Determine project_root: assumes judge_pool.py is in JuriScan/Benchmark/
 _current_file_path = Path(__file__).resolve()
@@ -22,7 +23,28 @@ sys.path.append(str(project_root))
 # Define paths
 POOL_INPUT_FILE = project_root / "GroundTruth" / "Pool.json"
 JUDGED_OUTPUT_FILE = project_root / "GroundTruth" / "JudgedPool.json"
-# DOCS_CONTENT_FILE = project_root / "WebScraping" / "results" / "Docs_cleaned.json" # This will be determined dynamically
+
+# Attempt to import PostgreSQL connection utilities
+try:
+    # Adjusted import path and function name based on your PostgresQuery.py
+    from Queries.PostgresQuery import dbConn as postgres_connect_db 
+    POSTGRES_UTILS_AVAILABLE = True
+    print("Successfully imported PostgreSQL utility 'dbConn' as 'postgres_connect_db' from Queries.PostgresQuery.")
+except ImportError as e:
+    print("--------------------------------------------------------------------------------")
+    print(f"IMPORTANT WARNING: Could not import `dbConn` from `Queries.PostgresQuery` (Error: {e}).")
+    print("This script will use a placeholder function, and database operations WILL FAIL.")
+    print("Please ensure `Queries/PostgresQuery.py` exists and `dbConn` is defined correctly.")
+    print("Also, ensure `Queries` directory has an `__init__.py` file if it's treated as a package.")
+    print("--------------------------------------------------------------------------------")
+    POSTGRES_UTILS_AVAILABLE = False
+    
+    def postgres_connect_db():
+        print("********************************************************************************")
+        print("Placeholder `postgres_connect_db` called because import failed.")
+        print("ACTION REQUIRED: Fix the import `from Queries.PostgresQuery import dbConn`.")
+        print("********************************************************************************")
+        return None
 
 # --- Helper function to extract keywords from query ---
 def extract_keywords_from_query(query_string):
@@ -108,23 +130,48 @@ def is_document_relevant(query_string, doc_data, keyword_match_threshold=0.5):
         
     return 0
 
-
-def load_all_documents_content(docs_file_path):
+def get_document_content_from_postgres(doc_id, conn):
     """!
-    @brief Load all document contents from the specified JSON file.
-    @param docs_file_path Path to the documents JSON file (e.g., Docs_cleaned.json).
-    @return Dictionary of {doc_id: {doc_content_fields}} or None if error.
+    @brief Fetches document content (title, abstract, corpus) from PostgreSQL.
+    @param doc_id The ID of the document to fetch.
+    @param conn Active PostgreSQL database connection object.
+    @return Dictionary {'title': <title>, 'abstract': <abstract_or_content>} or None if error/not found.
+    @details Assumes a table named 'DOCS' with columns 'id', 'title', 'abstract', 'corpus'.
+             Adjust table and column names as per your schema if different.
     """
-    try:
-        with open(docs_file_path, 'r', encoding='utf-8') as f:
-            all_docs_data = json.load(f)
-        # Ensure keys are strings if they are not already (though JSON keys are usually strings)
-        return {str(k): v for k, v in all_docs_data.items()}
-    except FileNotFoundError:
-        print(f"ERROR: Documents content file not found at {docs_file_path}")
+    if not conn:
+        print(f"No database connection available to fetch doc ID {doc_id}.")
         return None
-    except json.JSONDecodeError:
-        print(f"ERROR: Could not decode JSON from {docs_file_path}")
+    
+    content = {'title': None, 'abstract': None}
+    try:
+        with conn.cursor() as cur:
+            # Adjusted SQL query for DOCS table and relevant text fields
+            sql_query = """
+                SELECT title, abstract, corpus 
+                FROM DOCS 
+                WHERE id = %s;
+            """
+            cur.execute(sql_query, (int(doc_id),)) # Assuming doc_id from pool is string, convert to int for DB
+            record = cur.fetchone()
+            if record:
+                title, abstract_val, corpus_val = record
+                content['title'] = title
+                # Choose the best available text for 'abstract' field for relevance check
+                # Prioritize abstract, then corpus
+                if abstract_val:
+                    content['abstract'] = abstract_val
+                elif corpus_val:
+                    content['abstract'] = corpus_val # Use corpus if abstract is empty
+                else:
+                    content['abstract'] = "" # Ensure it's a string
+                return content
+            else:
+                print(f"    Document ID {doc_id} not found in PostgreSQL.")
+                return None
+    except Exception as e:
+        print(f"Error fetching document ID {doc_id} from PostgreSQL: {e}")
+        traceback.print_exc()
         return None
 
 def load_pooled_documents(pool_file_path):
@@ -144,88 +191,80 @@ def load_pooled_documents(pool_file_path):
         print(f"ERROR: Could not decode JSON from {pool_file_path}")
         return None
 
-def create_judgment_file(pooled_data, all_docs_content, output_file_path):
+def create_judgment_file(pooled_data, output_file_path):
     """!
-    @brief Create and save the JudgedPool.json file with automatic relevance assessment.
+    @brief Create and save the JudgedPool.json file with automatic relevance assessment
+           using content fetched from PostgreSQL.
     @param pooled_data Dictionary of pooled documents {query: [doc_ids]}.
-    @param all_docs_content Dictionary of all document contents {doc_id: {fields}}.
     @param output_file_path Path to save the JudgedPool.json file.
-    @details For each query, relevance of pooled documents is assessed using keyword matching.
+    @details For each query, relevance of pooled documents is assessed using keyword matching
+             against content (title/abstract) fetched from PostgreSQL.
     """
     if not pooled_data:
         print("No pooled data to process.")
         return
-    if not all_docs_content:
-        print("No document content available for relevance assessment. Cannot create judgments.")
+    
+    if not POSTGRES_UTILS_AVAILABLE: # Check if the import itself was successful
+        print("PostgreSQL utilities (dbConn) could not be imported. Cannot fetch document content.")
         return
 
-    judgments = {}
-    for query_string, doc_ids in pooled_data.items():
-        print(f"Processing query: {query_string[:100]}...")
-        judgments[query_string] = {}
-        query_keywords_for_log = extract_keywords_from_query(query_string) # For logging
-        print(f"  Extracted keywords for query: {query_keywords_for_log}")
-
-        for doc_id_str in doc_ids: # doc_ids from Pool.json should be strings
-            doc_content = all_docs_content.get(doc_id_str)
-            if doc_content:
-                # Using a threshold of 0.5, meaning at least half of the unique query keywords must match.
-                # Adjust this threshold as needed.
-                # If extract_keywords_from_query returns an empty list, is_document_relevant will return 0.
-                relevance_score = is_document_relevant(query_string, doc_content, keyword_match_threshold=0.5)
-                judgments[query_string][doc_id_str] = relevance_score
-                if relevance_score == 1:
-                    print(f"    Doc ID {doc_id_str} judged RELEVANT for query.")
-            else:
-                judgments[query_string][doc_id_str] = 0 # Document content not found, assume not relevant
-                print(f"    Warning: Content for Doc ID {doc_id_str} not found in Docs_cleaned.json. Marked as not relevant.")
+    db_conn = None
     try:
+        db_conn = postgres_connect_db()
+        if not db_conn:
+            print("Failed to connect to PostgreSQL. Cannot create judgments.")
+            return
+
+        judgments = {}
+        for query_string, doc_ids in pooled_data.items():
+            print(f"Processing query: {query_string[:100]}...")
+            judgments[query_string] = {}
+            query_keywords_for_log = extract_keywords_from_query(query_string)
+            print(f"  Extracted keywords for query: {query_keywords_for_log}")
+
+            for doc_id_str in doc_ids: 
+                doc_content_from_db = get_document_content_from_postgres(doc_id_str, db_conn)
+                
+                if doc_content_from_db:
+                    relevance_score = is_document_relevant(query_string, doc_content_from_db, keyword_match_threshold=0.5)
+                    judgments[query_string][doc_id_str] = relevance_score
+                    if relevance_score == 1:
+                        print(f"    Doc ID {doc_id_str} judged RELEVANT for query.")
+                else:
+                    # If content couldn't be fetched (e.g., doc not in DB or DB error)
+                    judgments[query_string][doc_id_str] = 0 
+                    print(f"    Warning: Content for Doc ID {doc_id_str} could not be fetched from PostgreSQL or not found. Marked as not relevant.")
+        
         output_file_path.parent.mkdir(parents=True, exist_ok=True)
         with open(output_file_path, 'w', encoding='utf-8') as f:
             json.dump(judgments, f, indent=2, ensure_ascii=False)
         print(f"Successfully created judgment file: {output_file_path}")
         print("Please review and update this file with actual relevance judgments.")
         print("Format: {query: {doc_id: 1 (relevant) or 0 (not relevant)}}")
-    except IOError as e:
-        print(f"Error writing judgment file to {output_file_path}: {e}")
+
+    except Exception as e:
+        print(f"An error occurred during judgment file creation: {e}")
+        traceback.print_exc()
+    finally:
+        if db_conn:
+            # Directly close the connection object from dbConn()
+            try:
+                db_conn.close()
+                print("PostgreSQL connection closed.")
+            except Exception as e:
+                print(f"Error closing PostgreSQL connection: {e}")
+                traceback.print_exc()
+
 
 if __name__ == "__main__":
     print(f"Running judge_pool.py from: {_current_file_path}")
     print(f"Project root set to: {project_root}")
-
-    # Determine the actual path for the documents content file
-    base_docs_dir = project_root / "WebScraping" / "results"
-    
-    all_documents = None
-    actual_docs_file_path = None
-
-    if not base_docs_dir.exists():
-        print(f"ERROR: The directory for documents content does not exist: {base_docs_dir}")
-    elif not base_docs_dir.is_dir():
-        print(f"ERROR: The path for documents content is not a directory: {base_docs_dir}")
-    else:
-        print(f"Searching for documents content file in directory: {base_docs_dir}")
-        possible_docs_filenames = ["Docs_cleaned.json", "docs_cleaned.json"]
-        for filename_to_check in possible_docs_filenames:
-            path_to_check = base_docs_dir / filename_to_check
-            if path_to_check.exists() and path_to_check.is_file():
-                actual_docs_file_path = path_to_check
-                print(f"Found documents content file at: {actual_docs_file_path}")
-                break
-        
-        if actual_docs_file_path:
-            all_documents = load_all_documents_content(actual_docs_file_path)
-        else:
-            # This message will be printed if the directory exists but the file doesn't.
-            print(f"ERROR: Documents content file not found in directory {base_docs_dir} with expected names like {possible_docs_filenames}.")
             
     pooled_docs = load_pooled_documents(POOL_INPUT_FILE)
     
-    if pooled_docs and all_documents:
-        create_judgment_file(pooled_docs, all_documents, JUDGED_OUTPUT_FILE)
+    if pooled_docs:
+        # No longer loads all_documents from a file
+        create_judgment_file(pooled_docs, JUDGED_OUTPUT_FILE)
     else:
         if not pooled_docs:
             print("Could not proceed: Pooled documents (Pool.json) not loaded.")
-        # This consolidated message will appear if all_documents is None for any reason (dir missing, file missing)
-        if not all_documents:
-            print("Could not proceed: All documents content (e.g., Docs_cleaned.json) not loaded. Please check previous error messages for details.")

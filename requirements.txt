@@ -59,6 +59,7 @@ roman-numerals-py==3.1.0
 rpds-py==0.23.1
 scikit-learn==1.6.1
 scipy==1.15.2
+seaborn==0.13.2
 segtok==1.5.11
 setuptools==75.8.2
 six==1.17.0

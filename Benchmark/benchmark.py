@@ -12,8 +12,8 @@ from pathlib import Path
 import sys
 import seaborn as sns
 import matplotlib.pyplot as plt
-import json # Added for loading judgments and saving results
-import time # Added for response time measurement
+import json 
+import time #response time measurement
 import traceback # Added for error handling
 
 # Add the project root to Python path so we can import SearchEngine
@@ -441,8 +441,10 @@ def run_benchmarks():
                     print("PyLucene Searcher opened successfully.")
                 else:
                     print(f"No valid PyLucene index found at {PYLUCENE_INDEX_PATH}.")
+                    print("Please ensure the PyLucene index is correctly populated, possibly by running your project's PyLucene indexing script (e.g., one that writes to this path).")
             else:
                 print(f"PyLucene index directory does not exist: {PYLUCENE_INDEX_PATH}")
+                print("Please ensure the PyLucene index is created, possibly by running a script like `SearchEngine/Pylucene.py` or your project's PyLucene indexing script.")
         except Exception as e:
             print(f"Error opening PyLucene index: {e}")
             traceback.print_exc()
@@ -510,11 +512,16 @@ def run_benchmarks():
             print(f"\nAttempting to open Whoosh index at: {WHOOSH_INDEX_PATH}")
             if WHOOSH_INDEX_PATH.exists() and WHOOSH_INDEX_PATH.is_dir():
                 whoosh_ix = whoosh_open_dir_lib(str(WHOOSH_INDEX_PATH))
-                print(f"Whoosh index opened successfully. Documents: {whoosh_ix.doc_count()}")
+                doc_count = whoosh_ix.doc_count()
+                print(f"Whoosh index opened successfully. Documents: {doc_count}")
+                if doc_count == 0:
+                    print(f"WARNING: Whoosh index at {WHOOSH_INDEX_PATH} is empty. Please ensure it's populated, possibly by running your project's Whoosh indexing script (e.g., SearchEngine/Whoosh.py).")
+                    whoosh_ix = None # Treat empty index as unavailable for benchmarking
             else:
                 print(f"Whoosh index directory does not exist: {WHOOSH_INDEX_PATH}")
+                print("Please ensure the Whoosh index is created, possibly by running a script like `SearchEngine/Whoosh.py` or your project's Whoosh indexing script.")
         except WhooshEmptyIndexError_lib:
-            print(f"Whoosh index at {WHOOSH_INDEX_PATH} is empty.")
+            print(f"Whoosh index at {WHOOSH_INDEX_PATH} is empty (reported by Whoosh). Please ensure it's populated.")
         except Exception as e:
             print(f"Error opening Whoosh index: {e}")
             traceback.print_exc()

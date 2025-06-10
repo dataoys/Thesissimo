@@ -14,7 +14,7 @@ This URL is used as the base for generating specific article URLs.
 urls = []
 """
 @var urls
-List of links to scrape.
+List of url to scrape.
 This list will hold all the URLs that need to be scraped from the website.
 """
 

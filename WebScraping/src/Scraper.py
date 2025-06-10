@@ -9,7 +9,7 @@
 import requests
 from bs4 import BeautifulSoup
 from UrlGenerator import UrlGenerators
-from DocManipualtion import addToJson, cleanText
+from DocManipulation import addToJson, cleanText
 import sys
 from pathlib import Path
 import time
