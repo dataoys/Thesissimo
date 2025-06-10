@@ -177,9 +177,9 @@ Per valutare oggettivamente le performance dei motori di ricerca, è stato imple
     *   Esegue ogni query su tutti e tre i motori di ricerca (PyLucene, Whoosh, PostgreSQL) utilizzando i loro diversi algoritmi di ranking (es. BM25, TF-IDF per PyLucene/Whoosh; ts_rank, ts_rank_cd per PostgreSQL).
     *   Colleziona i **top N risultati** (default `TOP_N_FOR_POOLING = 20`) da ogni combinazione motore/ranking.
     *   Unisce tutti i documenti recuperati per una data query in un set unico (`unique_doc_ids_for_query`).
-    *   Salva questi "pool" di documenti in `GroundTruth/Pool.json`. Questo file serve come base per la **valutazione manuale della rilevanza** da parte di un esperto, che creerà un file `JudgedPool.json` (non fornito, ma il formato è suggerito nei commenti dello script).
+    *   Salva questi "pool" di documenti in `GroundTruth/Pool.json`. Questo file serve come base per la **valutazione manuale della rilevanza** da parte di un esperto, che creerà un file `JudgedPool.json`
 *   **Esecuzione dei Benchmark (`benchmark.py`)**:
-    *   Carica le query da `uin.txt` e i giudizi di rilevanza da un file `JudgedPool.json` (presumibilmente creato manualmente).
+    *   Carica le query da `uin.txt` e i giudizi di rilevanza da un file `JudgedPool.json` 
     *   Per ogni query e per ogni motore/algoritmo di ranking:
         *   Esegue la ricerca.
         *   Misura il tempo di risposta.
@@ -293,22 +293,7 @@ Questo avvierà la pagina principale da cui potrai selezionare e lanciare le int
     python Benchmark/benchmark.py
     ```
     Questo calcolerà le metriche e genererà i grafici comparativi e specifici per motore in `Plots/` e i risultati numerici in `Benchmark/Results/benchmark_results.json`.
-
-## 🤝 **Contributi**
-
-I contributi sono ben accetti! Per favore, segui queste istruzioni:
-
-1.  Fork il repository.
-2.  Crea un branch per la tua feature (`git checkout -b feature/nome-feature`).
-3.  Commit le tue modifiche (`git commit -m 'Aggiunta di una nuova feature'`).
-4.  Push il branch (`git push origin feature/nome-feature`).
-5.  Crea una Pull Request.
-
-Assicurati di seguire gli standard di codifica del progetto e di documentare adeguatamente le nuove funzionalità.
-
-## 📜 **Licenza**
-
-Questo progetto è concesso in licenza sotto i termini della Licenza MIT. Vedi il file [LICENSE](https://github.com/dataoys/Thesissimo/blob/main/LICENSE) per ulteriori dettagli. (Assicurati che il link punti al tuo file LICENSE effettivo).
+ 
 
 ---
 

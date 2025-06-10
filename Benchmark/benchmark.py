@@ -12,6 +12,9 @@ from pathlib import Path
 import sys
 import seaborn as sns
 import matplotlib.pyplot as plt
+import json # Added for loading judgments and saving results
+import time # Added for response time measurement
+import traceback # Added for error handling
 
 # Add the project root to Python path so we can import SearchEngine
 PROJECT_ROOT = Path(__file__).parent.parent  # Benchmark/benchmark.py -> root project
@@ -27,26 +30,49 @@ try:
         pylucene_create_index,
         pylucene_initialize_jvm,
         whoosh_search_documents,
-        whoosh_create_or_get_index, # Assuming Whoosh index needs to be explicitly created/opened
+        whoosh_create_or_get_index, 
         postgres_search
     )
+    # Imports needed for opening indexes directly if create_or_get_index is not sufficient
+    from org.apache.lucene.store import FSDirectory
+    from org.apache.lucene.index import DirectoryReader
+    from org.apache.lucene.search import IndexSearcher
+    from java.nio.file import Paths as JavaPaths # Renamed to avoid conflict with pathlib.Path
+    
+    # Import whoosh.index functions directly for opening index
+    try:
+        from whoosh.index import open_dir as whoosh_open_dir_lib, EmptyIndexError as WhooshEmptyIndexError_lib
+        WHOOSH_LIB_AVAILABLE = True
+    except ImportError:
+        WHOOSH_LIB_AVAILABLE = False
+        whoosh_open_dir_lib = None
+        print("Whoosh library (whoosh.index) not found. Whoosh functionality may be limited.")
+
     ENGINES_AVAILABLE = True
 except ImportError as e:
-    print(f"Error importing search engine modules: {e}")
+    print(f"Error importing search engine modules or Lucene/Whoosh components: {e}")
     print("Please ensure paths are correct and SearchEngine package is importable.")
     ENGINES_AVAILABLE = False
     # Define placeholders if import fails, so the script doesn't crash immediately
     pylucene_search_documents = pylucene_create_index = pylucene_initialize_jvm = None
     whoosh_search_documents = whoosh_create_or_get_index = None
     postgres_search = None
+    FSDirectory = DirectoryReader = IndexSearcher = JavaPaths = None # Placeholders
+    whoosh_open_dir_lib = None # Placeholder
 
 # Define root path for JuriScan project
 PROJECT_ROOT = Path(__file__).parent.parent  # Benchmark/benchmark.py -> root project
 
 # Define index paths relative to the project root
 PYLUCENE_INDEX_PATH = PROJECT_ROOT / "SearchEngine" / "index"
-WHOOSH_INDEX_PATH = PROJECT_ROOT / "WhooshIndex"  # Secondo .gitignore è nella root
+WHOOSH_INDEX_PATH = PROJECT_ROOT / "SearchEngine" / "WhooshIndex" # Adjusted to match create_pool.py
 JSON_DOCS_FILE = PROJECT_ROOT / "WebScraping" / "results" / "Docs_cleaned.json"
+
+# Define paths for UIN file, Judged Pool, and Results output
+UIN_FILE_PATH = PROJECT_ROOT / "uin.txt"
+JUDGED_POOL_FILE_PATH = PROJECT_ROOT / "GroundTruth" / "JudgedPool.json"
+BENCHMARK_RESULTS_FILE = PROJECT_ROOT / "Benchmark" / "Results" / "benchmark_results.json"
+
 
 # Define plot directories
 PLOTS_DIR = PROJECT_ROOT / "Plots"
@@ -88,7 +114,6 @@ def plot_precision_recall_metrics(engine_metrics, engine_name, k_values):
         plot_dir = PLOTS_DIR / engine_name.lower()
         plot_dir.mkdir(parents=True, exist_ok=True)
     
-    # Set seaborn style
     sns.set_style("whitegrid")
     sns.set_palette("husl")
     
@@ -247,4 +272,375 @@ def plot_comparative_analysis(all_results, k_values):
             'Metric': 'Avg Response Time',
             'Value': metrics.get('AvgResponseTime', 0)
         })
-   
+    
+    if metrics_data:
+        df_metrics = pd.DataFrame(metrics_data)
+        
+        # 1. Precision and Recall Comparison
+        plt.figure(figsize=(14, 8))
+        
+        plt.subplot(1, 2, 1)
+        sns.barplot(data=df_metrics[df_metrics['Metric'].str.startswith('P@')], x='Metric', y='Value', hue='Engine', ci=None)
+        plt.title('Precision@k Comparison')
+        plt.ylabel('Precision')
+        plt.ylim(0, 1)
+        plt.xticks(rotation=45)
+        
+        plt.subplot(1, 2, 2)
+        sns.barplot(data=df_metrics[df_metrics['Metric'].str.startswith('R@')], x='Metric', y='Value', hue='Engine', ci=None)
+        plt.title('Recall@k Comparison')
+        plt.ylabel('Recall')
+        plt.ylim(0, 1)
+        plt.xticks(rotation=45)
+        
+        plt.tight_layout()
+        plt.savefig(comparative_dir / 'precision_recall_comparison.png', dpi=300, bbox_inches='tight')
+        plt.close()
+        
+        # 2. MAP and Avg Response Time Comparison
+        plt.figure(figsize=(10, 6))
+        
+        sns.barplot(data=df_metrics[df_metrics['Metric'].isin(['MAP', 'Avg Response Time'])], x='Metric', y='Value', hue='Engine', ci=None)
+        plt.title('MAP and Avg Response Time Comparison')
+        plt.ylabel('Value')
+        plt.xticks(rotation=45)
+        
+        plt.tight_layout()
+        plt.savefig(comparative_dir / 'map_avg_response_time_comparison.png', dpi=300, bbox_inches='tight')
+        plt.close()
+        
+        # 3. Performance Heatmap
+        heatmap_data = df_metrics.pivot_table(index='Engine', columns='Metric', values='Value')
+        plt.figure(figsize=(12, 8))
+        sns.heatmap(heatmap_data, annot=True, cmap='viridis', fmt=".2f")
+        plt.title('Performance Heatmap')
+        plt.xlabel('Metric')
+        plt.ylabel('Engine')
+        
+        plt.tight_layout()
+        plt.savefig(comparative_dir / 'performance_heatmap.png', dpi=300, bbox_inches='tight')
+        plt.close()
+        
+        print(f"📊 Comparative plots saved in {comparative_dir}")
+    else:
+        print("No metrics data available for comparative analysis.")
+
+# --- New Metric Calculation Functions ---
+
+def calculate_precision_at_k(retrieved_ids, relevant_ids_set, k):
+    """Calculates Precision@k."""
+    if k == 0: return 0.0
+    retrieved_k = retrieved_ids[:k]
+    relevant_retrieved_k = [doc_id for doc_id in retrieved_k if doc_id in relevant_ids_set]
+    return len(relevant_retrieved_k) / k
+
+def calculate_recall_at_k(retrieved_ids, relevant_ids_set, k):
+    """Calculates Recall@k."""
+    if not relevant_ids_set: return 0.0 # Or 1.0 if no relevant docs means all tasks done? Usually 0.
+    retrieved_k = retrieved_ids[:k]
+    relevant_retrieved_k = [doc_id for doc_id in retrieved_k if doc_id in relevant_ids_set]
+    return len(relevant_retrieved_k) / len(relevant_ids_set)
+
+def calculate_average_precision(retrieved_ids, relevant_ids_set):
+    """Calculates Average Precision (AP)."""
+    if not relevant_ids_set: return 0.0
+
+    ap_sum = 0.0
+    relevant_hits = 0
+    for i, doc_id in enumerate(retrieved_ids):
+        if doc_id in relevant_ids_set:
+            relevant_hits += 1
+            precision_at_i = relevant_hits / (i + 1)
+            ap_sum += precision_at_i
+            
+    return ap_sum / len(relevant_ids_set) if relevant_ids_set else 0.0
+
+# --- Helper functions for loading data ---
+
+def load_queries_from_uin(uin_file_path):
+    """Loads queries from the UIN file."""
+    queries = []
+    try:
+        with open(uin_file_path, 'r', encoding='utf-8') as f:
+            lines = f.readlines()
+            i = 0
+            while i < len(lines):
+                line = lines[i].strip()
+                if line.startswith("Query:"):
+                    if i + 1 < len(lines):
+                        query_text = lines[i+1].strip()
+                        if query_text:
+                            queries.append(query_text)
+                        i += 1 
+                i += 1
+    except FileNotFoundError:
+        print(f"ERROR: uin.txt not found at {uin_file_path}")
+    return queries
+
+def load_relevance_judgments(judged_pool_file_path):
+    """Loads relevance judgments from JudgedPool.json."""
+    try:
+        with open(judged_pool_file_path, 'r', encoding='utf-8') as f:
+            judgments = json.load(f)
+        # Convert doc IDs in judgments to strings for consistency
+        processed_judgments = {}
+        for query, doc_relevance_map in judgments.items():
+            processed_judgments[query] = {str(doc_id): relevance for doc_id, relevance in doc_relevance_map.items()}
+        return processed_judgments
+    except FileNotFoundError:
+        print(f"ERROR: JudgedPool.json not found at {judged_pool_file_path}. Please run judge_pool.py first.")
+        return None
+    except json.JSONDecodeError:
+        print(f"ERROR: Could not decode JSON from {judged_pool_file_path}")
+        return None
+
+# --- Main Benchmarking Logic ---
+
+def run_benchmarks():
+    """Runs the full benchmark suite."""
+    if not ENGINES_AVAILABLE:
+        print("Search engine modules not available. Aborting benchmark.")
+        return
+
+    if pylucene_initialize_jvm:
+        try:
+            if not lucene.getVMEnv():
+                pylucene_initialize_jvm()
+                print("JVM initialized by benchmark.py.")
+            else:
+                env = lucene.getVMEnv()
+                env.attachCurrentThread() # Ensure thread is attached
+                print("JVM was already initialized. Attached current thread for benchmark.py.")
+        except Exception as e:
+            print(f"Could not initialize/attach JVM for PyLucene: {e}")
+            traceback.print_exc()
+            # Decide if PyLucene should be skipped or abort
+            # For now, we'll let it try and fail later if pylucene_searcher is None
+
+    create_plot_directories()
+    queries = load_queries_from_uin(UIN_FILE_PATH)
+    judgments = load_relevance_judgments(JUDGED_POOL_FILE_PATH)
+
+    if not queries or not judgments:
+        print("Missing queries or judgments. Aborting benchmark.")
+        return
+
+    k_values = [5, 10, 20]
+    all_engine_results_summary = {} # For benchmark_results.json
+    
+    # --- PyLucene Benchmark ---
+    pylucene_searcher = None
+    if IndexSearcher: # Check if Lucene components were imported
+        try:
+            print(f"Attempting to open PyLucene index at: {PYLUCENE_INDEX_PATH}")
+            if PYLUCENE_INDEX_PATH.exists() and PYLUCENE_INDEX_PATH.is_dir():
+                directory = FSDirectory.open(JavaPaths.get(str(PYLUCENE_INDEX_PATH)))
+                if DirectoryReader.indexExists(directory):
+                    reader = DirectoryReader.open(directory)
+                    pylucene_searcher = IndexSearcher(reader)
+                    print("PyLucene Searcher opened successfully.")
+                else:
+                    print(f"No valid PyLucene index found at {PYLUCENE_INDEX_PATH}.")
+            else:
+                print(f"PyLucene index directory does not exist: {PYLUCENE_INDEX_PATH}")
+        except Exception as e:
+            print(f"Error opening PyLucene index: {e}")
+            traceback.print_exc()
+
+    if pylucene_search_documents and pylucene_searcher:
+        print("\n--- Benchmarking PyLucene ---")
+        engine_name = "PyLucene"
+        # Using BM25 as default, can be made configurable
+        ranking_type = "BM25" 
+        
+        query_aps = []
+        query_response_times = []
+        query_precisions = {k: [] for k in k_values}
+        query_recalls = {k: [] for k in k_values}
+
+        for query_idx, query_string in enumerate(queries):
+            print(f"  Query {query_idx+1}/{len(queries)}: {query_string[:60]}...")
+            true_relevant_docs_map = judgments.get(query_string, {})
+            true_relevant_ids_set = {doc_id for doc_id, rel in true_relevant_docs_map.items() if rel == 1}
+
+            if not true_relevant_ids_set:
+                print(f"    Warning: No relevant documents found for query '{query_string}' in judgments. Metrics might be 0 or undefined.")
+
+            start_time = time.time()
+            # Assuming pylucene_search_documents returns (results_obj, time_taken_internal, error_msg)
+            # and results_obj has .scoreDocs
+            # The boolean flags are for searching in content, title, description respectively.
+            search_results_obj, _, _ = pylucene_search_documents(pylucene_searcher, True, True, True, query_string, ranking_type)
+            response_time = time.time() - start_time
+            query_response_times.append(response_time)
+
+            retrieved_doc_ids = []
+            if search_results_obj and hasattr(search_results_obj, 'scoreDocs'):
+                for hit in search_results_obj.scoreDocs:
+                    doc = pylucene_searcher.storedFields().document(hit.doc)
+                    retrieved_doc_ids.append(str(doc.get("id")))
+            
+            ap = calculate_average_precision(retrieved_doc_ids, true_relevant_ids_set)
+            query_aps.append(ap)
+
+            for k in k_values:
+                p_at_k = calculate_precision_at_k(retrieved_doc_ids, true_relevant_ids_set, k)
+                r_at_k = calculate_recall_at_k(retrieved_doc_ids, true_relevant_ids_set, k)
+                query_precisions[k].append(p_at_k)
+                query_recalls[k].append(r_at_k)
+
+        # Aggregate metrics for PyLucene
+        all_engine_results_summary[engine_name] = {
+            "MAP": np.mean(query_aps) if query_aps else 0.0,
+            "AvgResponseTime": np.mean(query_response_times) if query_response_times else 0.0,
+        }
+        for k in k_values:
+            all_engine_results_summary[engine_name][f"MeanP@{k}"] = np.mean(query_precisions[k]) if query_precisions[k] else 0.0
+            all_engine_results_summary[engine_name][f"MeanR@{k}"] = np.mean(query_recalls[k]) if query_recalls[k] else 0.0
+        
+        pylucene_plot_metrics = {"AP": query_aps, "ResponseTimes": query_response_times, "P@k": query_precisions, "R@k": query_recalls}
+        plot_precision_recall_metrics(pylucene_plot_metrics, engine_name, k_values)
+    else:
+        print("\nSkipping PyLucene benchmark: searcher or search function not available.")
+
+    # --- Whoosh Benchmark ---
+    whoosh_ix = None
+    if WHOOSH_LIB_AVAILABLE and whoosh_open_dir_lib:
+        try:
+            print(f"\nAttempting to open Whoosh index at: {WHOOSH_INDEX_PATH}")
+            if WHOOSH_INDEX_PATH.exists() and WHOOSH_INDEX_PATH.is_dir():
+                whoosh_ix = whoosh_open_dir_lib(str(WHOOSH_INDEX_PATH))
+                print(f"Whoosh index opened successfully. Documents: {whoosh_ix.doc_count()}")
+            else:
+                print(f"Whoosh index directory does not exist: {WHOOSH_INDEX_PATH}")
+        except WhooshEmptyIndexError_lib:
+            print(f"Whoosh index at {WHOOSH_INDEX_PATH} is empty.")
+        except Exception as e:
+            print(f"Error opening Whoosh index: {e}")
+            traceback.print_exc()
+    
+    if whoosh_search_documents and whoosh_ix:
+        print("\n--- Benchmarking Whoosh ---")
+        engine_name = "Whoosh"
+        ranking_type = "BM25F" # Default for Whoosh
+
+        query_aps = []
+        query_response_times = []
+        query_precisions = {k: [] for k in k_values}
+        query_recalls = {k: [] for k in k_values}
+
+        with whoosh_ix.searcher() as whoosh_searcher_obj: # Ensure searcher is closed
+            for query_idx, query_string in enumerate(queries):
+                print(f"  Query {query_idx+1}/{len(queries)}: {query_string[:60]}...")
+                true_relevant_docs_map = judgments.get(query_string, {})
+                true_relevant_ids_set = {doc_id for doc_id, rel in true_relevant_docs_map.items() if rel == 1}
+
+                if not true_relevant_ids_set:
+                     print(f"    Warning: No relevant documents found for query '{query_string}' in judgments.")
+
+                start_time = time.time()
+                # whoosh_search_documents is expected to take index path string or searcher object.
+                # Let's assume it's designed like in create_pool.py (takes index path string)
+                # If it takes a searcher, adjust call: whoosh_search_documents(whoosh_searcher_obj, ...)
+                # The boolean flags are for searching in content, title, description respectively.
+                # The function in create_pool.py returns list of (id, title, score)
+                search_results_list = whoosh_search_documents(str(WHOOSH_INDEX_PATH), query_string, True, True, True, ranking_type)
+                response_time = time.time() - start_time
+                query_response_times.append(response_time)
+
+                retrieved_doc_ids = [str(r[0]) for r in search_results_list] if search_results_list else []
+                
+                ap = calculate_average_precision(retrieved_doc_ids, true_relevant_ids_set)
+                query_aps.append(ap)
+
+                for k in k_values:
+                    p_at_k = calculate_precision_at_k(retrieved_doc_ids, true_relevant_ids_set, k)
+                    r_at_k = calculate_recall_at_k(retrieved_doc_ids, true_relevant_ids_set, k)
+                    query_precisions[k].append(p_at_k)
+                    query_recalls[k].append(r_at_k)
+
+        all_engine_results_summary[engine_name] = {
+            "MAP": np.mean(query_aps) if query_aps else 0.0,
+            "AvgResponseTime": np.mean(query_response_times) if query_response_times else 0.0,
+        }
+        for k in k_values:
+            all_engine_results_summary[engine_name][f"MeanP@{k}"] = np.mean(query_precisions[k]) if query_precisions[k] else 0.0
+            all_engine_results_summary[engine_name][f"MeanR@{k}"] = np.mean(query_recalls[k]) if query_recalls[k] else 0.0
+        
+        whoosh_plot_metrics = {"AP": query_aps, "ResponseTimes": query_response_times, "P@k": query_precisions, "R@k": query_recalls}
+        plot_precision_recall_metrics(whoosh_plot_metrics, engine_name, k_values)
+    else:
+        print("\nSkipping Whoosh benchmark: index or search function not available.")
+
+    # --- PostgreSQL Benchmark ---
+    if postgres_search:
+        print("\n--- Benchmarking PostgreSQL ---")
+        engine_name = "PostgreSQL"
+        ranking_type = "ts_rank_cd" # Default for PostgreSQL
+
+        query_aps = []
+        query_response_times = []
+        query_precisions = {k: [] for k in k_values}
+        query_recalls = {k: [] for k in k_values}
+
+        for query_idx, query_string in enumerate(queries):
+            print(f"  Query {query_idx+1}/{len(queries)}: {query_string[:60]}...")
+            true_relevant_docs_map = judgments.get(query_string, {})
+            true_relevant_ids_set = {doc_id for doc_id, rel in true_relevant_docs_map.items() if rel == 1}
+            
+            if not true_relevant_ids_set:
+                 print(f"    Warning: No relevant documents found for query '{query_string}' in judgments.")
+
+            start_time = time.time()
+            # postgres_search is expected to return list of (id, title, score, date)
+            # The boolean flags are for searching in content, title, description respectively.
+            search_results_list = postgres_search(query_string, True, True, True, ranking_type)
+            response_time = time.time() - start_time
+            query_response_times.append(response_time)
+
+            retrieved_doc_ids = [str(r[0]) for r in search_results_list] if search_results_list else []
+
+            ap = calculate_average_precision(retrieved_doc_ids, true_relevant_ids_set)
+            query_aps.append(ap)
+
+            for k in k_values:
+                p_at_k = calculate_precision_at_k(retrieved_doc_ids, true_relevant_ids_set, k)
+                r_at_k = calculate_recall_at_k(retrieved_doc_ids, true_relevant_ids_set, k)
+                query_precisions[k].append(p_at_k)
+                query_recalls[k].append(r_at_k)
+        
+        all_engine_results_summary[engine_name] = {
+            "MAP": np.mean(query_aps) if query_aps else 0.0,
+            "AvgResponseTime": np.mean(query_response_times) if query_response_times else 0.0,
+        }
+        for k in k_values:
+            all_engine_results_summary[engine_name][f"MeanP@{k}"] = np.mean(query_precisions[k]) if query_precisions[k] else 0.0
+            all_engine_results_summary[engine_name][f"MeanR@{k}"] = np.mean(query_recalls[k]) if query_recalls[k] else 0.0
+
+        postgres_plot_metrics = {"AP": query_aps, "ResponseTimes": query_response_times, "P@k": query_precisions, "R@k": query_recalls}
+        plot_precision_recall_metrics(postgres_plot_metrics, engine_name, k_values)
+    else:
+        print("\nSkipping PostgreSQL benchmark: search function not available.")
+
+    # Save aggregated results to JSON file
+    try:
+        BENCHMARK_RESULTS_FILE.parent.mkdir(parents=True, exist_ok=True)
+        with open(BENCHMARK_RESULTS_FILE, 'w', encoding='utf-8') as f:
+            json.dump(all_engine_results_summary, f, indent=2, ensure_ascii=False)
+        print(f"\nBenchmark results saved to: {BENCHMARK_RESULTS_FILE}")
+    except IOError as e:
+        print(f"Error writing benchmark results to {BENCHMARK_RESULTS_FILE}: {e}")
+
+    # Generate comparative plots if there are results
+    if all_engine_results_summary:
+        plot_comparative_analysis(all_engine_results_summary, k_values)
+    else:
+        print("\nNo engine results to generate comparative plots.")
+    
+    print("\nBenchmark run complete.")
+
+
+if __name__ == "__main__":
+    print(f"Running benchmark.py from: {Path(__file__).resolve()}")
+    print(f"Project root: {PROJECT_ROOT}")
+    run_benchmarks()
